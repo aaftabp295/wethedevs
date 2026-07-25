@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { Search } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Nav } from '@/components/layout/nav';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { SearchDialog } from '@/components/search/search-dialog';
 
 export function Header() {
   return (
@@ -22,13 +22,7 @@ export function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/search"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background transition-colors hover:bg-accent hover:text-accent-foreground"
-            aria-label="Search"
-          >
-            <Search className="h-4 w-4" />
-          </Link>
+          <SearchDialog />
           <ThemeToggle />
           <MobileNav />
         </div>
