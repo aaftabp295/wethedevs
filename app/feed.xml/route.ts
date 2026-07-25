@@ -1,7 +1,22 @@
 import { siteConfig } from '@/lib/site.config';
-import { contentTypeSlugs } from '@/lib/content/content-types.config';
+import { getManifest } from '@/lib/content/manifest';
 
 export async function GET() {
+  const manifest = getManifest();
+
+  const itemsXml = manifest.articles
+    .map(
+      (article) => `
+    <item>
+      <title><![CDATA[${article.title}]]></title>
+      <link>${siteConfig.url}/${article.contentType}/${article.slug}</link>
+      <description><![CDATA[${article.description}]]></description>
+      <pubDate>${new Date(article.publishedAt).toUTCString()}</pubDate>
+      <guid>${siteConfig.url}/${article.contentType}/${article.slug}</guid>
+    </item>`
+    )
+    .join('');
+
   const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2000/svg">
   <channel>
@@ -10,18 +25,7 @@ export async function GET() {
     <description>${siteConfig.description}</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    ${contentTypeSlugs
-      .map(
-        (slug) => `
-    <item>
-      <title>${siteConfig.name} — ${slug.toUpperCase()}</title>
-      <link>${siteConfig.url}/${slug}</link>
-      <description>Explore published ${slug} for software developers.</description>
-      <pubDate>${new Date().toUTCString()}</pubDate>
-      <guid>${siteConfig.url}/${slug}</guid>
-    </item>`
-      )
-      .join('')}
+    ${itemsXml}
   </channel>
 </rss>`;
 

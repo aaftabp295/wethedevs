@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Container } from '@/components/layout/container';
 import { getContentType, contentTypeSlugs } from '@/lib/content/content-types.config';
+import { getManifest } from '@/lib/content/manifest';
+import { ArticleCard } from '@/components/content/article-card';
 import { EmptyState } from '@/components/content/empty-state';
 import { constructMetadata } from '@/lib/seo/metadata';
 
@@ -39,8 +41,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
-  // Articles will be dynamically fetched from content-index.json in Phase 4
-  const articles: [] = [];
+  const manifest = getManifest();
+  const articles = manifest.articles.filter(
+    (article) => article.contentType === contentType
+  );
 
   return (
     <Container className="py-12 sm:py-16">
@@ -58,7 +62,9 @@ export default async function ListingPage({ params }: ListingPageProps) {
       <div className="mt-10">
         {articles.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Render ArticleCard list here in Phase 4 */}
+            {articles.map((article) => (
+              <ArticleCard key={article.slug} article={article} />
+            ))}
           </div>
         ) : (
           <EmptyState
