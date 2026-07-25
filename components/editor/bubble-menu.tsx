@@ -26,6 +26,9 @@ export function EditorBubbleMenu({ editor, onOpenLinkPicker }: BubbleMenuProps) 
   return (
     <TiptapBubbleMenu
       editor={editor}
+      shouldShow={({ editor, from, to }) => {
+        return from !== to && editor.isEditable && !editor.isActive('image');
+      }}
       className="flex items-center gap-0.5 rounded-lg border border-border bg-popover/95 p-1 shadow-lg backdrop-blur-md"
     >
       {/* Bold */}

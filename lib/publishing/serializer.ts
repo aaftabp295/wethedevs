@@ -58,7 +58,14 @@ export function htmlToMarkdown(html: string): string {
     .replace(/<br(?:\s+[^>]*[^\/])?>/gi, '<br />')
     .replace(/<hr(?:\s+[^>]*[^\/])?>/gi, '<hr />');
 
-  // Convert lists FIRST before paragraph expansion
+  // Convert headings FIRST before paragraph expansion (matching any attributes like class or style)
+  output = output
+    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, (_, text) => `# ${text.replace(/<[^>]+>/g, '').trim()}\n\n`)
+    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, (_, text) => `## ${text.replace(/<[^>]+>/g, '').trim()}\n\n`)
+    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, (_, text) => `### ${text.replace(/<[^>]+>/g, '').trim()}\n\n`)
+    .replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, (_, text) => `#### ${text.replace(/<[^>]+>/g, '').trim()}\n\n`);
+
+  // Convert lists
   output = output
     .replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (_, list) => {
       return (
@@ -81,23 +88,19 @@ export function htmlToMarkdown(html: string): string {
       return `- ${cleanItem}\n`;
     });
 
-  // Convert headings, paragraphs, and inline formatting
+  // Convert paragraphs and inline formatting
   output = output
-    .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n')
-    .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n')
-    .replace(/<h3>(.*?)<\/h3>/gi, '### $1\n\n')
-    .replace(/<h4>(.*?)<\/h4>/gi, '#### $1\n\n')
-    .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
+    .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n')
     .replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
     .replace(/<b>(.*?)<\/b>/gi, '**$1**')
     .replace(/<em>(.*?)<\/em>/gi, '*$1*')
     .replace(/<i>(.*?)<\/i>/gi, '*$1*')
     .replace(/<code>(.*?)<\/code>/gi, '`$1`')
-    .replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1\n\n')
+    .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, '> $1\n\n')
     .replace(/<a href="([^"]+)">(.*?)<\/a>/gi, '[$2]($1)')
     .replace(/<img src="([^"]+)" alt="([^"]*)"\s*\/?>/gi, '![$2]($1)\n\n')
     .replace(/<hr\s*\/?>/gi, '---\n\n')
-    .replace(/<\/?(?:ul|ol|li)[^>]*>/gi, '') // Strip any remaining orphan list tags
+    .replace(/<\/?(?:ul|ol|li)[^>]*>/gi, '')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
