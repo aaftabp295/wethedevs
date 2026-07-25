@@ -2,11 +2,9 @@
 
 Build a premium editorial publishing platform for a single publisher.
 
-This is NOT a blog.
-
-This is NOT WordPress.
-
-This is NOT a CMS.
+This is **NOT** a blog.
+This is **NOT** WordPress.
+This is **NOT** a CMS.
 
 It is a Git-backed publishing platform that combines:
 
@@ -18,38 +16,36 @@ It is a Git-backed publishing platform that combines:
 - Enterprise-grade architecture
 - Future extensibility
 
-Primary goals:
+**Primary goals:**
 
-- Fast
-- Beautiful
-- SEO-first
-- Maintainable
-- Extensible
-- Minimal dependencies
-- Low infrastructure cost
+1. Fast
+2. Beautiful
+3. SEO-first
+4. Maintainable
+5. Extensible
+6. Minimal dependencies
+7. Low infrastructure cost
 
 ---
 
 # DESIGN PHILOSOPHY
 
-Everything revolves around content.
+Everything revolves around content. The interface should disappear while reading.
 
-The interface should disappear while reading.
+**Think:**
 
-Think:
+- Medium
+- Apple Documentation
+- Stripe Docs
+- Vercel Docs
 
-Medium
-Apple Documentation
-Stripe Docs
-Vercel Docs
+**NOT:**
 
-NOT
+- WordPress
+- Bootstrap templates
+- Dashboard-heavy websites
 
-WordPress
-Bootstrap templates
-Dashboard-heavy websites
-
-Principles:
+**Principles:**
 
 - Typography first
 - Whitespace first
@@ -63,7 +59,7 @@ Principles:
 
 # TARGET USERS
 
-Author
+**Author:**
 
 - Single administrator
 - Writes articles
@@ -71,7 +67,7 @@ Author
 - Never uses Git
 - Never commits code
 
-Reader
+**Reader:**
 
 - Reads
 - Searches
@@ -84,208 +80,169 @@ Nothing else.
 
 # CORE TECH STACK
 
-Framework
+**Framework:**
 
 - Next.js App Router
 - React
 - TypeScript
 
-Styling
+**Styling:**
 
 - Tailwind CSS v4
 - shadcn/ui
 
-Icons
+**Icons:**
 
 - Lucide
 
-Animation
+**Animation:**
 
 - Motion
 
-Editor
+**Editor:**
 
-- Tiptap
-- Custom UI
+- Tiptap with custom UI
 
-Authentication
+**Authentication:**
 
-- Auth.js
+- Auth.js (JWT-only strategy)
+- Single admin credential via environment variables (`ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`)
+- No database adapter required — hardcoded single-user, JWT session
+- Provider: Credentials provider only
 
-Forms
+**Forms:**
 
-- React Hook Form
-- Zod
+- Zod for validation
+- Native form handling with Server Actions
+- No form library — the admin surface is small enough (publish sidebar, settings) to handle natively
 
-State
+**State:**
 
-Local:
-React
+- `useState` / `useReducer` — component-local state
+- `React.Context` — theme, auth session, editor instance
+- No external state library — the UI state surface (sidebar open, modal visible, editor focus) is minimal for a single-publisher platform
+- Server Components handle all data fetching; no client-side cache layer needed
 
-UI:
-Zustand
-
-Server:
-TanStack Query
-
-Context:
-Theme
-Auth
-Editor
-
-Theme
+**Theme:**
 
 - next-themes
 
-Deployment
+**Deployment:**
 
-GitHub
+- GitHub → Vercel
 
-↓
+**Analytics:**
 
-Vercel
+- Cloudflare Web Analytics
+- Google Search Console
+- Bing Webmaster Tools
 
-Analytics
+**Search:**
 
-Cloudflare Web Analytics
+- Pagefind (primary — indexes static HTML at build time)
+- Fuse.js (dev-mode fallback and admin-side search)
+- Accessible via both `Cmd+K` modal overlay (any page) and dedicated `/search` page
 
-Search Console
+> **Note:** All article pages must use `generateStaticParams` to produce static HTML for Pagefind indexing. Fuse.js serves as the fallback during development and for admin-panel search where Pagefind indices are unavailable.
 
-Bing Webmaster
+**Image Processing:**
 
-Search
+- Next.js `<Image>` component for all rendered images
+- Sharp (built into Next.js) for build-time optimization
+- WebP as the default format for all covers and content images
+- Maximum dimensions: 1200px width for content images, 1920px for hero/cover images
+- All images co-located with their article in the content folder
 
-Pagefind
+**MDX Processing:**
 
-Fallback
-
-Fuse.js
+- `@next/mdx` with dynamic imports for loading content from the `content/` directory
+- Custom MDX components defined in root `mdx-components.tsx`
+- Frontmatter handled via MDX exports (no gray-matter needed)
+- No `next-mdx-remote` or `contentlayer` — `@next/mdx` is the Next.js-recommended approach
 
 ---
 
 # NEVER USE
 
-Redux
-
-MobX
-
-Recoil
-
-Prisma
-
-Supabase
-
-Firebase
-
-MongoDB
-
-Postgres
-
-WordPress
-
-TinyMCE
-
-CKEditor
-
-Heavy UI libraries
+- Redux, MobX, Recoil
+- Prisma, Supabase, Firebase, MongoDB, Postgres
+- WordPress, TinyMCE, CKEditor
+- TanStack Query, Zustand, React Hook Form
+- Heavy UI libraries
+- Any database
 
 ---
 
 # PROJECT STRUCTURE
 
+```
 app/
-
+  (public)/          # Public-facing routes (articles, listings, search)
+  (admin)/           # Admin routes (dashboard, editor, settings)
+  api/               # API routes (publish, git operations)
 components/
-
-editor/
-
-content/
-
-hooks/
-
+  ui/                # shadcn/ui primitives (Button, Input, Card, etc.)
+  editor/            # Tiptap editor and related components
+  content/           # Article rendering, TOC, breadcrumbs, related
+  layout/            # Header, Footer, Navigation, Container
+hooks/               # Custom React hooks
 lib/
+  content/           # MDX loader, manifest generator, frontmatter parser
+  seo/               # Metadata, JSON-LD, sitemap, RSS, link validation
+  search/            # Pagefind integration, Fuse.js fallback
+  git/               # Git operations (commit, push, status)
+  auth/              # Auth.js configuration
+styles/              # Global CSS, design tokens
+types/               # TypeScript type definitions
+utils/               # Pure utility functions
+scripts/             # Build scripts (manifest generation, search indexing)
+content/             # MDX articles and co-located assets
+public/              # Static assets (fonts, favicon, robots.txt)
+docs/                # Project documentation
+```
 
-seo/
-
-search/
-
-styles/
-
-types/
-
-utils/
-
-scripts/
-
-public/
-
-docs/
-
-Keep folders shallow.
+Keep folders shallow. One level of nesting maximum inside each directory.
 
 ---
 
 # THEMING
 
-Support
+**Modes:**
 
-Light
+- Light
+- Dark
+- System (default)
 
-Dark
+Persist user preference. Use semantic tokens. Never hardcode colors.
 
-System
+**Design Tokens:**
 
-Persist preference.
-
-Use semantic tokens.
-
-Never hardcode colors.
-
-Tokens
-
-Background
-
-Foreground
-
-Primary
-
-Secondary
-
-Muted
-
-Accent
-
-Card
-
-Border
-
-Ring
-
-Success
-
-Warning
-
-Danger
+| Token       | Purpose                        |
+| ----------- | ------------------------------ |
+| Background  | Page and section backgrounds   |
+| Foreground  | Primary text                   |
+| Primary     | Brand color, CTAs              |
+| Secondary   | Secondary actions              |
+| Muted       | Subdued text, placeholders     |
+| Accent      | Highlights, active states      |
+| Card        | Card backgrounds               |
+| Border      | Borders and dividers           |
+| Ring        | Focus rings                    |
+| Success     | Positive feedback              |
+| Warning     | Caution indicators             |
+| Danger      | Errors, destructive actions    |
 
 ---
 
 # TYPOGRAPHY
 
-UI
+| Role    | Font         | Purpose                    |
+| ------- | ------------ | -------------------------- |
+| UI      | Inter        | Navigation, buttons, admin |
+| Article | Newsreader   | Article body text          |
+| Code    | Geist Mono   | Code blocks, inline code   |
 
-Inter
-
-Article
-
-Newsreader
-
-Code
-
-Geist Mono
-
-Reading width
-
-680-720px
+**Reading width:** 680–720px
 
 Content always takes priority over decoration.
 
@@ -293,43 +250,42 @@ Content always takes priority over decoration.
 
 # CONTENT ARCHITECTURE
 
-Everything is content.
+Everything is content. Content belongs to Content Types.
 
-Content belongs to Content Types.
+**Content Types:**
 
-Content Types
+- Alternatives
+- Comparisons
+- Reviews
+- Guides
+- News
+- Resources
 
-Alternatives
+**Content Type Registry** (`lib/content/content-types.config.ts`):
 
-Comparisons
+```ts
+type ContentTypeConfig = {
+  slug: string;           // URL segment (e.g., "alternatives")
+  label: string;          // Display name (e.g., "Alternatives")
+  pluralLabel: string;    // Listing page title
+  icon: string;           // Lucide icon name
+  description: string;    // Meta description for listing page
+  frontmatterSchema: ZodSchema; // Zod schema for validation
+  listingBehavior: {
+    sortBy: 'publishedAt' | 'updatedAt' | 'title';
+    sortOrder: 'asc' | 'desc';
+    perPage: number;
+  };
+};
+```
 
-Reviews
+Future content types are added by extending this config. Never hardcode content type logic.
 
-Guides
+**Topics** are metadata only:
 
-News
-
-Resources
-
-Future content types must be configurable.
-
-Never hardcode.
-
-Topics are metadata.
-
-Examples
-
-AI Coding
-
-Writing
-
-Image Generation
-
-Research
-
-Automation
-
-Topics are NOT part of URLs.
+- AI Coding, Writing, Image Generation, Research, Automation, etc.
+- Topics are **NOT** part of URLs
+- Used for filtering, breadcrumbs, and related articles
 
 ---
 
@@ -337,21 +293,17 @@ Topics are NOT part of URLs.
 
 Keep URLs shallow.
 
-Good
+**Good:**
 
-/alternatives/cursor
+- `/alternatives/cursor`
+- `/comparisons/chatgpt-vs-claude`
+- `/reviews/cursor`
+- `/guides/how-to-use-cursor`
 
-/comparisons/chatgpt-vs-claude
+**Bad:**
 
-/reviews/cursor
-
-/guides/how-to-use-cursor
-
-Bad
-
-/blog/post
-
-/ai-coding/alternatives/cursor
+- `/blog/post`
+- `/ai-coding/alternatives/cursor`
 
 Never include topics in URLs.
 
@@ -359,901 +311,589 @@ Never include topics in URLs.
 
 # CONTENT FOLDER
 
+```
 content/
+  alternatives/
+    cursor/
+      article.mdx
+      cover.webp
+      assets/           # Additional images for this article
+  comparisons/
+    cursor-vs-windsurf/
+      article.mdx
+      cover.webp
+```
 
-alternatives/
-
-cursor/
-
-article.mdx
-
-cover.webp
-
-comparison/
-
-cursor-vs-windsurf/
-
-article.mdx
-
-Every article owns its assets.
+Every article owns its assets. No shared image folders.
 
 ---
 
 # ARTICLE FRONTMATTER
 
-title
+```yaml
+title: string           # Required
+description: string     # Required — used for meta description
+slug: string            # Required — URL segment
+contentType: string     # Required — must match a registered content type
+topic: string           # Required — metadata only, not in URL
+tags: string[]          # Optional — for filtering and related articles
+cover: string           # Optional — relative path to cover image
+publishedAt: string     # Required — ISO 8601 date
+updatedAt: string       # Optional — ISO 8601 date
+draft: boolean          # Default: false
+featured: boolean       # Default: false
+canonical: string       # Optional — canonical URL if republished
+author: string          # Default: site author from config
+```
 
-description
-
-slug
-
-contentType
-
-topic
-
-tags
-
-cover
-
-publishedAt
-
-updatedAt
-
-draft
-
-featured
-
-canonical
-
-author
+All frontmatter is validated against the content type's Zod schema at build time. Invalid frontmatter fails the build.
 
 ---
 
 # CONTENT MANIFEST
 
-Every build generates
+Every build generates `content-index.json`.
 
-content-index.json
+**Contains:**
 
-Contains
+- Title, Slug, Content Type, Topic, Tags
+- Description, Headings, Links
+- Cover path, Reading Time
+- Internal link graph (outgoing links per article)
 
-Title
-
-Slug
-
-Content Type
-
-Topic
-
-Tags
-
-Description
-
-Headings
-
-Links
-
-Cover
-
-Reading Time
-
-Everything in the application consumes this manifest.
-
-Never scan MDX repeatedly.
+Everything in the application consumes this manifest. Never scan MDX files at runtime.
 
 ---
 
 # WEBSITE
 
-Public pages
+**Public pages:**
 
-/
-
-Alternatives
-
-Comparisons
-
-Reviews
-
-Guides
-
-News
-
-Resources
-
-Search
-
-About
-
-Privacy
-
-404
+- `/` — Homepage
+- `/alternatives` — Listing
+- `/comparisons` — Listing
+- `/reviews` — Listing
+- `/guides` — Listing
+- `/news` — Listing
+- `/resources` — Listing
+- `/search` — Search
+- `/about` — About
+- `/privacy` — Privacy Policy
+- `/404` — Not Found
 
 ---
 
 # ARTICLE PAGE
 
-Hero
-
-Author
-
-Published Date
-
-Updated Date
-
-Reading Time
-
-Breadcrumbs
-
-TOC
-
-Article
-
-Share
-
-Related Articles
-
-Previous
-
-Next
-
-Newsletter Placeholder
-
-Comments placeholder
+- Hero (cover image, title)
+- Author, Published Date, Updated Date, Reading Time
+- Breadcrumbs
+- Table of Contents (sticky sidebar on desktop)
+- Article body (MDX rendered via design system components)
+- Share buttons
+- Related Articles (auto-generated)
+- Previous / Next navigation
+- Newsletter placeholder (future)
+- Comments placeholder (future)
 
 ---
 
 # BREADCRUMBS
 
-URLs remain shallow.
+URLs remain shallow. Breadcrumbs derive from metadata, not URL segments.
 
-Breadcrumbs derive from metadata.
+**Example:**
 
-Example
+Home → AI Coding → Alternatives → Cursor
 
-Home
+Topic is metadata only — it appears in breadcrumbs but not in the URL.
 
-↓
-
-AI Coding
-
-↓
-
-Alternatives
-
-↓
-
-Cursor
-
-Topic is metadata only.
-
-Automatically generate Breadcrumb JSON-LD.
+Automatically generate Breadcrumb JSON-LD for every article page.
 
 ---
 
 # SEARCH
 
-Use Pagefind.
+**Primary:** Pagefind (indexes static HTML post-build)
+**Fallback:** Fuse.js (dev mode, admin panel)
 
-Search consumes
+Search consumes `content-index.json` and indexes:
 
-content-index.json
-
-Search by
-
-Title
-
-Description
-
-Tags
-
-Topic
-
-Content Type
-
-Headings
+- Title
+- Description
+- Tags
+- Topic
+- Content Type
+- Headings
 
 ---
 
 # RELATED ARTICLES
 
-Generated automatically.
+Generated automatically at build time. Never maintained manually.
 
-Based on
+**Matching criteria (weighted):**
 
-Topic
-
-Tags
-
-Content Type
-
-Never maintain manually.
+1. Same Topic (highest weight)
+2. Shared Tags
+3. Same Content Type
 
 ---
 
 # INTERNAL LINKING
 
-Inside editor.
+**In-editor flow:**
 
-Highlight text.
-
-Ctrl + K.
-
-Search opens.
-
-Search fields
-
-Title
-
-Slug
-
-Tags
-
-Topic
-
-Content Type
-
-Select article.
-
-Insert link.
+1. Highlight text
+2. `Ctrl + K`
+3. Search modal opens (searches `content-index.json`)
+4. Search by: Title, Slug, Tags, Topic, Content Type
+5. Select article → Insert link
 
 Never paste URLs manually.
 
----
+**Link Inspector (on click):**
 
-# LINK INSPECTOR
+- Edit destination
+- Edit anchor text
+- Remove link
+- Open in new tab
 
-Edit
+**Link Suggestions (editor sidebar):**
 
-Destination
-
-Anchor
-
-Remove
-
-Open in new tab
-
----
-
-# LINK SUGGESTIONS
-
-Editor sidebar.
-
-Suggest relevant internal links while writing.
-
-One-click insertion.
+- Suggest relevant internal links while writing
+- One-click insertion
 
 ---
 
 # SEO ENGINE
 
-Centralized module.
+Centralized module at `lib/seo/`.
 
-Responsible for
+**Responsibilities:**
 
-Metadata
-
-Canonical
-
-OpenGraph
-
-Twitter Cards
-
-JSON-LD
-
-Article Schema
-
-Breadcrumb Schema
-
-FAQ Schema
-
-Robots
-
-RSS
-
-Sitemap
-
-Reading Time
-
-TOC
-
-Related Articles
-
-Internal Links
-
-Broken Links
-
-Orphan Pages
-
-Search Index
+- Metadata generation (title, description, keywords)
+- Canonical URLs
+- OpenGraph tags
+- Twitter Cards
+- JSON-LD (Article, Breadcrumb, FAQ schemas)
+- `robots.txt`
+- RSS feed
+- Sitemap (auto-generated)
+- Reading Time calculation
+- Table of Contents extraction
+- Related Articles computation
+- Internal Link Graph
+- Broken Link Detection (build-time)
+- Orphan Page Detection
 
 ---
 
-# SEO DASHBOARD
+# SEO DASHBOARD (Admin)
 
-Admin
+**Internal Links view:**
 
-SEO
-
-Internal Links
-
-Shows
-
-Incoming Links
-
-Outgoing Links
-
-Broken Links
-
-Orphan Pages
-
-Suggestions
+- Incoming links per article
+- Outgoing links per article
+- Broken links (404s, missing slugs)
+- Orphan pages (no incoming links)
+- Link suggestions
 
 ---
 
 # LINK VALIDATION
 
-During build
+**At build time, validate:**
 
-Validate
+- Broken internal links (target slug doesn't exist)
+- Duplicate slugs across content types
+- Missing required pages
 
-Broken links
-
-Duplicate slugs
-
-Missing pages
-
-Warn or fail build.
+**Behavior:** Warn in development, fail build in production.
 
 ---
 
 # ORPHAN DETECTION
 
-Show pages with
-
-No incoming links.
+Flag pages with zero incoming internal links. Surfaced in the SEO Dashboard.
 
 ---
 
 # ADMIN
 
-Dashboard
+**Routes (`/admin/*`):**
 
-Articles
-
-Drafts
-
-Media
-
-Topics
-
-Content Types
-
-SEO
-
-Settings
+- Dashboard — overview stats
+- Articles — list, filter, sort
+- Drafts — unpublished content
+- Media — uploaded images
+- Topics — manage topic taxonomy
+- Content Types — view registered types
+- SEO — link health, orphan pages
+- Settings — site config, author profile
 
 ---
 
 # EDITOR
 
-Medium inspired.
+Medium-inspired. Not cloned.
 
-Not cloned.
+**Features:**
 
-Features
-
-Large title
-
-Slash menu
-
-Bubble menu
-
-Floating toolbar
-
-Drag & Drop
-
-Paste Images
-
-Tables
-
-Code Blocks
-
-Callouts
-
-Lists
-
-Quotes
-
-Word Count
-
-Reading Time
-
-Autosave
-
-Fullscreen
-
-Link Picker
-
-Link Suggestions
-
-Publish Sidebar
+- Large title input (auto-focus)
+- Slash menu (`/` commands)
+- Bubble menu (inline formatting)
+- Floating toolbar
+- Drag & Drop blocks
+- Paste images (auto-upload to article's asset folder)
+- Tables
+- Code blocks (with syntax highlighting)
+- Callouts / Admonitions
+- Lists (ordered, unordered, task)
+- Block quotes
+- Word count (live)
+- Reading time (live)
+- Autosave (every 30 seconds + on blur)
+- Fullscreen mode
+- Internal Link Picker (`Ctrl + K`)
+- Link Suggestions sidebar
+- Publish Sidebar
 
 ---
 
 # PUBLISH SIDEBAR
 
-Title
-
-Slug
-
-Description
-
-Content Type
-
-Topic
-
-Tags
-
-Cover
-
-Meta Title
-
-Meta Description
-
-Canonical
-
-Draft
-
-Publish
+- Title (editable)
+- Slug (auto-generated, editable)
+- Description
+- Content Type (dropdown from registry)
+- Topic (dropdown)
+- Tags (multi-select / create)
+- Cover image (upload / replace)
+- Meta Title (override)
+- Meta Description (override)
+- Canonical URL
+- Draft toggle
+- **Publish** / **Update** button
 
 ---
 
 # PUBLISH FLOW
 
-Publish
+```
+Author clicks Publish
+       ↓
+Generate MDX from editor content
+       ↓
+Generate / validate frontmatter
+       ↓
+Save assets to content/{type}/{slug}/
+       ↓
+Regenerate content-index.json
+       ↓
+Validate internal links (warn on broken)
+       ↓
+Git commit (via API route → simple-git)
+       ↓
+Git push to GitHub
+       ↓
+Vercel auto-deploys
+       ↓
+Website updated
+```
 
-↓
+---
 
-Generate MDX
+# GIT OPERATIONS
 
-↓
+**Architecture:** Next.js API routes (`app/api/publish/`) using `simple-git` to execute Git commands server-side.
 
-Generate Frontmatter
+**Operations:**
 
-↓
+- `git add` — stage new/modified content files and assets
+- `git commit` — with structured message: `publish: {contentType}/{slug}`
+- `git push` — push to configured remote branch
+- `git status` — check for uncommitted changes (used in admin dashboard)
 
-Save Assets
+**Constraints:**
 
-↓
+- Git operations run server-side only (API routes)
+- The Vercel deployment must have Git credentials configured (deploy key or GitHub App)
+- All Git operations are atomic per article — one commit per publish/update action
+- Failed Git operations surface clear error messages in the admin UI
 
-Generate Content Manifest
+> **Note:** During local development, Git operations work against the local repo. In production on Vercel, this requires a writable filesystem or a separate serverless function that clones, commits, and pushes. This architectural decision should be finalized in Phase 7.
 
-↓
+---
 
-Validate Links
+# ERROR HANDLING & DATA PROTECTION
 
-↓
+**Editor (critical path):**
 
-Git Commit
+- Autosave every 30 seconds to localStorage as fallback
+- Dirty-state detection — warn on navigation (`beforeunload`)
+- Explicit "unsaved changes" indicator in the UI
+- Recovery: on editor mount, check for newer localStorage draft vs. server version
 
-↓
+**Build errors:**
 
-Git Push
+- Invalid frontmatter → fail build with clear error message and file path
+- Broken internal links → warn in dev, fail in production
+- Missing required fields → fail build
+- Duplicate slugs → fail build
 
-↓
+**Runtime errors:**
 
-Vercel Deploy
-
-↓
-
-Website Updated
+- React Error Boundaries at route level (public and admin)
+- Graceful fallback UI for failed article renders
+- Toast notifications for failed admin operations (save, publish, delete)
 
 ---
 
 # STATE MANAGEMENT
 
-React
+| Scope     | Tool                    | Use Case                                        |
+| --------- | ----------------------- | ----------------------------------------------- |
+| Component | `useState` / `useReducer` | Form inputs, toggles, local UI                 |
+| Shared UI | `React.Context`         | Theme, auth session, editor instance             |
+| Server    | Server Components       | All data fetching — articles, listings, config   |
+| Mutations | Server Actions          | Publish, save draft, update settings             |
 
-Component state
+**Rules:**
 
-Zustand
-
-UI state
-
-TanStack Query
-
-Server state
-
-Context
-
-Theme
-
-Auth
-
-Editor
-
-Avoid global state.
+- No external state management libraries
+- Avoid global state — scope state as narrowly as possible
+- Server Components handle all read operations
+- Server Actions handle all write operations
 
 ---
 
 # COMPONENTS
 
-Reusable only.
+All reusable. Sourced from shadcn/ui, customized to match the design system.
 
-Button
+**Primitives:**
 
-Input
-
-Textarea
-
-Card
-
-Dialog
-
-Drawer
-
-Tabs
-
-Badge
-
-Toast
-
-Pagination
-
-Breadcrumb
-
-Avatar
-
-Tooltip
-
-Dropdown
-
-Command
-
-Search
-
-Empty State
-
-Skeleton
-
-Theme Toggle
-
-Container
-
-Typography
+- Button, Input, Textarea, Select
+- Card, Dialog, Drawer, Sheet
+- Tabs, Badge, Toast
+- Pagination, Breadcrumb
+- Avatar, Tooltip, Dropdown
+- Command (search palette)
+- Skeleton, Empty State
+- Theme Toggle
+- Container, Typography (prose wrapper)
 
 ---
 
 # PERFORMANCE
 
-Server Components first.
+- Server Components by default
+- Client Components only when interactivity is required (editor, search, theme toggle)
+- Static Generation for all article and listing pages (`generateStaticParams`)
+- Lazy load heavy features (editor, search modal)
+- Optimize images via Next.js `<Image>` + Sharp
+- Minimize JavaScript sent to the client
 
-Client Components only when necessary.
-
-Static Generation wherever possible.
-
-Lazy load heavy features.
-
-Target
-
-Lighthouse 95+
+**Target:** Lighthouse 95+ across all categories.
 
 ---
 
 # ACCESSIBILITY
 
-Semantic HTML
-
-Keyboard Navigation
-
-Focus States
-
-ARIA
-
-Color Contrast
-
-Screen Reader Support
-
-Heading hierarchy
+- Semantic HTML (`article`, `nav`, `main`, `aside`, `header`, `footer`)
+- Full keyboard navigation
+- Visible focus states
+- ARIA labels and roles where semantic HTML is insufficient
+- Color contrast WCAG AA minimum
+- Screen reader support
+- Proper heading hierarchy (single `h1` per page)
 
 ---
 
 # ENGINEERING RULES
 
-Strict TypeScript
-
-No any
-
-Small components
-
-Composition over inheritance
-
-Meaningful names
-
-No premature optimization
-
-Minimal dependencies
+- Strict TypeScript — no `any`, no `@ts-ignore`
+- Small, focused components
+- Composition over inheritance
+- Meaningful, descriptive names
+- No premature optimization
+- Minimal dependencies — justify every `npm install`
+- Colocate related code (component + styles + types)
 
 ---
 
 # FUTURE READY
 
-Architecture must support
+The architecture must support adding the following **without rewrites:**
 
-Scheduling
+- Scheduled publishing
+- AI writing assistant
+- Affiliate / CTA blocks
+- Newsletter integration
+- Premium / gated articles
+- Public API
+- Cloud storage for media (S3 / R2)
+- Multi-author support
+- Analytics dashboard
 
-AI Assistant
-
-Affiliate blocks
-
-Newsletter
-
-Premium articles
-
-API
-
-Cloud storage
-
-Multi-author
-
-Analytics dashboard
-
-Without rewrites.
+These are NOT implemented now. The architecture simply must not block them.
 
 ---
 
 # IMPLEMENTATION PRINCIPLES
 
-Never implement future phases.
-
-Finish one phase.
-
-Review.
-
-Approve.
-
-Proceed.
-
-Every phase ends with
-
-Architecture summary
-
-Files created
-
-Tradeoffs
-
-Next steps
-
-Wait for approval.
+- Never implement future phases
+- Finish one phase → Review → Approve → Proceed
+- Every phase ends with:
+  - Architecture summary
+  - Files created / modified
+  - Tradeoffs documented
+  - Next steps outlined
+- **Wait for explicit approval before proceeding**
 
 ---
 
-# PHASE 0
+# PHASE 0 — Architecture Blueprint
 
-Architecture Blueprint
+**Deliver:**
 
-Deliver
+- Folder tree (final)
+- Route definitions
+- TypeScript types and interfaces
+- Zod schemas (frontmatter, content type config)
+- Dependency graph
+- State boundaries
+- Data flow diagram
+- Design tokens (CSS custom properties)
+- Component inventory
+- Content model
 
-Folder tree
-
-Routes
-
-Types
-
-Schemas
-
-Dependency graph
-
-State boundaries
-
-Data flow
-
-Design tokens
-
-Component inventory
-
-Content model
-
-No implementation.
-
-STOP.
+**No implementation. STOP.**
 
 ---
 
-# PHASE 1
+# PHASE 1 — Foundation
 
-Foundation
+- Next.js project setup
+- TypeScript configuration (strict)
+- Tailwind CSS v4 configuration
+- shadcn/ui initialization
+- Theme system (light/dark/system)
+- Navigation (header)
+- Footer
+- SEO foundation (metadata, robots, sitemap scaffold)
+- Linting and formatting (ESLint, Prettier)
+- Project structure scaffolded
 
-Next.js
-
-TypeScript
-
-Tailwind
-
-shadcn
-
-Theme
-
-Navigation
-
-Footer
-
-SEO foundation
-
-Tooling
-
-STOP.
+**STOP.**
 
 ---
 
-# PHASE 2
+# PHASE 2 — Design System
 
-Design System
+- All reusable UI components (from component inventory)
+- No business logic in this phase
+- Storybook or dedicated preview page for visual verification
 
-All reusable UI.
-
-No business logic.
-
-STOP.
+**STOP.**
 
 ---
 
-# PHASE 3
+# PHASE 3 — Public Website
 
-Public Website
+- Page layouts (public shell, article layout)
+- Homepage
+- Listing pages (per content type)
+- Dynamic article pages (`/[contentType]/[slug]`)
+- Search UI (Pagefind integration)
+- Breadcrumbs
+- Table of Contents
+- RSS feed
+- Sitemap (auto-generated)
+- Full metadata (OpenGraph, Twitter, JSON-LD)
+- Responsive design (mobile-first)
 
-Layouts
-
-Homepage
-
-Listing pages
-
-Dynamic article pages
-
-Search UI
-
-Breadcrumbs
-
-TOC
-
-RSS
-
-Sitemap
-
-Metadata
-
-Responsive design
-
-STOP.
+**STOP.**
 
 ---
 
-# PHASE 4
+# PHASE 4 — Content Engine
 
-Content Engine
+- MDX loader (`next-mdx-remote/rsc`)
+- Frontmatter parser + Zod validation
+- Content Manifest Generator (`content-index.json`)
+- Reading Time calculation
+- Syntax highlighting (code blocks)
+- Related Articles engine
+- Search indexing (Pagefind build step)
+- Internal Link Graph builder
+- Broken Link Detection (build-time)
+- Orphan Page Detection
 
-MDX loader
-
-Frontmatter parser
-
-Content Manifest Generator
-
-Reading Time
-
-Syntax Highlighting
-
-Related Articles
-
-Search indexing
-
-Internal Link Graph
-
-Broken Link Detection
-
-Orphan Detection
-
-STOP.
+**STOP.**
 
 ---
 
-# PHASE 5
+# PHASE 5 — Authentication & Admin
 
-Authentication & Admin
+- Auth.js setup (JWT + Credentials provider)
+- Admin layout and navigation
+- Dashboard (overview)
+- Articles management
+- Drafts management
+- Media library
+- Topics management
+- Content Types view
+- SEO dashboard (links, orphans)
+- Settings page
 
-Auth.js
-
-Dashboard
-
-Articles
-
-Drafts
-
-Media
-
-Topics
-
-Content Types
-
-SEO
-
-Settings
-
-STOP.
+**STOP.**
 
 ---
 
-# PHASE 6
+# PHASE 6 — Editor
 
-Editor
+- Tiptap editor (full setup)
+- Slash menu, Floating menu, Bubble menu
+- Image upload (paste + drag, co-located with article)
+- Autosave (30s interval + blur + localStorage fallback)
+- Dirty-state detection and navigation warning
+- Word count and reading time (live)
+- Internal Link Picker (`Ctrl + K`)
+- Link Suggestions sidebar
+- Publish sidebar (all frontmatter fields)
 
-Complete Tiptap
-
-Slash menu
-
-Floating menu
-
-Bubble menu
-
-Image upload
-
-Autosave
-
-Word count
-
-Reading time
-
-Internal Link Picker
-
-Link Suggestions
-
-Publish sidebar
-
-STOP.
+**STOP.**
 
 ---
 
-# PHASE 7
+# PHASE 7 — Publishing Pipeline
 
-Publishing
+- MDX generation from editor state
+- Frontmatter generation from publish sidebar
+- Content manifest regeneration
+- Link validation (pre-publish)
+- Git operations (commit, push via `simple-git`)
+- Deploy trigger (Vercel auto-deploy on push)
+- Success/failure notifications in admin UI
+- Finalize production Git strategy (local repo vs. clone-commit-push)
 
-Generate MDX
-
-Generate Manifest
-
-Validate Links
-
-Git Commit
-
-Git Push
-
-Deploy
-
-Notifications
-
-STOP.
+**STOP.**
 
 ---
 
-# PHASE 8
+# PHASE 8 — Polish & Launch
 
-Polish
+- Accessibility audit and fixes
+- Performance audit (Lighthouse 95+ target)
+- Error Boundaries at all route levels
+- Loading states and skeletons for all async UI
+- SEO audit (validate all structured data, meta tags)
+- Responsive audit (test all breakpoints)
+- Documentation (README, contribution guide, architecture summary)
 
-Accessibility
-
-Performance
-
-Error Boundaries
-
-Loading States
-
-SEO Audit
-
-Responsive Audit
-
-Documentation
-
-Project Complete.
+**Project complete.**
 
 ---
 
@@ -1261,7 +901,7 @@ Project Complete.
 
 You are acting as a Staff Software Engineer.
 
-Optimize for:
+**Optimize for (in order):**
 
 1. Maintainability
 2. Simplicity
@@ -1270,20 +910,14 @@ Optimize for:
 5. SEO
 6. Developer Experience
 
-Always explain architectural decisions.
+**Rules:**
 
-Never introduce dependencies without justification.
-
-Prefer Server Components.
-
-Prefer composition.
-
-Build reusable systems.
-
-Keep codebase clean.
-
-Think in systems, not pages.
-
-Never break existing architecture.
-
-Treat this document as the canonical source of truth throughout development.
+- Always explain architectural decisions
+- Never introduce dependencies without justification
+- Prefer Server Components
+- Prefer composition
+- Build reusable systems
+- Keep codebase clean
+- Think in systems, not pages
+- Never break existing architecture
+- Treat this document as the **canonical source of truth** throughout development
