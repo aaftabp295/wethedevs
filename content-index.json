@@ -1,6 +1,76 @@
 {
   "articles": [
     {
+      "title": "Best Lovable Alternatives in 2026 (Tested & Compared)",
+      "slug": "lovable-alternatives",
+      "contentType": "alternatives",
+      "topic": "AI Coding",
+      "tags": [
+        "lovable",
+        "lovable-alternatives",
+        "alternative-to-replit",
+        "lovable-vs-bolt",
+        "lovable-vs-replit"
+      ],
+      "description": "6 Lovable alternatives compared for developers who've outgrown vibe-coding prototypes — real pricing, code ownership, and where each one breaks.",
+      "headings": [
+        {
+          "id": "quick-comparison-table",
+          "text": "Quick comparison table",
+          "level": 2
+        },
+        {
+          "id": "which-alternative-should-you-actually-pick",
+          "text": "Which alternative should you actually pick?",
+          "level": 2
+        },
+        {
+          "id": "boltnew-the-closest-thing-to-a-11-lovable-swap",
+          "text": "Bolt.new — the closest thing to a 1:1 Lovable swap",
+          "level": 2
+        },
+        {
+          "id": "v0-by-vercel-for-people-who-dont-want-to-build-ui-from-a-blank-page",
+          "text": "v0 by Vercel — for people who don't want to build UI from a blank page",
+          "level": 2
+        },
+        {
+          "id": "cursor-when-youve-outgrown-generate-the-whole-app-and-need-an-actual-dev-tool",
+          "text": "Cursor — when you've outgrown \"generate the whole app\" and need an actual dev tool",
+          "level": 2
+        },
+        {
+          "id": "replit-the-hosted-ide-route",
+          "text": "Replit — the hosted-IDE route",
+          "level": 2
+        },
+        {
+          "id": "bubble-the-mature-no-code-option-with-a-real-backend",
+          "text": "Bubble — the mature no-code option with a real backend",
+          "level": 2
+        },
+        {
+          "id": "base44-for-non-technical-founders-who-want-the-backend-handled",
+          "text": "Base44 — for non-technical founders who want the backend handled",
+          "level": 2
+        },
+        {
+          "id": "frequently-asked-questions",
+          "text": "Frequently asked questions",
+          "level": 2
+        },
+        {
+          "id": "the-bottom-line",
+          "text": "The bottom line",
+          "level": 2
+        }
+      ],
+      "readingTime": 12,
+      "publishedAt": "2026-07-25T15:59:01.326Z",
+      "featured": false,
+      "outgoingLinks": []
+    },
+    {
       "title": "ChatGPT vs Claude for Software Engineers",
       "slug": "chatgpt-vs-claude",
       "contentType": "comparisons",
@@ -106,5 +176,5 @@
       "outgoingLinks": []
     }
   ],
-  "generatedAt": "2026-07-25T15:56:47.223Z"
+  "generatedAt": "2026-07-25T16:03:30.366Z"
 }

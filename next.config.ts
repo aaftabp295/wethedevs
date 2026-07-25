@@ -9,7 +9,10 @@ const nextConfig: NextConfig = {
 };
 
 const withMDX = createMDX({
-  // Add remark/rehype plugins here in Phase 4
+  options: {
+    remarkPlugins: ['remark-frontmatter', 'remark-gfm'],
+    rehypePlugins: [],
+  },
 });
 
 export default withMDX(nextConfig);

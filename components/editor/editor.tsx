@@ -10,6 +10,7 @@ import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { Placeholder } from '@tiptap/extension-placeholder';
+import { Underline } from '@tiptap/extension-underline';
 
 import { Toolbar } from './toolbar';
 import { LinkPicker } from './link-picker';
@@ -61,6 +62,7 @@ export function EditorComponent({
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Underline,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: { class: 'text-primary underline' },
@@ -130,12 +132,34 @@ export function EditorComponent({
     setIsPublishing(true);
 
     try {
-      // API payload dispatch in Phase 7
+      const payload = {
+        ...publishState,
+        contentHtml: editor?.getHTML() || '',
+      };
+
+      const res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const detailMsg = Array.isArray(data.details)
+          ? data.details.join(', ')
+          : data.details || data.error || 'Failed to publish article';
+        throw new Error(detailMsg);
+      }
+
       saveToLocal({ ...editorState, isDirty: false });
       setIsDirty(false);
       router.push('/admin/articles');
-    } catch {
-      // Error boundary handles API issues
+      router.refresh();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Publish error';
+      console.error('Publish error:', message);
+      alert(`Publishing failed: ${message}`);
     } finally {
       setIsPublishing(false);
     }

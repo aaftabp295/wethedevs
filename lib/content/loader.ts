@@ -66,3 +66,23 @@ export function articleToManifestEntry(article: Article): ManifestEntry {
     outgoingLinks,
   };
 }
+
+export function getArticleBySlug(contentType: string, slug: string): Article | null {
+  const articlePath = path.join(CONTENT_DIR, contentType, slug, 'article.mdx');
+  if (!fs.existsSync(articlePath)) return null;
+
+  const raw = fs.readFileSync(articlePath, 'utf-8');
+  const { data, content } = matter(raw);
+
+  const frontmatter = parseFrontmatter(data);
+  const { words, minutes } = calculateReadingTime(content);
+  const headings = extractHeadings(content);
+
+  return {
+    ...frontmatter,
+    content,
+    readingTime: minutes,
+    wordCount: words,
+    headings,
+  };
+}

@@ -174,3 +174,34 @@ body {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
+
+/* ─── Prose Table Styling ─── */
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  overflow-x: auto;
+  display: block;
+}
+
+.prose th,
+.prose td {
+  padding: 0.75rem 1rem;
+  border: 1px solid hsl(var(--border));
+  text-align: left;
+}
+
+.prose th {
+  background-color: hsl(var(--muted));
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.prose tr:nth-child(even) td {
+  background-color: hsl(var(--muted) / 0.3);
+}
+

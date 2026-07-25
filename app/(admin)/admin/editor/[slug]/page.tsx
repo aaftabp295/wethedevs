@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getManifest } from '@/lib/content/manifest';
+import { getArticleBySlug } from '@/lib/content/loader';
 import { EditorComponent } from '@/components/editor/editor';
 
 interface EditArticlePageProps {
@@ -9,25 +10,29 @@ interface EditArticlePageProps {
 export default async function EditArticlePage({ params }: EditArticlePageProps) {
   const { slug } = await params;
   const manifest = getManifest();
-  const article = manifest.articles.find((a) => a.slug === slug);
+  const articleMeta = manifest.articles.find((a) => a.slug === slug);
 
-  if (!article) {
+  if (!articleMeta) {
     notFound();
   }
+
+  const fullArticle = getArticleBySlug(articleMeta.contentType, slug);
+  const initialContent = fullArticle?.content || '';
 
   return (
     <div className="space-y-6">
       <EditorComponent
         articleSlug={slug}
+        initialContent={initialContent}
         initialPublishState={{
-          title: article.title,
-          slug: article.slug,
-          description: article.description,
-          contentType: article.contentType,
-          topic: article.topic,
-          tags: article.tags,
-          cover: article.cover,
-          featured: article.featured,
+          title: articleMeta.title,
+          slug: articleMeta.slug,
+          description: articleMeta.description,
+          contentType: articleMeta.contentType,
+          topic: articleMeta.topic,
+          tags: articleMeta.tags,
+          cover: articleMeta.cover,
+          featured: articleMeta.featured,
         }}
       />
     </div>

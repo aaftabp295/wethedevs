@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   Bold,
   Italic,
+  Underline as UnderlineIcon,
   Code,
   Heading2,
   Heading3,
@@ -41,7 +42,10 @@ export function Toolbar({
         variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleBold().run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleBold().run();
+        }}
         title="Bold (Ctrl+B)"
       >
         <Bold className="h-4 w-4" />
@@ -53,10 +57,28 @@ export function Toolbar({
         variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleItalic().run();
+        }}
         title="Italic (Ctrl+I)"
       >
         <Italic className="h-4 w-4" />
+      </Button>
+
+      {/* Underline */}
+      <Button
+        type="button"
+        variant={editor.isActive('underline') ? 'secondary' : 'ghost'}
+        size="icon"
+        className="h-8 w-8"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleUnderline().run();
+        }}
+        title="Underline (Ctrl+U)"
+      >
+        <UnderlineIcon className="h-4 w-4" />
       </Button>
 
       {/* Inline Code */}
@@ -65,7 +87,10 @@ export function Toolbar({
         variant={editor.isActive('code') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleCode().run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleCode().run();
+        }}
         title="Inline Code"
       >
         <Code className="h-4 w-4" />
@@ -79,7 +104,10 @@ export function Toolbar({
         variant={editor.isActive('heading', { level: 2 }) ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleHeading({ level: 2 }).run();
+        }}
         title="Heading 2"
       >
         <Heading2 className="h-4 w-4" />
@@ -91,7 +119,10 @@ export function Toolbar({
         variant={editor.isActive('heading', { level: 3 }) ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleHeading({ level: 3 }).run();
+        }}
         title="Heading 3"
       >
         <Heading3 className="h-4 w-4" />
@@ -105,7 +136,10 @@ export function Toolbar({
         variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleBulletList().run();
+        }}
         title="Bullet List"
       >
         <List className="h-4 w-4" />
@@ -117,7 +151,10 @@ export function Toolbar({
         variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleOrderedList().run();
+        }}
         title="Numbered List"
       >
         <ListOrdered className="h-4 w-4" />
@@ -129,7 +166,10 @@ export function Toolbar({
         variant={editor.isActive('blockquote') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleBlockquote().run();
+        }}
         title="Blockquote"
       >
         <Quote className="h-4 w-4" />
@@ -143,7 +183,10 @@ export function Toolbar({
         variant={editor.isActive('link') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={onOpenLinkPicker}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          onOpenLinkPicker();
+        }}
         title="Insert Internal Link (Ctrl+K)"
       >
         <Link2 className="h-4 w-4" />
@@ -155,9 +198,10 @@ export function Toolbar({
         variant={editor.isActive('table') ? 'secondary' : 'ghost'}
         size="icon"
         className="h-8 w-8"
-        onClick={() =>
-          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-        }
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+        }}
         title="Insert Table"
       >
         <TableIcon className="h-4 w-4" />
@@ -170,7 +214,10 @@ export function Toolbar({
           variant="ghost"
           size="icon"
           className="h-8 w-8"
-          onClick={onToggleFullscreen}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            onToggleFullscreen();
+          }}
           title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Mode'}
         >
           {isFullscreen ? (
