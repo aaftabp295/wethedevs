@@ -1,5 +1,28 @@
-import { generateManifest } from '../lib/content/manifest';
+import fs from 'fs';
+import path from 'path';
+import { getAllArticlesFromFiles, articleToManifestEntry } from '../lib/content/loader';
 import { validateLinksAndOrphans } from '../lib/seo/validation';
+import { ContentManifest, ManifestEntry } from '../types/content';
+
+const MANIFEST_PATH = path.join(process.cwd(), 'content-index.json');
+
+function generateManifest(): ContentManifest {
+  const articles = getAllArticlesFromFiles();
+  const manifestEntries: ManifestEntry[] = articles.map(articleToManifestEntry);
+
+  manifestEntries.sort(
+    (a, b) =>
+      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+
+  const manifest: ContentManifest = {
+    articles: manifestEntries,
+    generatedAt: new Date().toISOString(),
+  };
+
+  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2), 'utf-8');
+  return manifest;
+}
 
 console.log('🚀 Generating content manifest...');
 const manifest = generateManifest();
