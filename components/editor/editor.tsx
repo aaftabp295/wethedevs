@@ -11,8 +11,10 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { Underline } from '@tiptap/extension-underline';
+import { marked } from 'marked';
 
-import { Toolbar } from './toolbar';
+import { EditorBubbleMenu } from './bubble-menu';
+import { EditorFloatingMenu } from './floating-menu';
 import { LinkPicker } from './link-picker';
 import { LinkSuggestions } from './link-suggestions';
 import { PublishSidebar } from './publish-sidebar';
@@ -21,7 +23,7 @@ import { useAutosave } from '@/hooks/use-autosave';
 import { calculateReadingTime } from '@/lib/content/reading-time';
 import { PublishSidebarState } from '@/types/editor';
 import { ManifestEntry } from '@/types/content';
-import { Send, Settings2, Clock, FileText, CheckCircle2 } from 'lucide-react';
+import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface EditorComponentProps {
@@ -59,13 +61,29 @@ export function EditorComponent({
   const [stats, setStats] = React.useState({ words: 0, minutes: 1 });
   const [isDirty, setIsDirty] = React.useState(false);
 
+  // Convert raw markdown string to HTML if needed
+  const formattedInitialContent = React.useMemo(() => {
+    if (!initialContent) return '';
+    // If content looks like raw markdown, compile to HTML via marked
+    if (initialContent.includes('# ') || initialContent.includes('## ') || initialContent.includes('\n\n')) {
+      try {
+        return marked.parse(initialContent) as string;
+      } catch {
+        return initialContent;
+      }
+    }
+    return initialContent;
+  }, [initialContent]);
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: { levels: [2, 3, 4] },
+      }),
       Underline,
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: { class: 'text-primary underline' },
+        HTMLAttributes: { class: 'text-primary underline cursor-pointer' },
       }),
       Image,
       Table.configure({ resizable: true }),
@@ -73,10 +91,10 @@ export function EditorComponent({
       TableHeader,
       TableCell,
       Placeholder.configure({
-        placeholder: 'Write your article here... (Use markdown headings, lists, tables)',
+        placeholder: 'Tell your story... (Highlight text for formatting options)',
       }),
     ],
-    content: initialContent,
+    content: formattedInitialContent,
     onUpdate: ({ editor }) => {
       setIsDirty(true);
       const text = editor.getText();
@@ -166,24 +184,24 @@ export function EditorComponent({
   };
 
   return (
-    <div className={`space-y-4 ${isFullscreen ? 'fixed inset-0 z-50 bg-background p-6 overflow-y-auto' : ''}`}>
-      {/* Action Header */}
+    <div className={`space-y-6 ${isFullscreen ? 'fixed inset-0 z-50 bg-background p-8 overflow-y-auto' : ''}`}>
+      {/* Top Action Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
-        <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-[280px]">
           <input
             type="text"
-            placeholder="Article Title..."
+            placeholder="Title"
             value={publishState.title}
             onChange={(e) => {
               setPublishState({ ...publishState, title: e.target.value });
               setIsDirty(true);
             }}
-            className="text-2xl font-bold font-serif bg-transparent border-none outline-none focus:ring-0 w-full max-w-xl"
+            className="text-3xl sm:text-4xl font-bold font-serif bg-transparent border-none outline-none focus:ring-0 w-full placeholder:text-muted-foreground/50 tracking-tight"
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground border-r border-border pr-3">
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="hidden md:flex items-center gap-3 text-xs text-muted-foreground border-r border-border pr-3">
             <span className="flex items-center gap-1">
               <FileText className="h-3.5 w-3.5" /> {stats.words} words
             </span>
@@ -198,38 +216,55 @@ export function EditorComponent({
           </div>
 
           <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Mode'}
+          >
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
+
+          <Button
             variant="outline"
             size="sm"
             onClick={() => setPublishSidebarOpen(true)}
-            className="gap-1.5"
+            className="gap-1.5 text-xs font-medium"
           >
-            <Settings2 className="h-4 w-4" />
+            <Settings2 className="h-3.5 w-3.5" />
             <span>Publish Settings</span>
           </Button>
 
-          <Button size="sm" onClick={handlePublish} disabled={isPublishing} className="gap-1.5">
-            <Send className="h-4 w-4" />
-            <span>Publish</span>
+          <Button size="sm" onClick={handlePublish} disabled={isPublishing} className="gap-1.5 text-xs font-semibold">
+            <Send className="h-3.5 w-3.5" />
+            <span>{isPublishing ? 'Publishing...' : 'Publish'}</span>
           </Button>
         </div>
       </div>
 
-      {/* Toolbar */}
-      <Toolbar
-        editor={editor}
-        onOpenLinkPicker={() => setLinkPickerOpen(true)}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
-      />
-
-      {/* Main Grid: Editor Body + Link Suggestions Sidebar */}
+      {/* Main Grid: Medium Writing Canvas + Link Suggestions Sidebar */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
-        <div className="lg:col-span-8 space-y-4">
-          <div className="min-h-[450px] rounded-lg border border-border bg-card p-6 shadow-xs prose prose-neutral dark:prose-invert max-w-none">
-            <EditorContent editor={editor} />
+        {/* Editor Body */}
+        <div className="lg:col-span-8">
+          <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-8 sm:p-12 shadow-xs transition-shadow hover:shadow-md">
+            {/* Medium Floating Selection Bubble Menu */}
+            <EditorBubbleMenu
+              editor={editor}
+              onOpenLinkPicker={() => setLinkPickerOpen(true)}
+            />
+
+            {/* Medium Empty Line Floating Menu */}
+            <EditorFloatingMenu editor={editor} />
+
+            {/* Content Canvas */}
+            <div className="prose prose-neutral dark:prose-invert max-w-none focus:outline-none leading-relaxed">
+              <EditorContent editor={editor} />
+            </div>
           </div>
         </div>
 
+        {/* Right Sidebar: Link Suggestions */}
         <div className="lg:col-span-4 space-y-6">
           <LinkSuggestions
             topic={publishState.topic}
@@ -238,14 +273,14 @@ export function EditorComponent({
         </div>
       </div>
 
-      {/* Link Picker Modal */}
+      {/* Internal Link Picker Modal */}
       <LinkPicker
         open={linkPickerOpen}
         onOpenChange={setLinkPickerOpen}
         onSelectArticle={handleInsertLink}
       />
 
-      {/* Publish Sidebar Panel */}
+      {/* Publish Sidebar Settings Panel */}
       <PublishSidebar
         open={publishSidebarOpen}
         onOpenChange={setPublishSidebarOpen}
