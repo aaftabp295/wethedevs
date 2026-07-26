@@ -81,7 +81,17 @@ export function PublishSidebar({
             <label className="font-semibold text-muted-foreground">URL Slug</label>
             <Input
               value={state.slug}
-              onChange={(e) => onChange({ ...state, slug: slugify(e.target.value) })}
+              onChange={(e) =>
+                onChange({
+                  ...state,
+                  slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''),
+                })
+              }
+              onBlur={() => {
+                if (state.slug) {
+                  onChange({ ...state, slug: slugify(state.slug) });
+                }
+              }}
               placeholder="kebab-case-slug"
             />
           </div>

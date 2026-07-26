@@ -1,6 +1,114 @@
 {
   "articles": [
     {
+      "title": "10 Best Cursor Alternatives in 2026",
+      "slug": "cursor-alternatives",
+      "contentType": "alternatives",
+      "topic": "AI Coding",
+      "tags": [
+        "cursor",
+        "ai-coding",
+        "ide",
+        "code-editor"
+      ],
+      "description": "Looking for alternatives to Cursor? We benchmarked and compared the top AI-powered IDEs and code editors for developers.",
+      "headings": [
+        {
+          "id": "overview",
+          "text": "Overview",
+          "level": 2
+        },
+        {
+          "id": "top-alternatives",
+          "text": "Top Alternatives",
+          "level": 2
+        },
+        {
+          "id": "1-windsurf-by-codeium",
+          "text": "1. Windsurf by Codeium",
+          "level": 3
+        },
+        {
+          "id": "2-github-copilot-workspace",
+          "text": "2. GitHub Copilot Workspace",
+          "level": 3
+        },
+        {
+          "id": "3-zed-ai",
+          "text": "3. Zed AI",
+          "level": 3
+        },
+        {
+          "id": "performance-comparison",
+          "text": "Performance Comparison",
+          "level": 2
+        },
+        {
+          "id": "final-verdict",
+          "text": "Final Verdict",
+          "level": 2
+        }
+      ],
+      "readingTime": 2,
+      "publishedAt": "2026-07-26T07:52:57.907Z",
+      "featured": true,
+      "outgoingLinks": []
+    },
+    {
+      "title": "10 Best Cursor Alternatives in 2026",
+      "slug": "cursoralternatives",
+      "contentType": "alternatives",
+      "topic": "AI Coding",
+      "tags": [
+        "cursor",
+        "ai-coding",
+        "ide",
+        "code-editor"
+      ],
+      "description": "Looking for alternatives to Cursor? We benchmarked and compared the top AI-powered IDEs and code editors for developers.",
+      "headings": [
+        {
+          "id": "overview",
+          "text": "Overview",
+          "level": 2
+        },
+        {
+          "id": "top-alternatives",
+          "text": "Top Alternatives",
+          "level": 2
+        },
+        {
+          "id": "1-windsurf-by-codeium",
+          "text": "1. Windsurf by Codeium",
+          "level": 3
+        },
+        {
+          "id": "2-github-copilot-workspace",
+          "text": "2. GitHub Copilot Workspace",
+          "level": 3
+        },
+        {
+          "id": "3-zed-ai",
+          "text": "3. Zed AI",
+          "level": 3
+        },
+        {
+          "id": "performance-comparison",
+          "text": "Performance Comparison",
+          "level": 2
+        },
+        {
+          "id": "final-verdict",
+          "text": "Final Verdict",
+          "level": 2
+        }
+      ],
+      "readingTime": 2,
+      "publishedAt": "2026-07-26T07:49:27.373Z",
+      "featured": true,
+      "outgoingLinks": []
+    },
+    {
       "title": "Best Lovable Alternatives in 2026 (Tested & Compared)",
       "slug": "lovable-alternatives",
       "contentType": "alternatives",
@@ -66,7 +174,7 @@
         }
       ],
       "readingTime": 12,
-      "publishedAt": "2026-07-25T16:51:33.606Z",
+      "publishedAt": "2026-07-26T07:48:28.431Z",
       "featured": false,
       "outgoingLinks": []
     },
@@ -120,61 +228,7 @@
       "outgoingLinks": [
         "cursor"
       ]
-    },
-    {
-      "title": "10 Best Cursor Alternatives in 2026",
-      "slug": "cursor",
-      "contentType": "alternatives",
-      "topic": "AI Coding",
-      "tags": [
-        "cursor",
-        "ai-coding",
-        "ide",
-        "code-editor"
-      ],
-      "description": "Looking for alternatives to Cursor? We benchmarked and compared the top AI-powered IDEs and code editors for developers.",
-      "headings": [
-        {
-          "id": "overview",
-          "text": "Overview",
-          "level": 2
-        },
-        {
-          "id": "top-alternatives",
-          "text": "Top Alternatives",
-          "level": 2
-        },
-        {
-          "id": "1-windsurf-by-codeium",
-          "text": "1. Windsurf by Codeium",
-          "level": 3
-        },
-        {
-          "id": "2-github-copilot-workspace",
-          "text": "2. GitHub Copilot Workspace",
-          "level": 3
-        },
-        {
-          "id": "3-zed-ai",
-          "text": "3. Zed AI",
-          "level": 3
-        },
-        {
-          "id": "performance-comparison",
-          "text": "Performance Comparison",
-          "level": 2
-        },
-        {
-          "id": "final-verdict",
-          "text": "Final Verdict",
-          "level": 2
-        }
-      ],
-      "readingTime": 2,
-      "publishedAt": "2026-07-20T00:00:00Z",
-      "featured": true,
-      "outgoingLinks": []
     }
   ],
-  "generatedAt": "2026-07-25T16:52:42.285Z"
+  "generatedAt": "2026-07-26T07:52:57.963Z"
 }
