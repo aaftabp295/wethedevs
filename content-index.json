@@ -72,20 +72,6 @@
       "outgoingLinks": []
     },
     {
-      "title": "Hello test",
-      "slug": "hello-test",
-      "contentType": "alternatives",
-      "topic": "AI Coding",
-      "tags": [],
-      "description": "hello-test",
-      "headings": [],
-      "readingTime": 1,
-      "publishedAt": "2026-07-26T07:56:35.852Z",
-      "draft": true,
-      "featured": false,
-      "outgoingLinks": []
-    },
-    {
       "title": "10 Best Cursor Alternatives in 2026",
       "slug": "cursor-alternatives",
       "contentType": "alternatives",
@@ -193,5 +179,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-26T07:59:09.979Z"
+  "generatedAt": "2026-07-26T08:00:43.966Z"
 }
