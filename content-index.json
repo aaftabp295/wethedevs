@@ -1,6 +1,21 @@
 {
   "articles": [
     {
+      "title": "Zoya my love",
+      "slug": "zoya-don",
+      "contentType": "alternatives",
+      "topic": "AI Coding",
+      "tags": [],
+      "description": "zoya is rude but cute",
+      "headings": [],
+      "cover": "https://miro.medium.com/v2/resize:fit:2400/1*NDoht6R3ckuXeo4pKl8ojw.jpeg",
+      "readingTime": 1,
+      "publishedAt": "2026-07-26T09:44:27.483Z",
+      "draft": false,
+      "featured": false,
+      "outgoingLinks": []
+    },
+    {
       "title": "Best Lovable Alternatives in 2026 (Tested & Compared)",
       "slug": "lovable-alternatives",
       "contentType": "alternatives",
@@ -179,5 +194,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-26T08:43:52.176Z"
+  "generatedAt": "2026-07-26T09:44:27.561Z"
 }
