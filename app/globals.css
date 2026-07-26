@@ -43,6 +43,27 @@
   --color-ring: hsl(var(--ring));
 }
 
+/* Title Input Focus Override */
+.editor-title-input {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 2px solid transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.editor-title-input:focus,
+.editor-title-input:focus-visible,
+.editor-title-input:active {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 2px solid hsl(var(--border)) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* ─── Light Theme ─── */
 
 :root {

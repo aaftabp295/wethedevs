@@ -26,7 +26,7 @@ export function EditorFloatingMenu({ editor }: FloatingMenuProps) {
   return (
     <TiptapFloatingMenu
       editor={editor}
-      className="flex items-center gap-1"
+      className="flex items-center gap-1 -translate-x-10 -ml-2"
     >
       <Button
         type="button"

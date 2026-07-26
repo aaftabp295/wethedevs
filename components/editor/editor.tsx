@@ -244,7 +244,7 @@ export function EditorComponent({
             setPublishState({ ...publishState, title: e.target.value });
             setIsDirty(true);
           }}
-          className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif bg-transparent border-none outline-none focus:ring-0 w-full placeholder:text-muted-foreground/40 tracking-tight leading-tight"
+          className="editor-title-input text-3xl sm:text-4xl lg:text-5xl font-bold font-serif bg-transparent w-full placeholder:text-muted-foreground/40 tracking-tight leading-tight pb-2 transition-colors"
         />
       </div>
 
