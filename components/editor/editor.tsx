@@ -153,6 +153,7 @@ export function EditorComponent({
     try {
       const payload = {
         ...publishState,
+        oldSlug: articleSlug || undefined,
         contentHtml: editor?.getHTML() || '',
       };
 

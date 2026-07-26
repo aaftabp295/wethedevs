@@ -6,7 +6,7 @@ import { ContentManifest, ManifestEntry } from '../types/content';
 
 const MANIFEST_PATH = path.join(process.cwd(), 'content-index.json');
 
-function generateManifest(): ContentManifest {
+export function generateManifest(): ContentManifest {
   const articles = getAllArticlesFromFiles();
   const manifestEntries: ManifestEntry[] = articles.map(articleToManifestEntry);
 

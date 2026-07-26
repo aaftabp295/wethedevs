@@ -1,0 +1,17 @@
+[
+  {
+    "source": "/alternatives/cursor",
+    "destination": "/alternatives/cursor-alternatives",
+    "permanent": true
+  },
+  {
+    "source": "/alternatives/publish-table-test",
+    "destination": "/alternatives/seo-redirect-test",
+    "permanent": true
+  },
+  {
+    "source": "/alternatives/cursoralternatives",
+    "destination": "/alternatives/cursor-alternatives",
+    "permanent": true
+  }
+]
