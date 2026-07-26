@@ -186,41 +186,30 @@ export function EditorComponent({
 
   return (
     <div className={`space-y-6 ${isFullscreen ? 'fixed inset-0 z-50 bg-background p-8 overflow-y-auto' : ''}`}>
-      {/* Top Action Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
-        <div className="flex-1 min-w-[280px]">
-          <input
-            type="text"
-            placeholder="Title"
-            value={publishState.title}
-            onChange={(e) => {
-              setPublishState({ ...publishState, title: e.target.value });
-              setIsDirty(true);
-            }}
-            className="text-3xl sm:text-4xl font-bold font-serif bg-transparent border-none outline-none focus:ring-0 w-full placeholder:text-muted-foreground/50 tracking-tight"
-          />
+      {/* Top Action & Status Bar */}
+      <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+        {/* Left: Article Stats & Autosave Badge */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1 font-medium">
+            <FileText className="h-3.5 w-3.5" /> {stats.words} words
+          </span>
+          <span className="flex items-center gap-1 font-medium">
+            <Clock className="h-3.5 w-3.5" /> {stats.minutes} min read
+          </span>
+          {lastSaved && (
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Saved {lastSaved}
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="hidden md:flex items-center gap-3 text-xs text-muted-foreground border-r border-border pr-3">
-            <span className="flex items-center gap-1">
-              <FileText className="h-3.5 w-3.5" /> {stats.words} words
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" /> {stats.minutes} min read
-            </span>
-            {lastSaved && (
-              <span className="flex items-center gap-1 text-success">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Saved {lastSaved}
-              </span>
-            )}
-          </div>
-
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-muted-foreground"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
             onClick={() => setIsFullscreen(!isFullscreen)}
             title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Mode'}
           >
@@ -242,6 +231,20 @@ export function EditorComponent({
             <span>{isPublishing ? 'Publishing...' : 'Publish'}</span>
           </Button>
         </div>
+      </div>
+
+      {/* Article Title Input (Full Width) */}
+      <div className="w-full pt-2">
+        <input
+          type="text"
+          placeholder="Title"
+          value={publishState.title}
+          onChange={(e) => {
+            setPublishState({ ...publishState, title: e.target.value });
+            setIsDirty(true);
+          }}
+          className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif bg-transparent border-none outline-none focus:ring-0 w-full placeholder:text-muted-foreground/40 tracking-tight leading-tight"
+        />
       </div>
 
       {/* Main Grid: Medium Writing Canvas + Link Suggestions Sidebar */}
