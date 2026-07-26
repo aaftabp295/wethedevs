@@ -98,7 +98,21 @@ export function htmlToMarkdown(html: string): string {
     .replace(/<code>(.*?)<\/code>/gi, '`$1`')
     .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, '> $1\n\n')
     .replace(/<a href="([^"]+)">(.*?)<\/a>/gi, '[$2]($1)')
-    .replace(/<img src="([^"]+)" alt="([^"]*)"\s*\/?>/gi, '![$2]($1)\n\n')
+    .replace(/<img\s+([^>]+)\/?>/gi, (_, attribs: string) => {
+      const srcMatch = attribs.match(/src="([^"]+)"/i) || attribs.match(/src='([^']+)'/i);
+      const altMatch = attribs.match(/alt="([^"]*)"/i) || attribs.match(/alt='([^']*)'/i);
+      const titleMatch = attribs.match(/title="([^"]*)"/i) || attribs.match(/title='([^']*)'/i);
+
+      const src = srcMatch ? srcMatch[1] : '';
+      const alt = altMatch ? altMatch[1] : 'Article image';
+      const title = titleMatch ? titleMatch[1] : '';
+
+      if (!src) return '';
+      if (title) {
+        return `\n\n![${alt}](${src} "${title}")\n\n`;
+      }
+      return `\n\n![${alt}](${src})\n\n`;
+    })
     .replace(/<hr\s*\/?>/gi, '---\n\n')
     .replace(/<\/?(?:ul|ol|li)[^>]*>/gi, '')
     .replace(/&nbsp;/g, ' ')

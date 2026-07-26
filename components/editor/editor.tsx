@@ -16,6 +16,7 @@ import { marked } from 'marked';
 import { EditorBubbleMenu } from './bubble-menu';
 import { EditorFloatingMenu } from './floating-menu';
 import { LinkPicker } from './link-picker';
+import { ImagePicker } from './image-picker';
 import { LinkSuggestions } from './link-suggestions';
 import { PublishSidebar } from './publish-sidebar';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ import { useAutosave } from '@/hooks/use-autosave';
 import { calculateReadingTime } from '@/lib/content/reading-time';
 import { PublishSidebarState } from '@/types/editor';
 import { ManifestEntry } from '@/types/content';
-import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2 } from 'lucide-react';
+import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface EditorComponentProps {
@@ -40,6 +41,7 @@ export function EditorComponent({
   const router = useRouter();
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [linkPickerOpen, setLinkPickerOpen] = React.useState(false);
+  const [imagePickerOpen, setImagePickerOpen] = React.useState(false);
   const [publishSidebarOpen, setPublishSidebarOpen] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
 
@@ -64,7 +66,6 @@ export function EditorComponent({
   // Convert raw markdown string to HTML if needed
   const formattedInitialContent = React.useMemo(() => {
     if (!initialContent) return '';
-    // If content looks like raw markdown, compile to HTML via marked
     if (initialContent.includes('# ') || initialContent.includes('## ') || initialContent.includes('\n\n')) {
       try {
         return marked.parse(initialContent) as string;
@@ -86,7 +87,11 @@ export function EditorComponent({
         openOnClick: false,
         HTMLAttributes: { class: 'text-primary underline cursor-pointer' },
       }),
-      Image,
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-xl border border-border shadow-xs max-w-full h-auto my-6',
+        },
+      }),
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -138,6 +143,18 @@ export function EditorComponent({
           .insertContent(`<a href="${linkUrl}">${article.title}</a>`)
           .run();
       }
+    },
+    [editor]
+  );
+
+  const handleInsertImage = React.useCallback(
+    ({ url, alt, title }: { url: string; alt: string; title?: string }) => {
+      if (!editor) return;
+      editor
+        .chain()
+        .focus()
+        .setImage({ src: url, alt, title })
+        .run();
     },
     [editor]
   );
@@ -208,6 +225,18 @@ export function EditorComponent({
         <div className="flex items-center gap-2 shrink-0">
           <Button
             type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setImagePickerOpen(true)}
+            className="gap-1.5 text-xs font-medium"
+            title="Insert Image with Alt Text"
+          >
+            <ImageIcon className="h-3.5 w-3.5" />
+            <span>Add Image</span>
+          </Button>
+
+          <Button
+            type="button"
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-muted-foreground hover:text-foreground"
@@ -260,7 +289,10 @@ export function EditorComponent({
             />
 
             {/* Medium Empty Line Floating Menu */}
-            <EditorFloatingMenu editor={editor} />
+            <EditorFloatingMenu
+              editor={editor}
+              onOpenImagePicker={() => setImagePickerOpen(true)}
+            />
 
             {/* Content Canvas */}
             <div className="prose prose-neutral dark:prose-invert max-w-none focus:outline-none leading-relaxed">
@@ -283,6 +315,13 @@ export function EditorComponent({
         open={linkPickerOpen}
         onOpenChange={setLinkPickerOpen}
         onSelectArticle={handleInsertLink}
+      />
+
+      {/* SEO Image Picker Modal */}
+      <ImagePicker
+        open={imagePickerOpen}
+        onOpenChange={setImagePickerOpen}
+        onInsertImage={handleInsertImage}
       />
 
       {/* Publish Sidebar Settings Panel */}

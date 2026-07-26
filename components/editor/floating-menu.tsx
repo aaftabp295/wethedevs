@@ -12,13 +12,15 @@ import {
   Plus,
   Code2,
   Minus,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface FloatingMenuProps {
   editor: Editor | null;
+  onOpenImagePicker?: () => void;
 }
 
-export function EditorFloatingMenu({ editor }: FloatingMenuProps) {
+export function EditorFloatingMenu({ editor, onOpenImagePicker }: FloatingMenuProps) {
   const [open, setOpen] = React.useState(false);
 
   if (!editor) return null;
@@ -88,6 +90,24 @@ export function EditorFloatingMenu({ editor }: FloatingMenuProps) {
           >
             <Quote className="h-3.5 w-3.5" />
           </Button>
+
+          {/* Image */}
+          {onOpenImagePicker && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-full text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setOpen(false);
+                onOpenImagePicker();
+              }}
+              title="Insert Image (SEO Alt Text)"
+            >
+              <ImageIcon className="h-3.5 w-3.5" />
+            </Button>
+          )}
 
           {/* Code Block */}
           <Button

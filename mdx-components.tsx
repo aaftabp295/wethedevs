@@ -1,4 +1,5 @@
 import type { MDXComponents } from 'mdx/types';
+import Image from 'next/image';
 import { slugify } from '@/lib/utils';
 import React from 'react';
 
@@ -23,6 +24,29 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       const text = React.Children.toArray(children).join('');
       const id = slugify(text);
       return <h4 id={id} {...props}>{children}</h4>;
+    },
+    img: ({ src, alt, title }) => {
+      if (!src) return null;
+
+      return (
+        <span className="block my-8 text-center">
+          <span className="inline-block overflow-hidden rounded-xl border border-border/60 bg-muted/20 shadow-xs max-w-full">
+            <Image
+              src={src}
+              alt={alt || 'Article illustration'}
+              width={1200}
+              height={675}
+              unoptimized
+              className="mx-auto rounded-xl max-w-full h-auto object-cover"
+            />
+          </span>
+          {title && (
+            <span className="block mt-2 text-center text-xs text-muted-foreground italic">
+              {title}
+            </span>
+          )}
+        </span>
+      );
     },
     ...components,
   };
