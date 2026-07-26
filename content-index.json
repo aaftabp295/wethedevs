@@ -1,6 +1,19 @@
 {
   "articles": [
     {
+      "title": "Hello test",
+      "slug": "hello-test",
+      "contentType": "alternatives",
+      "topic": "AI Coding",
+      "tags": [],
+      "description": "hello-test",
+      "headings": [],
+      "readingTime": 1,
+      "publishedAt": "2026-07-26T07:56:35.852Z",
+      "featured": false,
+      "outgoingLinks": []
+    },
+    {
       "title": "10 Best Cursor Alternatives in 2026",
       "slug": "cursor-alternatives",
       "contentType": "alternatives",
@@ -52,27 +65,6 @@
       "readingTime": 2,
       "publishedAt": "2026-07-26T07:53:51.118Z",
       "featured": true,
-      "outgoingLinks": []
-    },
-    {
-      "title": "SEO Redirect Test",
-      "slug": "seo-redirect-test",
-      "contentType": "alternatives",
-      "topic": "Testing",
-      "tags": [
-        "test"
-      ],
-      "description": "Testing SEO slug renaming and 301 redirects",
-      "headings": [
-        {
-          "id": "seo-test",
-          "text": "SEO Test",
-          "level": 2
-        }
-      ],
-      "readingTime": 1,
-      "publishedAt": "2026-07-26T07:53:29.804Z",
-      "featured": false,
       "outgoingLinks": []
     },
     {
@@ -193,9 +185,9 @@
       "publishedAt": "2026-07-22T00:00:00Z",
       "featured": true,
       "outgoingLinks": [
-        "cursor"
+        "cursor-alternatives"
       ]
     }
   ],
-  "generatedAt": "2026-07-26T07:53:51.126Z"
+  "generatedAt": "2026-07-26T07:56:35.859Z"
 }
