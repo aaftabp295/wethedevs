@@ -9,27 +9,21 @@ import {
 import { ContentTypeSlug } from '@/types/content';
 
 interface ArticleBreadcrumbsProps {
-  topic: string;
   contentType: ContentTypeSlug;
   contentTypeLabel: string;
   title: string;
 }
 
 export function ArticleBreadcrumbs({
-  topic,
   contentType,
   contentTypeLabel,
   title,
 }: ArticleBreadcrumbsProps) {
   return (
-    <Breadcrumb className="mb-6">
-      <BreadcrumbList>
+    <Breadcrumb className="mb-4">
+      <BreadcrumbList className="flex-wrap text-xs sm:text-sm leading-relaxed">
         <BreadcrumbItem>
           <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <span className="text-muted-foreground">{topic}</span>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
@@ -38,8 +32,10 @@ export function ArticleBreadcrumbs({
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem className="max-w-[200px] truncate sm:max-w-none">
-          <BreadcrumbPage>{title}</BreadcrumbPage>
+        <BreadcrumbItem className="shrink min-w-0">
+          <BreadcrumbPage className="font-medium text-foreground leading-normal">
+            {title}
+          </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>

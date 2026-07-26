@@ -99,7 +99,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <ArticleHero
               title={article.title}
               description={article.description}
-              topic={article.topic}
               contentType={article.contentType as ContentTypeSlug}
               contentTypeLabel={config.label}
               tags={article.tags}

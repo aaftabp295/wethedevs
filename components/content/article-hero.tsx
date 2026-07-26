@@ -7,7 +7,6 @@ import { ContentTypeSlug } from '@/types/content';
 interface ArticleHeroProps {
   title: string;
   description: string;
-  topic: string;
   contentType: ContentTypeSlug;
   contentTypeLabel: string;
   tags: string[];
@@ -21,7 +20,6 @@ interface ArticleHeroProps {
 export function ArticleHero({
   title,
   description,
-  topic,
   contentType,
   contentTypeLabel,
   tags,
@@ -34,7 +32,6 @@ export function ArticleHero({
   return (
     <div className="space-y-6">
       <ArticleBreadcrumbs
-        topic={topic}
         contentType={contentType}
         contentTypeLabel={contentTypeLabel}
         title={title}
