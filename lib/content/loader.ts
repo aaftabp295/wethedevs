@@ -62,6 +62,7 @@ export function articleToManifestEntry(article: Article): ManifestEntry {
     readingTime: article.readingTime,
     publishedAt: article.publishedAt,
     updatedAt: article.updatedAt,
+    draft: article.draft || false,
     featured: article.featured,
     outgoingLinks,
   };

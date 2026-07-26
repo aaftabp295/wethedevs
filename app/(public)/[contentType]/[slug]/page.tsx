@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+export const dynamic = 'force-dynamic';
 import { Container } from '@/components/layout/container';
 import { getContentType } from '@/lib/content/content-types.config';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
+import { getArticleBySlug, articleToManifestEntry } from '@/lib/content/loader';
 import { getRelatedArticles } from '@/lib/content/related';
 import { ArticleHero } from '@/components/content/article-hero';
 import { ArticleTOC } from '@/components/content/article-toc';
@@ -19,8 +21,8 @@ interface ArticlePageProps {
 }
 
 export async function generateStaticParams() {
-  const manifest = getManifest();
-  return manifest.articles.map((article) => ({
+  const publicArticles = getPublicArticles();
+  return publicArticles.map((article) => ({
     contentType: article.contentType,
     slug: article.slug,
   }));
@@ -30,12 +32,9 @@ export async function generateMetadata({
   params,
 }: ArticlePageProps): Promise<Metadata> {
   const { contentType, slug } = await params;
-  const manifest = getManifest();
-  const article = manifest.articles.find(
-    (a) => a.contentType === contentType && a.slug === slug
-  );
+  const article = getArticleBySlug(contentType, slug);
 
-  if (!article) return {};
+  if (!article || Boolean(article.draft)) return {};
 
   return constructMetadata({
     title: article.title,
@@ -56,28 +55,33 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  const manifest = getManifest();
-  const article = manifest.articles.find(
-    (a) => a.contentType === contentType && a.slug === slug
-  );
+  const article = getArticleBySlug(contentType, slug);
 
-  if (!article) {
+  if (!article || article.draft === true) {
     notFound();
   }
 
   // Dynamic import of the MDX article file
   let MDXContent: React.ComponentType;
+  let mdxFrontmatter: Record<string, unknown> | undefined;
   try {
     const mdxModule = await import(`@/content/${contentType}/${slug}/article.mdx`);
     MDXContent = mdxModule.default;
+    mdxFrontmatter = mdxModule.frontmatter || mdxModule.meta;
   } catch {
     notFound();
   }
 
-  const related = getRelatedArticles(slug, manifest.articles);
+  if (!article || Boolean(article.draft) || Boolean(mdxFrontmatter?.draft)) {
+    notFound();
+  }
+
+  const publicArticles = getPublicArticles();
+  const related = getRelatedArticles(slug, publicArticles);
   const articleUrl = `${siteConfig.url}/${contentType}/${slug}`;
 
-  const articleJsonLd = buildArticleJsonLd(article, articleUrl);
+  const manifestEntry = articleToManifestEntry(article);
+  const articleJsonLd = buildArticleJsonLd(manifestEntry, articleUrl);
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: 'Home', url: '/' },
     { name: config.pluralLabel, url: `/${contentType}` },

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
 import { validatePublishPayload } from '@/lib/publishing/validator';
@@ -63,6 +64,9 @@ export async function POST(request: Request) {
     // Regenerate content manifest index
     try {
       generateManifest();
+      revalidatePath('/', 'layout');
+      revalidatePath(`/${contentType}`);
+      revalidatePath(`/${contentType}/${slug}`);
     } catch {
       // Manifest fallback
     }

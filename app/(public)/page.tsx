@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { Container } from '@/components/layout/container';
 import { contentTypes } from '@/lib/content/content-types.config';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
 import { ArticleCard } from '@/components/content/article-card';
 
 export default function HomePage() {
-  const manifest = getManifest();
-  const featuredArticles = manifest.articles.filter((a) => a.featured);
-  const recentArticles = manifest.articles.slice(0, 6);
+  const publicArticles = getPublicArticles();
+  const featuredArticles = publicArticles.filter((a) => a.featured);
+  const recentArticles = publicArticles.slice(0, 6);
 
   return (
     <>
@@ -84,7 +84,7 @@ export default function HomePage() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {contentTypes.map((ct) => {
-              const count = manifest.articles.filter(
+              const count = publicArticles.filter(
                 (a) => a.contentType === ct.slug
               ).length;
 

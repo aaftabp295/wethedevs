@@ -1,55 +1,51 @@
-import type { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next';
 import { siteConfig } from '@/lib/site.config';
+import { getPublicArticles } from '@/lib/content/manifest';
 import { contentTypeSlugs } from '@/lib/content/content-types.config';
-import { getManifest } from '@/lib/content/manifest';
+
+export const dynamic = 'force-dynamic';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  const manifest = getManifest();
+  const publicArticles = getPublicArticles();
+  const baseUrl = siteConfig.url;
 
-  // Static pages
-  const staticPages: MetadataRoute.Sitemap = [
+  // Base pages
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
-      url: siteConfig.url,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 1,
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1.0,
     },
     {
-      url: `${siteConfig.url}/about`,
-      lastModified: now,
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
-      url: `${siteConfig.url}/privacy`,
-      lastModified: now,
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-    {
-      url: `${siteConfig.url}/search`,
-      lastModified: now,
+      url: `${baseUrl}/search`,
+      lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.4,
+      priority: 0.6,
     },
   ];
 
-  // Listing pages
-  const listingPages: MetadataRoute.Sitemap = contentTypeSlugs.map((slug) => ({
-    url: `${siteConfig.url}/${slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
+  // Content type category pages
+  const categoryRoutes: MetadataRoute.Sitemap = contentTypeSlugs.map((slug) => ({
+    url: `${baseUrl}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily',
     priority: 0.8,
   }));
 
-  // Article pages
-  const articlePages: MetadataRoute.Sitemap = manifest.articles.map((article) => ({
-    url: `${siteConfig.url}/${article.contentType}/${article.slug}`,
+  // Individual published articles (excluding drafts)
+  const articleRoutes: MetadataRoute.Sitemap = publicArticles.map((article) => ({
+    url: `${baseUrl}/${article.contentType}/${article.slug}`,
     lastModified: new Date(article.updatedAt || article.publishedAt),
-    changeFrequency: 'monthly' as const,
+    changeFrequency: 'weekly',
     priority: 0.9,
   }));
 
-  return [...staticPages, ...listingPages, ...articlePages];
+  return [...staticRoutes, ...categoryRoutes, ...articleRoutes];
 }

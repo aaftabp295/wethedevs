@@ -1,10 +1,10 @@
 import { siteConfig } from '@/lib/site.config';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
 
 export async function GET() {
-  const manifest = getManifest();
+  const publicArticles = getPublicArticles();
 
-  const itemsXml = manifest.articles
+  const itemsXml = publicArticles
     .map(
       (article) => `
     <item>

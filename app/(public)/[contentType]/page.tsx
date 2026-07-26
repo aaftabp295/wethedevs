@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Container } from '@/components/layout/container';
 import { getContentType, contentTypeSlugs } from '@/lib/content/content-types.config';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
 import { ArticleCard } from '@/components/content/article-card';
 import { EmptyState } from '@/components/content/empty-state';
 import { constructMetadata } from '@/lib/seo/metadata';
@@ -41,8 +41,8 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
-  const manifest = getManifest();
-  const articles = manifest.articles.filter(
+  const publicArticles = getPublicArticles();
+  const articles = publicArticles.filter(
     (article) => article.contentType === contentType
   );
 

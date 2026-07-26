@@ -52,6 +52,7 @@ export type ManifestEntry = {
   readingTime: number;
   publishedAt: string;
   updatedAt?: string;
+  draft: boolean;
   featured: boolean;
   outgoingLinks: string[];
 };
