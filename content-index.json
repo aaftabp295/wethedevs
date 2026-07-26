@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "title": "SEO Redirect Test",
+      "slug": "seo-redirect-test",
+      "contentType": "alternatives",
+      "topic": "Testing",
+      "tags": [
+        "test"
+      ],
+      "description": "Testing SEO slug renaming and 301 redirects",
+      "headings": [
+        {
+          "id": "seo-test",
+          "text": "SEO Test",
+          "level": 2
+        }
+      ],
+      "readingTime": 1,
+      "publishedAt": "2026-07-26T07:53:29.804Z",
+      "featured": false,
+      "outgoingLinks": []
+    },
+    {
       "title": "10 Best Cursor Alternatives in 2026",
       "slug": "cursor-alternatives",
       "contentType": "alternatives",
@@ -230,5 +251,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-26T07:52:57.963Z"
+  "generatedAt": "2026-07-26T07:53:29.813Z"
 }
