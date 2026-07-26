@@ -204,7 +204,7 @@ body {
   background-color: hsl(var(--muted) / 0.3);
 }
 
-/* ─── Published Article Prose Headings ─── */
+/* ─── Published Article Prose Headings & Lists ─── */
 
 .prose h2 {
   font-size: 1.75rem;
@@ -224,6 +224,31 @@ body {
   line-height: 1.4;
   color: hsl(var(--foreground));
 }
+
+.prose ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.prose ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.prose li {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.75;
+}
+
+.prose li::marker {
+  color: hsl(var(--foreground));
+}
+
 
 /* ─── ProseMirror Editor Typography & Spacing ─── */
 

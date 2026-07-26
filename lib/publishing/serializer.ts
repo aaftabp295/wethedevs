@@ -58,33 +58,33 @@ export function htmlToMarkdown(html: string): string {
     .replace(/<br(?:\s+[^>]*[^\/])?>/gi, '<br />')
     .replace(/<hr(?:\s+[^>]*[^\/])?>/gi, '<hr />');
 
-  // Convert headings FIRST before paragraph expansion (matching any attributes like class or style)
+  // Convert headings FIRST before paragraph expansion
   output = output
     .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, (_, text) => `# ${text.replace(/<[^>]+>/g, '').trim()}\n\n`)
     .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, (_, text) => `## ${text.replace(/<[^>]+>/g, '').trim()}\n\n`)
     .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, (_, text) => `### ${text.replace(/<[^>]+>/g, '').trim()}\n\n`)
     .replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, (_, text) => `#### ${text.replace(/<[^>]+>/g, '').trim()}\n\n`);
 
-  // Convert lists
+  // Convert lists cleanly with double newline padding
   output = output
     .replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (_, list) => {
-      return (
-        list.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (__: string, item: string) => {
-          const cleanItem = item.replace(/<p>(.*?)<\/p>/gi, '$1').trim();
-          return `- ${cleanItem}\n`;
-        }) + '\n'
-      );
+      const items = [...list.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)];
+      const formattedItems = items.map((m: RegExpMatchArray) => {
+        const clean = m[1].replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1').trim();
+        return `- ${clean}`;
+      });
+      return `\n\n${formattedItems.join('\n')}\n\n`;
     })
     .replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, (_, list) => {
-      return (
-        list.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (__: string, item: string) => {
-          const cleanItem = item.replace(/<p>(.*?)<\/p>/gi, '$1').trim();
-          return `1. ${cleanItem}\n`;
-        }) + '\n'
-      );
+      const items = [...list.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)];
+      const formattedItems = items.map((m: RegExpMatchArray, i: number) => {
+        const clean = m[1].replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1').trim();
+        return `${i + 1}. ${clean}`;
+      });
+      return `\n\n${formattedItems.join('\n')}\n\n`;
     })
     .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, item: string) => {
-      const cleanItem = item.replace(/<p>(.*?)<\/p>/gi, '$1').trim();
+      const cleanItem = item.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1').trim();
       return `- ${cleanItem}\n`;
     });
 

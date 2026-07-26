@@ -33,6 +33,18 @@ export function ArticleTOC({ headings }: ArticleTOCProps) {
     return () => observer.disconnect();
   }, [headings]);
 
+  const scrollToHeading = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -90; // Topbar clearance offset
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      setActiveId(id);
+      window.history.pushState(null, '', `#${id}`);
+    }
+  };
+
   if (headings.length === 0) return null;
 
   return (
@@ -48,6 +60,7 @@ export function ArticleTOC({ headings }: ArticleTOCProps) {
           >
             <a
               href={`#${heading.id}`}
+              onClick={(e) => scrollToHeading(e, heading.id)}
               className={cn(
                 'block line-clamp-2 transition-colors hover:text-foreground',
                 activeId === heading.id
