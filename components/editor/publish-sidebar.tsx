@@ -11,14 +11,14 @@ import { contentTypes } from '@/lib/content/content-types.config';
 import { ContentTypeSlug } from '@/types/content';
 import { PublishSidebarState } from '@/types/editor';
 import { slugify } from '@/lib/utils';
-import { Send, Image as ImageIcon, X } from 'lucide-react';
+import { Send, Image as ImageIcon, X, FileEdit } from 'lucide-react';
 
 interface PublishSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   state: PublishSidebarState;
   onChange: (state: PublishSidebarState) => void;
-  onPublish: () => void;
+  onPublish: (asDraft?: boolean) => void;
   isPublishing?: boolean;
 }
 
@@ -171,17 +171,20 @@ export function PublishSidebar({
             </div>
           </div>
 
-          {/* Cover Image Path */}
+          {/* Cover Image URL */}
           <div className="space-y-1.5">
-            <label className="font-semibold text-muted-foreground">Cover Image Relative Path</label>
+            <label className="font-semibold text-muted-foreground">Cover Image URL</label>
             <div className="flex items-center gap-2">
               <ImageIcon className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input
                 value={state.cover || ''}
                 onChange={(e) => onChange({ ...state, cover: e.target.value })}
-                placeholder="./cover.webp"
+                placeholder="https://images.unsplash.com/... or /cover.webp"
               />
             </div>
+            <p className="text-[11px] text-muted-foreground">
+              Direct image URL for featured hero cards and social media share previews.
+            </p>
           </div>
 
           {/* SEO Overrides Header */}
@@ -208,30 +211,29 @@ export function PublishSidebar({
             </div>
           </div>
 
-          {/* Draft Toggle */}
-          <div className="pt-4 border-t border-border flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-foreground">Save as Draft</p>
-              <p className="text-[11px] text-muted-foreground">Drafts are hidden from public listings.</p>
-            </div>
-            <input
-              type="checkbox"
-              checked={state.draft}
-              onChange={(e) => onChange({ ...state, draft: e.target.checked })}
-              className="h-4 w-4 rounded border-border"
-            />
-          </div>
-
-          {/* Submit / Publish Action */}
-          <div className="pt-6">
+          {/* Dual Action Buttons */}
+          <div className="pt-6 grid grid-cols-2 gap-3">
             <Button
-              className="w-full gap-2"
+              type="button"
+              variant="outline"
               size="lg"
-              onClick={onPublish}
+              onClick={() => onPublish(true)}
               disabled={isPublishing}
+              className="gap-1.5 text-xs font-semibold"
+            >
+              <FileEdit className="h-4 w-4" />
+              <span>Save as Draft</span>
+            </Button>
+
+            <Button
+              type="button"
+              size="lg"
+              onClick={() => onPublish(false)}
+              disabled={isPublishing}
+              className="gap-1.5 text-xs font-semibold"
             >
               <Send className="h-4 w-4" />
-              <span>{isPublishing ? 'Publishing...' : state.draft ? 'Save Draft' : 'Publish Article'}</span>
+              <span>{isPublishing ? 'Publishing...' : 'Publish Live'}</span>
             </Button>
           </div>
         </div>

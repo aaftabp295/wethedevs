@@ -24,7 +24,7 @@ import { useAutosave } from '@/hooks/use-autosave';
 import { calculateReadingTime } from '@/lib/content/reading-time';
 import { PublishSidebarState } from '@/types/editor';
 import { ManifestEntry } from '@/types/content';
-import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon } from 'lucide-react';
+import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface EditorComponentProps {
@@ -56,7 +56,7 @@ export function EditorComponent({
     metaTitle: initialPublishState.metaTitle || '',
     metaDescription: initialPublishState.metaDescription || '',
     canonical: initialPublishState.canonical || '',
-    draft: initialPublishState.draft ?? true,
+    draft: initialPublishState.draft ?? false,
     featured: initialPublishState.featured ?? false,
   });
 
@@ -159,7 +159,9 @@ export function EditorComponent({
     [editor]
   );
 
-  const handlePublish = async () => {
+  const handlePublish = async (asDraft?: boolean) => {
+    const isDraft = typeof asDraft === 'boolean' ? asDraft : publishState.draft;
+
     if (!publishState.title || !publishState.slug || !publishState.description) {
       setPublishSidebarOpen(true);
       return;
@@ -170,6 +172,7 @@ export function EditorComponent({
     try {
       const payload = {
         ...publishState,
+        draft: isDraft,
         oldSlug: articleSlug || undefined,
         contentHtml: editor?.getHTML() || '',
       };
@@ -191,7 +194,12 @@ export function EditorComponent({
 
       saveToLocal({ ...editorState, isDirty: false });
       setIsDirty(false);
-      router.push('/admin/articles');
+
+      if (isDraft) {
+        router.push('/admin/drafts');
+      } else {
+        router.push('/admin/articles');
+      }
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Publish error';
@@ -256,9 +264,27 @@ export function EditorComponent({
             <span>Publish Settings</span>
           </Button>
 
-          <Button size="sm" onClick={handlePublish} disabled={isPublishing} className="gap-1.5 text-xs font-semibold">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePublish(true)}
+            disabled={isPublishing}
+            className="gap-1.5 text-xs font-medium"
+            title="Save article as draft"
+          >
+            <FileEdit className="h-3.5 w-3.5" />
+            <span>Save Draft</span>
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => handlePublish(false)}
+            disabled={isPublishing}
+            className="gap-1.5 text-xs font-semibold"
+            title="Publish article live to site"
+          >
             <Send className="h-3.5 w-3.5" />
-            <span>{isPublishing ? 'Publishing...' : 'Publish'}</span>
+            <span>{isPublishing ? 'Publishing...' : 'Publish Live'}</span>
           </Button>
         </div>
       </div>
