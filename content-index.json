@@ -1,27 +1,6 @@
 {
   "articles": [
     {
-      "title": "SEO Redirect Test",
-      "slug": "seo-redirect-test",
-      "contentType": "alternatives",
-      "topic": "Testing",
-      "tags": [
-        "test"
-      ],
-      "description": "Testing SEO slug renaming and 301 redirects",
-      "headings": [
-        {
-          "id": "seo-test",
-          "text": "SEO Test",
-          "level": 2
-        }
-      ],
-      "readingTime": 1,
-      "publishedAt": "2026-07-26T07:53:29.804Z",
-      "featured": false,
-      "outgoingLinks": []
-    },
-    {
       "title": "10 Best Cursor Alternatives in 2026",
       "slug": "cursor-alternatives",
       "contentType": "alternatives",
@@ -71,62 +50,29 @@
         }
       ],
       "readingTime": 2,
-      "publishedAt": "2026-07-26T07:52:57.907Z",
+      "publishedAt": "2026-07-26T07:53:51.118Z",
       "featured": true,
       "outgoingLinks": []
     },
     {
-      "title": "10 Best Cursor Alternatives in 2026",
-      "slug": "cursoralternatives",
+      "title": "SEO Redirect Test",
+      "slug": "seo-redirect-test",
       "contentType": "alternatives",
-      "topic": "AI Coding",
+      "topic": "Testing",
       "tags": [
-        "cursor",
-        "ai-coding",
-        "ide",
-        "code-editor"
+        "test"
       ],
-      "description": "Looking for alternatives to Cursor? We benchmarked and compared the top AI-powered IDEs and code editors for developers.",
+      "description": "Testing SEO slug renaming and 301 redirects",
       "headings": [
         {
-          "id": "overview",
-          "text": "Overview",
-          "level": 2
-        },
-        {
-          "id": "top-alternatives",
-          "text": "Top Alternatives",
-          "level": 2
-        },
-        {
-          "id": "1-windsurf-by-codeium",
-          "text": "1. Windsurf by Codeium",
-          "level": 3
-        },
-        {
-          "id": "2-github-copilot-workspace",
-          "text": "2. GitHub Copilot Workspace",
-          "level": 3
-        },
-        {
-          "id": "3-zed-ai",
-          "text": "3. Zed AI",
-          "level": 3
-        },
-        {
-          "id": "performance-comparison",
-          "text": "Performance Comparison",
-          "level": 2
-        },
-        {
-          "id": "final-verdict",
-          "text": "Final Verdict",
+          "id": "seo-test",
+          "text": "SEO Test",
           "level": 2
         }
       ],
-      "readingTime": 2,
-      "publishedAt": "2026-07-26T07:49:27.373Z",
-      "featured": true,
+      "readingTime": 1,
+      "publishedAt": "2026-07-26T07:53:29.804Z",
+      "featured": false,
       "outgoingLinks": []
     },
     {
@@ -251,5 +197,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-26T07:53:29.813Z"
+  "generatedAt": "2026-07-26T07:53:51.126Z"
 }
