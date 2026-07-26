@@ -64,6 +64,20 @@
   box-shadow: none !important;
 }
 
+/* Responsive Table Scroll Container */
+.prose table {
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+  border-collapse: collapse;
+}
+
+.prose div:has(> table) {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
 /* ─── Light Theme ─── */
 
 :root {

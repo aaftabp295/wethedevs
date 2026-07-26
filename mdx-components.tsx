@@ -25,6 +25,13 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       const id = slugify(text);
       return <h4 id={id} {...props}>{children}</h4>;
     },
+    table: ({ children, ...props }) => (
+      <div className="my-6 w-full overflow-x-auto rounded-xl border border-border/80 bg-card shadow-xs">
+        <table className="w-full text-left text-sm min-w-[580px]" {...props}>
+          {children}
+        </table>
+      </div>
+    ),
     img: ({ src, alt, title }) => {
       if (!src) return null;
 

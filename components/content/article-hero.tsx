@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { ArticleBreadcrumbs } from './article-breadcrumbs';
 import { ArticleMeta } from './article-meta';
@@ -14,6 +15,7 @@ interface ArticleHeroProps {
   updatedAt?: string;
   readingTime: number;
   author?: string;
+  cover?: string;
 }
 
 export function ArticleHero({
@@ -27,6 +29,7 @@ export function ArticleHero({
   updatedAt,
   readingTime,
   author,
+  cover,
 }: ArticleHeroProps) {
   return (
     <div className="space-y-6">
@@ -64,6 +67,23 @@ export function ArticleHero({
         updatedAt={updatedAt}
         readingTime={readingTime}
       />
+
+      {/* Feature Cover Image — Positioned for optimal SEO & Google E-E-A-T */}
+      {cover && (
+        <div className="pt-2">
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/20 shadow-xs">
+            <Image
+              src={cover}
+              alt={title}
+              width={1200}
+              height={630}
+              priority
+              unoptimized
+              className="w-full max-h-[480px] object-cover"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

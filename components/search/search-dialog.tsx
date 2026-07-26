@@ -38,11 +38,12 @@ export function SearchDialog() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground sm:w-40 sm:justify-between"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background p-0 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground sm:w-40 sm:px-3 sm:justify-between"
+        title="Search Content (Ctrl+K)"
       >
         <span className="inline-flex items-center gap-1.5">
           <Search className="h-3.5 w-3.5" />
-          <span>Search...</span>
+          <span className="hidden sm:inline">Search...</span>
         </span>
         <kbd className="pointer-events-none hidden h-5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
           <span className="text-xs">⌘</span>K

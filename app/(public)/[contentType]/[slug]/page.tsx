@@ -107,6 +107,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               updatedAt={article.updatedAt}
               readingTime={article.readingTime}
               author={siteConfig.author.name}
+              cover={article.cover}
             />
           </div>
 
