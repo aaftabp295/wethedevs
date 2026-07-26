@@ -19,18 +19,24 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn('credentials', {
+        email: email.trim(),
+        password: password.trim(),
+        redirect: false,
+      });
 
-    setLoading(false);
+      setLoading(false);
 
-    if (res?.error) {
-      setError('Invalid credentials. Check email & password.');
-    } else {
-      window.location.href = '/admin';
+      if (res?.error) {
+        setError('Invalid credentials. Please verify email & password in Vercel settings.');
+      } else {
+        window.location.href = '/admin';
+      }
+    } catch (err: unknown) {
+      console.error('Login error:', err);
+      setError('Authentication failed. Check server connection.');
+      setLoading(false);
     }
   };
 

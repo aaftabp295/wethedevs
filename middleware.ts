@@ -6,10 +6,15 @@ const secret = process.env.AUTH_SECRET || 'dev-secret-wethedevs-key-123456789';
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const isSecure = req.url.startsWith('https://');
 
   // Protect /admin routes (except /admin/login)
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    const token = await getToken({ req, secret });
+    const token =
+      (await getToken({ req, secret, secureCookie: isSecure })) ||
+      (await getToken({ req, secret, secureCookie: false })) ||
+      (await getToken({ req, secret, secureCookie: true }));
+
     if (!token) {
       const loginUrl = new URL('/admin/login', req.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
@@ -19,7 +24,11 @@ export async function middleware(req: NextRequest) {
 
   // Protect sensitive publishing & management API endpoints
   if (pathname.startsWith('/api/publish') || pathname.startsWith('/api/content')) {
-    const token = await getToken({ req, secret });
+    const token =
+      (await getToken({ req, secret, secureCookie: isSecure })) ||
+      (await getToken({ req, secret, secureCookie: false })) ||
+      (await getToken({ req, secret, secureCookie: true }));
+
     if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized: Admin session required' },
