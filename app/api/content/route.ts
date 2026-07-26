@@ -5,12 +5,23 @@ import path from 'path';
 import matter from 'gray-matter';
 import { generateManifest } from '@/scripts/generate-manifest';
 import { commitAndPushContent } from '@/lib/publishing/git';
+import { isGitHubApiConfigured, commitFileToGitHub, deleteFileFromGitHub } from '@/lib/publishing/github';
+
+import { auth } from '@/lib/auth/config';
 
 const CONTENT_DIR = path.join(process.cwd(), 'content');
 
-/** DELETE /api/content — Permanently delete an article MDX file and directory */
+/** DELETE /api/content — Delete an article MDX file */
 export async function DELETE(request: Request) {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const contentType = searchParams.get('contentType');
     const slug = searchParams.get('slug');
@@ -22,26 +33,30 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const targetDir = path.join(CONTENT_DIR, contentType, slug);
-    if (!fs.existsSync(targetDir)) {
-      return NextResponse.json(
-        { error: 'Article not found' },
-        { status: 404 }
+    const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
+
+    // Mode A: Online Vercel Deployment via GitHub REST API
+    if (isGitHubApiConfigured()) {
+      const gitResult = await deleteFileFromGitHub(
+        mdxRelativePath,
+        `chore(content): delete ${contentType}/${slug}`
       );
+
+      return NextResponse.json({
+        success: true,
+        message: `Article /${contentType}/${slug} deleted via GitHub API`,
+        git: gitResult,
+      });
     }
 
-    // Delete target article directory
-    fs.rmSync(targetDir, { recursive: true, force: true });
+    // Mode B: Local Development Environment via Filesystem & Git
+    const targetDir = path.join(CONTENT_DIR, contentType, slug);
+    if (fs.existsSync(targetDir)) {
+      fs.rmSync(targetDir, { recursive: true, force: true });
+    }
 
-    // Regenerate manifest index
     try {
       generateManifest();
-    } catch {
-      // Fallback
-    }
-
-    // Purge Next.js page cache
-    try {
       revalidatePath('/', 'layout');
       revalidatePath(`/${contentType}`);
       revalidatePath(`/${contentType}/${slug}`);
@@ -49,7 +64,6 @@ export async function DELETE(request: Request) {
       // Fallback
     }
 
-    // Commit deletion with Git
     const gitResult = await commitAndPushContent(slug, contentType);
 
     return NextResponse.json({
@@ -69,6 +83,14 @@ export async function DELETE(request: Request) {
 /** PATCH /api/content — Toggle draft status (Live -> Draft or Draft -> Live) */
 export async function PATCH(request: Request) {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { contentType, slug, draft } = body;
 
@@ -80,17 +102,26 @@ export async function PATCH(request: Request) {
     }
 
     const articlePath = path.join(CONTENT_DIR, contentType, slug, 'article.mdx');
-    if (!fs.existsSync(articlePath)) {
+    const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
+
+    if (!fs.existsSync(articlePath) && !isGitHubApiConfigured()) {
       return NextResponse.json(
         { error: 'Article MDX file not found' },
         { status: 404 }
       );
     }
 
-    const raw = fs.readFileSync(articlePath, 'utf-8');
-    const { data, content } = matter(raw);
+    // Read and parse frontmatter
+    let content = '';
+    let data: Record<string, unknown> = {};
 
-    // Update frontmatter draft state
+    if (fs.existsSync(articlePath)) {
+      const raw = fs.readFileSync(articlePath, 'utf-8');
+      const parsed = matter(raw);
+      data = parsed.data;
+      content = parsed.content;
+    }
+
     data.draft = draft;
     if (!draft && !data.publishedAt) {
       data.publishedAt = new Date().toISOString();
@@ -98,17 +129,29 @@ export async function PATCH(request: Request) {
     data.updatedAt = new Date().toISOString();
 
     const updatedMdx = matter.stringify(content, data);
-    fs.writeFileSync(articlePath, updatedMdx, 'utf-8');
 
-    // Regenerate manifest index
-    try {
-      generateManifest();
-    } catch {
-      // Fallback
+    // Mode A: Online Vercel Deployment via GitHub REST API
+    if (isGitHubApiConfigured()) {
+      const gitResult = await commitFileToGitHub({
+        path: mdxRelativePath,
+        content: updatedMdx,
+        message: `chore(content): update draft status to ${draft} for ${contentType}/${slug}`,
+      });
+
+      return NextResponse.json({
+        success: true,
+        draft,
+        slug,
+        contentType,
+        git: gitResult,
+      });
     }
 
-    // Purge Next.js page cache
+    // Mode B: Local Filesystem & Git
+    fs.writeFileSync(articlePath, updatedMdx, 'utf-8');
+
     try {
+      generateManifest();
       revalidatePath('/', 'layout');
       revalidatePath(`/${contentType}`);
       revalidatePath(`/${contentType}/${slug}`);
@@ -116,7 +159,6 @@ export async function PATCH(request: Request) {
       // Fallback
     }
 
-    // Execute Git commit
     const gitResult = await commitAndPushContent(slug, contentType);
 
     return NextResponse.json({
