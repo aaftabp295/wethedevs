@@ -67,7 +67,8 @@
       ],
       "readingTime": 12,
       "publishedAt": "2026-07-26T08:32:07.170Z",
-      "draft": true,
+      "updatedAt": "2026-07-26T08:32:38.144Z",
+      "draft": false,
       "featured": false,
       "outgoingLinks": []
     },
@@ -179,5 +180,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-26T08:32:07.190Z"
+  "generatedAt": "2026-07-26T08:32:38.154Z"
 }
