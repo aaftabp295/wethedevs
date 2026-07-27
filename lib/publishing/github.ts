@@ -9,23 +9,29 @@ interface GitHubFileCommitOptions {
   message: string; // Commit message
 }
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
-const GITHUB_REPO = process.env.GITHUB_REPO; // Format: 'owner/repo'
-const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
+function getGitHubConfig() {
+  const token = (process.env.GITHUB_TOKEN || process.env.GITHUB_PAT)?.trim();
+  const repo = process.env.GITHUB_REPO?.trim();
+  const branch = (process.env.GITHUB_BRANCH || 'main').trim();
+
+  return { token, repo, branch };
+}
 
 export function isGitHubApiConfigured(): boolean {
-  return Boolean(GITHUB_TOKEN && GITHUB_REPO);
+  const { token, repo } = getGitHubConfig();
+  return Boolean(token && repo);
 }
 
 /** Get existing file SHA from GitHub repo (required by GitHub API for updates) */
 async function getFileSha(path: string): Promise<string | undefined> {
-  if (!GITHUB_TOKEN || !GITHUB_REPO) return undefined;
+  const { token, repo, branch } = getGitHubConfig();
+  if (!token || !repo) return undefined;
 
   try {
-    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`;
+    const url = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
     const res = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github.v3+json',
         'User-Agent': 'WeTheDevs-Publisher',
       },
@@ -46,13 +52,14 @@ async function getFileSha(path: string): Promise<string | undefined> {
 export async function getFileContentFromGitHub(
   filePath: string
 ): Promise<string | null> {
-  if (!GITHUB_TOKEN || !GITHUB_REPO) return null;
+  const { token, repo, branch } = getGitHubConfig();
+  if (!token || !repo) return null;
 
   try {
-    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`;
+    const url = `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`;
     const res = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github.v3+json',
         'User-Agent': 'WeTheDevs-Publisher',
       },
@@ -77,7 +84,8 @@ export async function commitFileToGitHub({
   content,
   message,
 }: GitHubFileCommitOptions): Promise<{ success: boolean; commitHash?: string; error?: string }> {
-  if (!GITHUB_TOKEN || !GITHUB_REPO) {
+  const { token, repo, branch } = getGitHubConfig();
+  if (!token || !repo) {
     return { success: false, error: 'GITHUB_TOKEN or GITHUB_REPO not configured in environment' };
   }
 
@@ -85,11 +93,11 @@ export async function commitFileToGitHub({
     const sha = await getFileSha(path);
     const encodedContent = Buffer.from(content, 'utf-8').toString('base64');
 
-    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`;
+    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
     const body: Record<string, unknown> = {
       message,
       content: encodedContent,
-      branch: GITHUB_BRANCH,
+      branch,
     };
 
     if (sha) {
@@ -99,7 +107,7 @@ export async function commitFileToGitHub({
     const res = await fetch(url, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
         Accept: 'application/vnd.github.v3+json',
         'User-Agent': 'WeTheDevs-Publisher',
@@ -110,7 +118,7 @@ export async function commitFileToGitHub({
     const data = await res.json();
 
     if (!res.ok) {
-      return { success: false, error: data.message || 'GitHub API commit failed' };
+      return { success: false, error: data.message || `GitHub API error (${res.status})` };
     }
 
     return {
@@ -120,7 +128,7 @@ export async function commitFileToGitHub({
   } catch (err) {
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'GitHub API error',
+      error: err instanceof Error ? err.message : 'GitHub API request failed',
     };
   }
 }
@@ -130,8 +138,9 @@ export async function deleteFileFromGitHub(
   path: string,
   message: string
 ): Promise<{ success: boolean; error?: string }> {
-  if (!GITHUB_TOKEN || !GITHUB_REPO) {
-    return { success: false, error: 'GITHUB_TOKEN or GITHUB_REPO not configured' };
+  const { token, repo, branch } = getGitHubConfig();
+  if (!token || !repo) {
+    return { success: false, error: 'GITHUB_TOKEN or GITHUB_REPO not configured in environment' };
   }
 
   try {
@@ -140,11 +149,11 @@ export async function deleteFileFromGitHub(
       return { success: true }; // File already doesn't exist
     }
 
-    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`;
+    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
     const res = await fetch(url, {
       method: 'DELETE',
       headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
         Accept: 'application/vnd.github.v3+json',
         'User-Agent': 'WeTheDevs-Publisher',
@@ -152,13 +161,13 @@ export async function deleteFileFromGitHub(
       body: JSON.stringify({
         message,
         sha,
-        branch: GITHUB_BRANCH,
+        branch,
       }),
     });
 
     if (!res.ok) {
       const data = await res.json();
-      return { success: false, error: data.message || 'GitHub API delete failed' };
+      return { success: false, error: data.message || `GitHub API delete failed (${res.status})` };
     }
 
     return { success: true };

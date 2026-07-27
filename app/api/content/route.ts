@@ -34,6 +34,7 @@ export async function DELETE(request: Request) {
     }
 
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
+    const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 
     // Mode A: Online Vercel Deployment via GitHub REST API
     if (isGitHubApiConfigured()) {
@@ -42,11 +43,26 @@ export async function DELETE(request: Request) {
         `chore(content): delete ${contentType}/${slug}`
       );
 
+      if (!gitResult.success) {
+        return NextResponse.json(
+          { error: `GitHub Delete Failed: ${gitResult.error}` },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json({
         success: true,
         message: `Article /${contentType}/${slug} deleted via GitHub API`,
         git: gitResult,
       });
+    }
+
+    // Fail-safe check for Vercel production
+    if (isVercel) {
+      return NextResponse.json(
+        { error: 'GitHub Integration Unconfigured: GITHUB_TOKEN and GITHUB_REPO environment variables are required in Vercel settings.' },
+        { status: 400 }
+      );
     }
 
     // Mode B: Local Development Environment via Filesystem & Git
@@ -103,6 +119,7 @@ export async function PATCH(request: Request) {
 
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
     const articlePath = path.join(CONTENT_DIR, contentType, slug, 'article.mdx');
+    const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 
     // Read and parse frontmatter — from GitHub or local FS depending on mode
     let rawMdx: string | null = null;
@@ -116,6 +133,11 @@ export async function PATCH(request: Request) {
           { status: 404 }
         );
       }
+    } else if (isVercel) {
+      return NextResponse.json(
+        { error: 'GitHub Integration Unconfigured: GITHUB_TOKEN and GITHUB_REPO environment variables are required in Vercel settings.' },
+        { status: 400 }
+      );
     } else {
       // Mode B: Read from local filesystem
       if (!fs.existsSync(articlePath)) {
@@ -146,6 +168,13 @@ export async function PATCH(request: Request) {
         content: updatedMdx,
         message: `chore(content): set draft=${draft} for ${contentType}/${slug}`,
       });
+
+      if (!gitResult.success) {
+        return NextResponse.json(
+          { error: `GitHub Draft Update Failed: ${gitResult.error}` },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({
         success: true,

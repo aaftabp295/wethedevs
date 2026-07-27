@@ -60,6 +60,8 @@ export async function POST(request: Request) {
     const mdxContent = serializeMdx(frontmatter, contentHtml || '');
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
 
+    const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
     // Mode A: Online Vercel Deployment via GitHub REST API
     if (isGitHubApiConfigured()) {
       // 1. Commit article MDX file to GitHub
@@ -68,6 +70,13 @@ export async function POST(request: Request) {
         content: mdxContent,
         message: `feat(content): publish ${contentType}/${slug}`,
       });
+
+      if (!mdxCommit.success) {
+        return NextResponse.json(
+          { error: `GitHub Publish Failed: ${mdxCommit.error || 'Check GITHUB_TOKEN permissions'}` },
+          { status: 500 }
+        );
+      }
 
       // 2. If old slug was renamed, delete old file from GitHub
       if (oldSlug && oldSlug !== slug) {
@@ -79,7 +88,6 @@ export async function POST(request: Request) {
 
       // 3. Update content/redirects.json on GitHub if there are new redirects
       if (newRedirects.length > 0) {
-        // Merge with existing redirects from GitHub
         const existingRedirects = await getRedirectsFromGitHub();
         const mergedRedirects = [
           ...existingRedirects.filter(
@@ -103,6 +111,14 @@ export async function POST(request: Request) {
         onlineGithub: true,
         git: mdxCommit,
       });
+    }
+
+    // Fail-safe check for Vercel production
+    if (isVercel) {
+      return NextResponse.json(
+        { error: 'GitHub Integration Unconfigured: GITHUB_TOKEN and GITHUB_REPO environment variables are required in Vercel settings.' },
+        { status: 400 }
+      );
     }
 
     // Mode B: Local Development Environment via Filesystem & Git
