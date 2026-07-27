@@ -6,10 +6,11 @@ import { validatePublishPayload } from '@/lib/publishing/validator';
 import { serializeMdx } from '@/lib/publishing/serializer';
 import { commitAndPushContent } from '@/lib/publishing/git';
 import { recordSlugRedirect, getRedirectsFromGitHub } from '@/lib/publishing/redirects';
-import { generateManifest } from '@/scripts/generate-manifest';
 import { isGitHubApiConfigured, commitFileToGitHub, deleteFileFromGitHub } from '@/lib/publishing/github';
 
 import { auth } from '@/lib/auth/config';
+
+const IS_VERCEL = process.env.VERCEL === '1';
 
 export async function POST(request: Request) {
   try {
@@ -60,8 +61,6 @@ export async function POST(request: Request) {
     const mdxContent = serializeMdx(frontmatter, contentHtml || '');
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
 
-    const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
-
     // Mode A: Online Vercel Deployment via GitHub REST API
     if (isGitHubApiConfigured()) {
       // 1. Commit article MDX file to GitHub
@@ -73,7 +72,7 @@ export async function POST(request: Request) {
 
       if (!mdxCommit.success) {
         return NextResponse.json(
-          { error: `GitHub Publish Failed: ${mdxCommit.error || 'Check GITHUB_TOKEN permissions'}` },
+          { error: `GitHub Publish Failed: ${mdxCommit.error}` },
           { status: 500 }
         );
       }
@@ -113,10 +112,10 @@ export async function POST(request: Request) {
       });
     }
 
-    // Fail-safe check for Vercel production
-    if (isVercel) {
+    // Fail-safe: block filesystem writes on Vercel
+    if (IS_VERCEL) {
       return NextResponse.json(
-        { error: 'GitHub Integration Unconfigured: GITHUB_TOKEN and GITHUB_REPO environment variables are required in Vercel settings.' },
+        { error: 'GITHUB_TOKEN and GITHUB_REPO env vars required on Vercel' },
         { status: 400 }
       );
     }
@@ -138,8 +137,9 @@ export async function POST(request: Request) {
     const mdxFilePath = path.join(targetDir, 'article.mdx');
     fs.writeFileSync(mdxFilePath, mdxContent, 'utf-8');
 
-    // Regenerate content manifest index
+    // Regenerate content manifest index (local only)
     try {
+      const { generateManifest } = await import('@/scripts/generate-manifest');
       generateManifest();
       revalidatePath('/', 'layout');
       revalidatePath(`/${contentType}`);
