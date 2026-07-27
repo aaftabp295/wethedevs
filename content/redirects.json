@@ -13,5 +13,10 @@
     "source": "/alternatives/cursoralternatives",
     "destination": "/alternatives/cursor-alternatives",
     "permanent": true
+  },
+  {
+    "source": "/alternatives/canna-alternatives",
+    "destination": "/alternatives/canva-alternatives",
+    "permanent": true
   }
 ]
