@@ -124,7 +124,8 @@ export function htmlToMarkdown(html: string): string {
     .replace(/<i>(.*?)<\/i>/gi, '*$1*')
     .replace(/<code>(.*?)<\/code>/gi, '`$1`')
     .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, '> $1\n\n')
-    .replace(/<a href="([^"]+)">(.*?)<\/a>/gi, '[$2]($1)')
+    .replace(/<a\s+[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
+    .replace(/<a\s+[^>]*href='([^']+)'[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
     .replace(/<img\s+([^>]+)\/?>/gi, (_, attribs: string) => {
       const srcMatch = attribs.match(/src="([^"]+)"/i) || attribs.match(/src='([^']+)'/i);
       const altMatch = attribs.match(/alt="([^"]*)"/i) || attribs.match(/alt='([^']*)'/i);
