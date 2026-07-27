@@ -68,9 +68,10 @@
           "level": 2
         }
       ],
-      "cover": "/images/covers/canva-alternatives-1785153164995.png",
+      "cover": "/images/covers/canva-alternatives-1785153744660.png",
+      "coverAlt": "canva logo ai generated",
       "readingTime": 12,
-      "publishedAt": "2026-07-27T11:53:02.299Z",
+      "publishedAt": "2026-07-27T12:02:48.776Z",
       "draft": false,
       "featured": false,
       "outgoingLinks": []
@@ -148,5 +149,5 @@
       "outgoingLinks": []
     }
   ],
-  "generatedAt": "2026-07-27T11:59:50.551Z"
+  "generatedAt": "2026-07-27T12:02:48.851Z"
 }
