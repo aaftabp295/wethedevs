@@ -1,14 +1,18 @@
 import * as React from 'react';
-import { ArticleJsonLd, BreadcrumbJsonLd } from '@/types/seo';
+
+type JsonLdSchema = Record<string, unknown>;
 
 interface SEOHeadProps {
-  jsonLd?: ArticleJsonLd | BreadcrumbJsonLd | Array<ArticleJsonLd | BreadcrumbJsonLd>;
+  jsonLd?: JsonLdSchema | null | Array<JsonLdSchema | null | undefined>;
 }
 
 export function SEOHead({ jsonLd }: SEOHeadProps) {
   if (!jsonLd) return null;
 
-  const payload = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+  const rawPayload = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+  const payload = rawPayload.filter(Boolean) as JsonLdSchema[];
+
+  if (payload.length === 0) return null;
 
   return (
     <>

@@ -8,6 +8,7 @@ export type ArticleJsonLd = {
   author: {
     '@type': 'Person';
     name: string;
+    url?: string;
   };
   publisher: {
     '@type': 'Organization';
@@ -28,6 +29,43 @@ export type BreadcrumbJsonLd = {
     position: number;
     name: string;
     item?: string;
+  }>;
+};
+
+/** JSON-LD Organization schema */
+export type OrganizationJsonLd = {
+  '@context': 'https://schema.org';
+  '@type': 'Organization';
+  name: string;
+  url: string;
+  logo?: string;
+  sameAs?: string[];
+};
+
+/** JSON-LD WebSite + SearchAction schema */
+export type WebSiteJsonLd = {
+  '@context': 'https://schema.org';
+  '@type': 'WebSite';
+  name: string;
+  url: string;
+  potentialAction?: {
+    '@type': 'SearchAction';
+    target: string;
+    'query-input': string;
+  };
+};
+
+/** JSON-LD FAQPage schema */
+export type FaqJsonLd = {
+  '@context': 'https://schema.org';
+  '@type': 'FAQPage';
+  mainEntity: Array<{
+    '@type': 'Question';
+    name: string;
+    acceptedAnswer: {
+      '@type': 'Answer';
+      text: string;
+    };
   }>;
 };
 

@@ -11,7 +11,7 @@ import { ArticleShare } from '@/components/content/article-share';
 import { ArticleNav } from '@/components/content/article-nav';
 import { RelatedArticles } from '@/components/content/related-articles';
 import { SEOHead } from '@/components/shared/seo-head';
-import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd } from '@/lib/seo/metadata';
+import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLdFromContent } from '@/lib/seo/metadata';
 import { siteConfig } from '@/lib/site.config';
 import { ContentTypeSlug } from '@/types/content';
 
@@ -86,10 +86,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     { name: config.pluralLabel, url: `/${contentType}` },
     { name: article.title, url: `/${contentType}/${slug}` },
   ]);
+  const faqJsonLd = buildFaqJsonLdFromContent(article.content);
+
+  const jsonLdPayload = [articleJsonLd, breadcrumbJsonLd, faqJsonLd].filter(Boolean) as Record<string, unknown>[];
 
   return (
     <>
-      <SEOHead jsonLd={[articleJsonLd, breadcrumbJsonLd]} />
+      <SEOHead jsonLd={jsonLdPayload} />
 
       <article className="py-12 sm:py-16">
         <Container>
