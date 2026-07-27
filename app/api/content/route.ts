@@ -34,7 +34,6 @@ export async function DELETE(request: Request) {
     }
 
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
-    const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 
     // Mode A: Online Vercel Deployment via GitHub REST API
     if (isGitHubApiConfigured()) {
@@ -57,10 +56,10 @@ export async function DELETE(request: Request) {
       });
     }
 
-    // Fail-safe check for Vercel production
-    if (isVercel) {
+    // Fail-safe: block filesystem writes on Vercel
+    if (process.env.VERCEL === '1') {
       return NextResponse.json(
-        { error: 'GitHub Integration Unconfigured: GITHUB_TOKEN and GITHUB_REPO environment variables are required in Vercel settings.' },
+        { error: 'GITHUB_TOKEN and GITHUB_REPO env vars required on Vercel' },
         { status: 400 }
       );
     }
@@ -88,7 +87,7 @@ export async function DELETE(request: Request) {
       git: gitResult,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Delete error';
+    const message = error instanceof Error ? error.stack || error.message : 'Delete error';
     return NextResponse.json(
       { error: 'Failed to delete article', details: message },
       { status: 500 }
@@ -98,7 +97,10 @@ export async function DELETE(request: Request) {
 
 /** PATCH /api/content — Toggle draft status (Live -> Draft or Draft -> Live) */
 export async function PATCH(request: Request) {
+  const debugSteps: string[] = [];
+
   try {
+    debugSteps.push('1. Checking auth session...');
     const session = await auth();
     if (!session) {
       return NextResponse.json(
@@ -106,9 +108,11 @@ export async function PATCH(request: Request) {
         { status: 401 }
       );
     }
+    debugSteps.push('2. Auth OK');
 
     const body = await request.json();
     const { contentType, slug, draft } = body;
+    debugSteps.push(`3. Parsed body: contentType=${contentType}, slug=${slug}, draft=${draft}`);
 
     if (!contentType || !slug || typeof draft !== 'boolean') {
       return NextResponse.json(
@@ -119,39 +123,45 @@ export async function PATCH(request: Request) {
 
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
     const articlePath = path.join(CONTENT_DIR, contentType, slug, 'article.mdx');
-    const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
+    const githubConfigured = isGitHubApiConfigured();
+    debugSteps.push(`4. isGitHubApiConfigured() = ${githubConfigured}`);
 
     // Read and parse frontmatter — from GitHub or local FS depending on mode
     let rawMdx: string | null = null;
 
-    if (isGitHubApiConfigured()) {
-      // Mode A: Fetch file content directly from GitHub repo
+    if (githubConfigured) {
+      debugSteps.push('5. Fetching file from GitHub API...');
       rawMdx = await getFileContentFromGitHub(mdxRelativePath);
+      debugSteps.push(`6. GitHub file fetch result: ${rawMdx ? `${rawMdx.length} chars` : 'null (not found)'}`);
+
       if (!rawMdx) {
         return NextResponse.json(
-          { error: `Article file not found in GitHub repo: ${mdxRelativePath}` },
+          { error: `Article not found in GitHub: ${mdxRelativePath}`, debug: debugSteps },
           { status: 404 }
         );
       }
-    } else if (isVercel) {
+    } else if (process.env.VERCEL === '1') {
       return NextResponse.json(
-        { error: 'GitHub Integration Unconfigured: GITHUB_TOKEN and GITHUB_REPO environment variables are required in Vercel settings.' },
+        { error: 'GITHUB_TOKEN and GITHUB_REPO env vars required on Vercel', debug: debugSteps },
         { status: 400 }
       );
     } else {
       // Mode B: Read from local filesystem
       if (!fs.existsSync(articlePath)) {
         return NextResponse.json(
-          { error: 'Article MDX file not found' },
+          { error: 'Article MDX file not found on local filesystem' },
           { status: 404 }
         );
       }
       rawMdx = fs.readFileSync(articlePath, 'utf-8');
     }
 
+    debugSteps.push('7. Parsing frontmatter with gray-matter...');
     const parsed = matter(rawMdx);
     const data = parsed.data;
     const content = parsed.content;
+    debugSteps.push(`8. Frontmatter parsed, keys: ${Object.keys(data).join(', ')}`);
 
     data.draft = draft;
     if (!draft && !data.publishedAt) {
@@ -160,18 +170,21 @@ export async function PATCH(request: Request) {
     data.updatedAt = new Date().toISOString();
 
     const updatedMdx = matter.stringify(content, data);
+    debugSteps.push(`9. Updated MDX: ${updatedMdx.length} chars`);
 
     // Mode A: Commit updated file to GitHub
-    if (isGitHubApiConfigured()) {
+    if (githubConfigured) {
+      debugSteps.push('10. Committing updated file to GitHub...');
       const gitResult = await commitFileToGitHub({
         path: mdxRelativePath,
         content: updatedMdx,
         message: `chore(content): set draft=${draft} for ${contentType}/${slug}`,
       });
+      debugSteps.push(`11. GitHub commit result: ${JSON.stringify(gitResult)}`);
 
       if (!gitResult.success) {
         return NextResponse.json(
-          { error: `GitHub Draft Update Failed: ${gitResult.error}` },
+          { error: `GitHub commit failed: ${gitResult.error}`, debug: debugSteps },
           { status: 500 }
         );
       }
@@ -182,6 +195,7 @@ export async function PATCH(request: Request) {
         slug,
         contentType,
         git: gitResult,
+        debug: debugSteps,
       });
     }
 
@@ -207,9 +221,9 @@ export async function PATCH(request: Request) {
       git: gitResult,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Update error';
+    const message = error instanceof Error ? error.stack || error.message : 'Update error';
     return NextResponse.json(
-      { error: 'Failed to update article draft status', details: message },
+      { error: 'Failed to update article draft status', details: message, debug: debugSteps },
       { status: 500 }
     );
   }
