@@ -24,7 +24,10 @@ export default function AdminArticlesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contentType, slug, draft: true }),
       });
-      if (!res.ok) throw new Error('Failed to move article to draft');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || data.details || `Server error ${res.status}`);
+      }
       router.refresh();
     } catch (err) {
       alert(`Unpublish error: ${(err as Error).message}`);
@@ -43,7 +46,10 @@ export default function AdminArticlesPage() {
       const res = await fetch(`/api/content?contentType=${contentType}&slug=${slug}`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('Failed to delete article');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || data.details || `Server error ${res.status}`);
+      }
       router.refresh();
     } catch (err) {
       alert(`Delete error: ${(err as Error).message}`);
