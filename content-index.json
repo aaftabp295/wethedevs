@@ -1,6 +1,81 @@
 {
   "articles": [
     {
+      "title": "13 Best Canva Alternatives in 2026 (Free & Paid, Compared)",
+      "slug": "canna-alternatives",
+      "contentType": "alternatives",
+      "topic": "AI Coding",
+      "tags": [
+        "canva-alternative",
+        "canva-alternatives",
+        "alternative-to-canva"
+      ],
+      "description": "Looking for a Canva alternative? We compared pricing, features, and free plans on 13 design tools — from Adobe Express to Figma to Photopea — to help you find the right fit.",
+      "headings": [
+        {
+          "id": "how-we-put-this-list-together",
+          "text": "How we put this list together",
+          "level": 2
+        },
+        {
+          "id": "why-people-actually-leave-canva",
+          "text": "Why people actually leave Canva",
+          "level": 2
+        },
+        {
+          "id": "full-comparison-matrix",
+          "text": "Full comparison matrix",
+          "level": 2
+        },
+        {
+          "id": "if-you-just-want-a-canva-like-tool-thats-cheaper-or-does-more",
+          "text": "If you just want a Canva-like tool that's cheaper or does more",
+          "level": 2
+        },
+        {
+          "id": "if-your-problem-is-presentations-or-data-not-social-graphics",
+          "text": "If your problem is presentations or data, not social graphics",
+          "level": 2
+        },
+        {
+          "id": "if-you-just-need-something-fast",
+          "text": "If you just need something fast",
+          "level": 2
+        },
+        {
+          "id": "the-best-free-options-if-price-is-the-whole-reason-youre-here",
+          "text": "The best free options, if price is the whole reason you're here",
+          "level": 2
+        },
+        {
+          "id": "i-need-something-more-like-photoshop-not-more-like-canva",
+          "text": "\"I need something more like Photoshop, not more like Canva\"",
+          "level": 2
+        },
+        {
+          "id": "decision-tree",
+          "text": "Decision tree",
+          "level": 2
+        },
+        {
+          "id": "faq",
+          "text": "FAQ",
+          "level": 2
+        },
+        {
+          "id": "sources",
+          "text": "Sources",
+          "level": 2
+        }
+      ],
+      "cover": "https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.creativegaga.com%2Fnews%2Fcanvas-logo-gets-a-new-re-definition&ved=0CBYQjRxqFwoTCKD8joTa8pUDFQAAAAAdAAAAABA4&opi=89978449",
+      "readingTime": 13,
+      "publishedAt": "2026-07-27T11:02:04.025Z",
+      "draft": false,
+      "featured": false,
+      "outgoingLinks": []
+    },
+    {
       "title": "Best Lovable Alternatives in 2026 (Tested & Compared)",
       "slug": "lovable-alternatives",
       "contentType": "alternatives",
@@ -65,120 +140,13 @@
           "level": 2
         }
       ],
+      "cover": "https://www.eesel.ai/_next/image?url=https%3A%2F%2Fwebsite-cms.eesel.ai%2Fwp-content%2Fuploads%2F2025%2F09%2FBanner-An-in-depth-Lovable-review_-Is-it-the-future-of-app-development_.png&w=1680&q=75",
       "readingTime": 12,
-      "publishedAt": "2026-07-27T05:41:20.419Z",
+      "publishedAt": "2026-07-27T06:14:34.626Z",
       "draft": false,
       "featured": false,
       "outgoingLinks": []
-    },
-    {
-      "title": "10 Best Cursor Alternatives in 2026",
-      "slug": "cursor-alternatives",
-      "contentType": "alternatives",
-      "topic": "AI Coding",
-      "tags": [
-        "cursor",
-        "ai-coding",
-        "ide",
-        "code-editor"
-      ],
-      "description": "Looking for alternatives to Cursor? We benchmarked and compared the top AI-powered IDEs and code editors for developers.",
-      "headings": [
-        {
-          "id": "overview",
-          "text": "Overview",
-          "level": 2
-        },
-        {
-          "id": "top-alternatives",
-          "text": "Top Alternatives",
-          "level": 2
-        },
-        {
-          "id": "1-windsurf-by-codeium",
-          "text": "1. Windsurf by Codeium",
-          "level": 3
-        },
-        {
-          "id": "2-github-copilot-workspace",
-          "text": "2. GitHub Copilot Workspace",
-          "level": 3
-        },
-        {
-          "id": "3-zed-ai",
-          "text": "3. Zed AI",
-          "level": 3
-        },
-        {
-          "id": "performance-comparison",
-          "text": "Performance Comparison",
-          "level": 2
-        },
-        {
-          "id": "final-verdict",
-          "text": "Final Verdict",
-          "level": 2
-        }
-      ],
-      "readingTime": 2,
-      "publishedAt": "2026-07-26T08:04:04.674Z",
-      "updatedAt": "2026-07-27T04:54:57.749Z",
-      "draft": true,
-      "featured": true,
-      "outgoingLinks": []
-    },
-    {
-      "title": "ChatGPT vs Claude for Software Engineers",
-      "slug": "chatgpt-vs-claude",
-      "contentType": "comparisons",
-      "topic": "AI Models",
-      "tags": [
-        "chatgpt",
-        "claude",
-        "ai-models",
-        "benchmarks"
-      ],
-      "description": "In-depth comparison of GPT-4o and Claude 3.5 Sonnet across complex code generation, refactoring, and debugging.",
-      "headings": [
-        {
-          "id": "introduction",
-          "text": "Introduction",
-          "level": 2
-        },
-        {
-          "id": "code-quality-reasoning",
-          "text": "Code Quality & Reasoning",
-          "level": 2
-        },
-        {
-          "id": "claude-35-sonnet",
-          "text": "Claude 3.5 Sonnet",
-          "level": 3
-        },
-        {
-          "id": "gpt-4o",
-          "text": "GPT-4o",
-          "level": 3
-        },
-        {
-          "id": "summary-benchmarks",
-          "text": "Summary Benchmarks",
-          "level": 2
-        },
-        {
-          "id": "recommendation",
-          "text": "Recommendation",
-          "level": 2
-        }
-      ],
-      "readingTime": 2,
-      "publishedAt": "2026-07-22T00:00:00Z",
-      "draft": false,
-      "featured": true,
-      "outgoingLinks": [
-        "cursor-alternatives"
-      ]
     }
   ],
-  "generatedAt": "2026-07-27T05:41:20.488Z"
+  "generatedAt": "2026-07-27T11:08:31.415Z"
 }
