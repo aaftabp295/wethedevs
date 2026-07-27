@@ -3,13 +3,15 @@ export const siteConfig = {
   name: 'We The Devs',
   description:
     'Premium editorial content on AI coding tools, alternatives, comparisons, and guides for developers.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://wethedevs.vercel.app',
   author: {
     name: 'Aaftab',
-    url: '',
+    role: 'Senior Software Engineer & Tech Reviewer',
+    bio: 'Software engineer specializing in web architecture, AI developer tools, and design software comparisons.',
+    url: 'https://wethedevs.vercel.app',
   },
   links: {
-    twitter: '',
-    github: '',
+    twitter: 'https://twitter.com',
+    github: 'https://github.com/aaftabp295/wethedevs',
   },
 } as const;

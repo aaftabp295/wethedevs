@@ -44,6 +44,7 @@ export async function generateMetadata({
     modifiedTime: article.updatedAt || article.publishedAt,
     tags: article.tags,
     ogImage: article.cover,
+    ogImageAlt: article.coverAlt || article.title,
   });
 }
 

@@ -8,11 +8,14 @@ export type ArticleJsonLd = {
   author: {
     '@type': 'Person';
     name: string;
+    jobTitle?: string;
+    description?: string;
     url?: string;
   };
   publisher: {
     '@type': 'Organization';
     name: string;
+    url?: string;
     logo?: { '@type': 'ImageObject'; url: string };
   };
   datePublished: string;
