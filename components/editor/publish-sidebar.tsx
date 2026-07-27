@@ -11,7 +11,7 @@ import { contentTypes } from '@/lib/content/content-types.config';
 import { ContentTypeSlug } from '@/types/content';
 import { PublishSidebarState } from '@/types/editor';
 import { slugify } from '@/lib/utils';
-import { Send, Image as ImageIcon, X, FileEdit } from 'lucide-react';
+import { Send, Image as ImageIcon, X, FileEdit, Upload, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface PublishSidebarProps {
   open: boolean;
@@ -31,6 +31,10 @@ export function PublishSidebar({
   isPublishing = false,
 }: PublishSidebarProps) {
   const [tagInput, setTagInput] = React.useState('');
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadSuccess, setUploadSuccess] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleAddTag = () => {
     if (!tagInput.trim()) return;
@@ -46,6 +50,49 @@ export function PublishSidebar({
       ...state,
       tags: state.tags.filter((t) => t !== tagToRemove),
     });
+  };
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+    setUploadSuccess(false);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('slug', state.slug || 'article');
+
+      const res = await fetch('/api/media', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+
+      // Update cover image URL in state
+      onChange({
+        ...state,
+        cover: data.url,
+      });
+
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 3000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Image upload failed';
+      setUploadError(msg);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   return (
@@ -171,19 +218,63 @@ export function PublishSidebar({
             </div>
           </div>
 
-          {/* Cover Image URL */}
-          <div className="space-y-1.5">
-            <label className="font-semibold text-muted-foreground">Cover Image URL</label>
+          {/* Cover Image Upload & URL */}
+          <div className="space-y-2 pt-2 border-t border-border">
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-muted-foreground">Cover Image</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/avif,image/svg+xml"
+                onChange={handleImageFileChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="h-7 text-[11px] gap-1.5"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span>Uploading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-3 w-3" />
+                    <span>Upload Image File</span>
+                  </>
+                )}
+              </Button>
+            </div>
+
             <div className="flex items-center gap-2">
               <ImageIcon className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input
                 value={state.cover || ''}
                 onChange={(e) => onChange({ ...state, cover: e.target.value })}
-                placeholder="https://images.unsplash.com/... or /cover.webp"
+                placeholder="/images/covers/hero.png or https://..."
               />
             </div>
+
+            {uploadSuccess && (
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
+                <CheckCircle2 className="h-3 w-3" />
+                Image committed to repo & saved to cover!
+              </p>
+            )}
+
+            {uploadError && (
+              <p className="text-[11px] text-destructive font-medium">
+                ❌ {uploadError}
+              </p>
+            )}
+
             <p className="text-[11px] text-muted-foreground">
-              Direct image URL for featured hero cards and social media share previews.
+              Upload a local PNG/JPG file to self-host in your GitHub repo under `/images/covers/`, or paste a URL.
             </p>
           </div>
 
@@ -231,7 +322,7 @@ export function PublishSidebar({
               variant="outline"
               size="lg"
               onClick={() => onPublish(true)}
-              disabled={isPublishing}
+              disabled={isPublishing || isUploading}
               className="gap-1.5 text-xs font-semibold"
             >
               <FileEdit className="h-4 w-4" />
@@ -242,7 +333,7 @@ export function PublishSidebar({
               type="button"
               size="lg"
               onClick={() => onPublish(false)}
-              disabled={isPublishing}
+              disabled={isPublishing || isUploading}
               className="gap-1.5 text-xs font-semibold"
             >
               <Send className="h-4 w-4" />

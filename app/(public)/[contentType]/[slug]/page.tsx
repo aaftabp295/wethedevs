@@ -43,6 +43,7 @@ export async function generateMetadata({
     publishedTime: article.publishedAt,
     modifiedTime: article.updatedAt || article.publishedAt,
     tags: article.tags,
+    ogImage: article.cover,
   });
 }
 
