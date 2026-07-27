@@ -3,7 +3,6 @@ import { siteConfig } from '@/lib/site.config';
 import { getPublicArticles } from '@/lib/content/manifest';
 import { contentTypeSlugs } from '@/lib/content/content-types.config';
 
-export const dynamic = 'force-dynamic';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const publicArticles = getPublicArticles();

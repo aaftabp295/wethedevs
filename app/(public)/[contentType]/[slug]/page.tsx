@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-export const dynamic = 'force-dynamic';
 import { Container } from '@/components/layout/container';
 import { getContentType } from '@/lib/content/content-types.config';
 import { getPublicArticles } from '@/lib/content/manifest';
