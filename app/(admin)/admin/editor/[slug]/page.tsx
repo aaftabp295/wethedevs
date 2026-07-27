@@ -32,6 +32,7 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
           topic: articleMeta.topic,
           tags: articleMeta.tags,
           cover: articleMeta.cover,
+          coverAlt: articleMeta.coverAlt,
           featured: articleMeta.featured,
         }}
       />

@@ -13,6 +13,7 @@ export const FrontmatterSchema = z.object({
   topic: z.string().min(1, 'Topic is required'),
   tags: z.array(z.string()).default([]),
   cover: z.string().optional(),
+  coverAlt: z.string().optional(),
   publishedAt: z.string(),
   updatedAt: z.string().optional(),
   draft: z.boolean().default(false),

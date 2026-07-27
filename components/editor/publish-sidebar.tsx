@@ -187,6 +187,19 @@ export function PublishSidebar({
             </p>
           </div>
 
+          {/* Cover Image Alt Text */}
+          <div className="space-y-1.5">
+            <label className="font-semibold text-muted-foreground">Cover Image Alt Text (SEO)</label>
+            <Input
+              value={state.coverAlt || ''}
+              onChange={(e) => onChange({ ...state, coverAlt: e.target.value })}
+              placeholder="Descriptive alt text for Google Image SEO..."
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Accessibility and image search keyword optimization (defaults to title).
+            </p>
+          </div>
+
           {/* SEO Overrides Header */}
           <div className="pt-4 border-t border-border space-y-3">
             <h4 className="font-bold text-sm text-foreground">SEO Overrides (Optional)</h4>

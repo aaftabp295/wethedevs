@@ -53,6 +53,7 @@ export function EditorComponent({
     topic: initialPublishState.topic || 'AI Coding',
     tags: initialPublishState.tags || [],
     cover: initialPublishState.cover || '',
+    coverAlt: initialPublishState.coverAlt || '',
     metaTitle: initialPublishState.metaTitle || '',
     metaDescription: initialPublishState.metaDescription || '',
     canonical: initialPublishState.canonical || '',

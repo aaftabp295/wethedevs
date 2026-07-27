@@ -35,6 +35,7 @@ export async function POST(request: Request) {
         ? [rawFrontmatter.tags.trim()]
         : [],
       cover: rawFrontmatter.cover?.trim() || undefined,
+      coverAlt: rawFrontmatter.coverAlt?.trim() || undefined,
       canonical: rawFrontmatter.canonical?.trim() || undefined,
       author: rawFrontmatter.author?.trim() || undefined,
       updatedAt: rawFrontmatter.updatedAt?.trim() || undefined,

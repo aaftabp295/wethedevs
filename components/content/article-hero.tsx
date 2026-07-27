@@ -15,6 +15,7 @@ interface ArticleHeroProps {
   readingTime: number;
   author?: string;
   cover?: string;
+  coverAlt?: string;
 }
 
 export function ArticleHero({
@@ -28,6 +29,7 @@ export function ArticleHero({
   readingTime,
   author,
   cover,
+  coverAlt,
 }: ArticleHeroProps) {
   return (
     <div className="space-y-6">
@@ -71,7 +73,7 @@ export function ArticleHero({
           <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/20 shadow-xs">
             <Image
               src={cover}
-              alt={title}
+              alt={coverAlt || title}
               width={1200}
               height={630}
               priority

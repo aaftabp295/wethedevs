@@ -9,6 +9,7 @@ export type PublishSidebarState = {
   topic: string;
   tags: string[];
   cover?: string;
+  coverAlt?: string;
   metaTitle?: string;
   metaDescription?: string;
   canonical?: string;

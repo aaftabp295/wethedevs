@@ -16,6 +16,7 @@ export type ArticleFrontmatter = {
   topic: string;
   tags: string[];
   cover?: string;
+  coverAlt?: string;
   publishedAt: string;
   updatedAt?: string;
   draft: boolean;
@@ -49,6 +50,7 @@ export type ManifestEntry = {
   description: string;
   headings: ArticleHeading[];
   cover?: string;
+  coverAlt?: string;
   readingTime: number;
   publishedAt: string;
   updatedAt?: string;

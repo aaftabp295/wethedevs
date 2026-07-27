@@ -59,6 +59,7 @@ export function articleToManifestEntry(article: Article): ManifestEntry {
     description: article.description,
     headings: article.headings,
     cover: article.cover,
+    coverAlt: article.coverAlt,
     readingTime: article.readingTime,
     publishedAt: article.publishedAt,
     updatedAt: article.updatedAt,
