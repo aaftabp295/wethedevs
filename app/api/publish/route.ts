@@ -6,7 +6,7 @@ import { validatePublishPayload } from '@/lib/publishing/validator';
 import { serializeMdx } from '@/lib/publishing/serializer';
 import { commitAndPushContent } from '@/lib/publishing/git';
 import { recordSlugRedirect, getRedirectsFromGitHub } from '@/lib/publishing/redirects';
-import { isGitHubApiConfigured, commitFileToGitHub, deleteFileFromGitHub } from '@/lib/publishing/github';
+import { isGitHubApiConfigured, commitMultipleFilesToGitHub, FileChange } from '@/lib/publishing/github';
 
 import { auth } from '@/lib/auth/config';
 
@@ -62,31 +62,25 @@ export async function POST(request: Request) {
     const mdxContent = serializeMdx(frontmatter, contentHtml || '');
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
 
-    // Mode A: Online Vercel Deployment via GitHub REST API
+    // Mode A: Online Vercel Deployment via GitHub REST API (1 Single Atomic Commit)
     if (isGitHubApiConfigured()) {
-      // 1. Commit article MDX file to GitHub
-      const mdxCommit = await commitFileToGitHub({
+      const gitChanges: FileChange[] = [];
+
+      // 1. Add/update the new article MDX file
+      gitChanges.push({
         path: mdxRelativePath,
         content: mdxContent,
-        message: `feat(content): publish ${contentType}/${slug}`,
       });
 
-      if (!mdxCommit.success) {
-        return NextResponse.json(
-          { error: `GitHub Publish Failed: ${mdxCommit.error}` },
-          { status: 500 }
-        );
-      }
-
-      // 2. If old slug was renamed, delete old file from GitHub
+      // 2. If old slug was renamed, mark old MDX file for deletion (content: undefined)
       if (oldSlug && oldSlug !== slug) {
-        await deleteFileFromGitHub(
-          `content/${contentType}/${oldSlug}/article.mdx`,
-          `fix(content): rename slug from ${oldSlug} to ${slug}`
-        );
+        gitChanges.push({
+          path: `content/${contentType}/${oldSlug}/article.mdx`,
+          content: undefined,
+        });
       }
 
-      // 3. Update content/redirects.json on GitHub if there are new redirects
+      // 3. Update content/redirects.json if there are new redirects
       if (newRedirects.length > 0) {
         const existingRedirects = await getRedirectsFromGitHub();
         const mergedRedirects = [
@@ -96,11 +90,27 @@ export async function POST(request: Request) {
           ...newRedirects,
         ];
 
-        await commitFileToGitHub({
+        gitChanges.push({
           path: 'content/redirects.json',
           content: JSON.stringify(mergedRedirects, null, 2),
-          message: `chore(seo): update redirects for ${slug}`,
         });
+      }
+
+      // Commit all changes atomically in 1 single GitHub commit (triggers ONLY 1 Vercel deploy!)
+      const commitMessage = oldSlug && oldSlug !== slug
+        ? `feat(content): publish ${contentType}/${slug} (renamed from ${oldSlug})`
+        : `feat(content): publish ${contentType}/${slug}`;
+
+      const gitCommit = await commitMultipleFilesToGitHub({
+        changes: gitChanges,
+        message: commitMessage,
+      });
+
+      if (!gitCommit.success) {
+        return NextResponse.json(
+          { error: `GitHub Publish Failed: ${gitCommit.error}` },
+          { status: 500 }
+        );
       }
 
       return NextResponse.json({
@@ -109,7 +119,7 @@ export async function POST(request: Request) {
         contentType,
         path: mdxRelativePath,
         onlineGithub: true,
-        git: mdxCommit,
+        git: gitCommit,
       });
     }
 

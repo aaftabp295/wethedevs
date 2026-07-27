@@ -46,7 +46,34 @@ export function htmlToMarkdown(html: string): string {
 
   let output = html;
 
-  // Convert HTML tables to Markdown tables
+  // 1. Convert HTML code blocks (<pre><code.../pre>) to GFM fenced code blocks BEFORE general html tag stripping
+  output = output.replace(
+    /<pre[^>]*>\s*<code(?: class="([^"]+)")?[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/gi,
+    (_, className, codeText) => {
+      const langMatch = className ? className.match(/language-([a-z0-9_-]+)/i) : null;
+      const lang = langMatch ? langMatch[1] : '';
+      const cleanCode = codeText
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<[^>]+>/g, '');
+      return `\n\n\`\`\`${lang || 'text'}\n${cleanCode.trim()}\n\`\`\`\n\n`;
+    }
+  );
+
+  // Clean up any stray <code...>...</code></pre> or <pre>...
+  output = output
+    .replace(/<code(?:\s+[^>]*>|>)([\s\S]*?)<\/code>\s*<\/pre>/gi, (_, codeText) => {
+      const cleanCode = codeText.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, '');
+      return `\n\n\`\`\`text\n${cleanCode.trim()}\n\`\`\`\n\n`;
+    })
+    .replace(/<pre[^>]*>([\s\S]*?)<\/pre>/gi, (_, codeText) => {
+      const cleanCode = codeText.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, '');
+      return `\n\n\`\`\`text\n${cleanCode.trim()}\n\`\`\`\n\n`;
+    });
+
+  // 2. Convert HTML tables to Markdown tables
   output = output.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (match) => {
     return convertHtmlTableToMarkdown(match);
   });
@@ -144,6 +171,7 @@ export function serializeMdx(
     `featured: ${frontmatter.featured}`,
     frontmatter.author ? `author: "${frontmatter.author}"` : null,
     frontmatter.cover ? `cover: "${frontmatter.cover}"` : null,
+    frontmatter.coverAlt ? `coverAlt: "${frontmatter.coverAlt.replace(/"/g, '\\"')}"` : null,
     '---',
   ]
     .filter(Boolean)
