@@ -6,6 +6,16 @@ import path from 'path';
 const nextConfig: NextConfig = {
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
     formats: ['image/avif', 'image/webp'],
   },
   async redirects() {

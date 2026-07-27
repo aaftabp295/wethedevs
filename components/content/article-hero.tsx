@@ -70,15 +70,15 @@ export function ArticleHero({
       {/* Feature Cover Image — Positioned for optimal SEO & Google E-E-A-T */}
       {cover && (
         <div className="pt-2">
-          <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/20 shadow-xs">
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/20 shadow-xs relative aspect-[16/9] w-full max-h-[480px]">
             <Image
               src={cover}
               alt={coverAlt || title}
-              width={1200}
-              height={630}
+              fill
               priority
               unoptimized
-              className="w-full max-h-[480px] object-cover"
+              referrerPolicy="no-referrer"
+              className="object-cover w-full h-full"
             />
           </div>
         </div>
