@@ -5,7 +5,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import { generateManifest } from '@/scripts/generate-manifest';
 import { commitAndPushContent } from '@/lib/publishing/git';
-import { isGitHubApiConfigured, commitFileToGitHub, deleteFileFromGitHub } from '@/lib/publishing/github';
+import { isGitHubApiConfigured, commitFileToGitHub, deleteFileFromGitHub, getFileContentFromGitHub } from '@/lib/publishing/github';
 
 import { auth } from '@/lib/auth/config';
 
@@ -101,26 +101,35 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const articlePath = path.join(CONTENT_DIR, contentType, slug, 'article.mdx');
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
+    const articlePath = path.join(CONTENT_DIR, contentType, slug, 'article.mdx');
 
-    if (!fs.existsSync(articlePath) && !isGitHubApiConfigured()) {
-      return NextResponse.json(
-        { error: 'Article MDX file not found' },
-        { status: 404 }
-      );
+    // Read and parse frontmatter — from GitHub or local FS depending on mode
+    let rawMdx: string | null = null;
+
+    if (isGitHubApiConfigured()) {
+      // Mode A: Fetch file content directly from GitHub repo
+      rawMdx = await getFileContentFromGitHub(mdxRelativePath);
+      if (!rawMdx) {
+        return NextResponse.json(
+          { error: `Article file not found in GitHub repo: ${mdxRelativePath}` },
+          { status: 404 }
+        );
+      }
+    } else {
+      // Mode B: Read from local filesystem
+      if (!fs.existsSync(articlePath)) {
+        return NextResponse.json(
+          { error: 'Article MDX file not found' },
+          { status: 404 }
+        );
+      }
+      rawMdx = fs.readFileSync(articlePath, 'utf-8');
     }
 
-    // Read and parse frontmatter
-    let content = '';
-    let data: Record<string, unknown> = {};
-
-    if (fs.existsSync(articlePath)) {
-      const raw = fs.readFileSync(articlePath, 'utf-8');
-      const parsed = matter(raw);
-      data = parsed.data;
-      content = parsed.content;
-    }
+    const parsed = matter(rawMdx);
+    const data = parsed.data;
+    const content = parsed.content;
 
     data.draft = draft;
     if (!draft && !data.publishedAt) {
@@ -130,12 +139,12 @@ export async function PATCH(request: Request) {
 
     const updatedMdx = matter.stringify(content, data);
 
-    // Mode A: Online Vercel Deployment via GitHub REST API
+    // Mode A: Commit updated file to GitHub
     if (isGitHubApiConfigured()) {
       const gitResult = await commitFileToGitHub({
         path: mdxRelativePath,
         content: updatedMdx,
-        message: `chore(content): update draft status to ${draft} for ${contentType}/${slug}`,
+        message: `chore(content): set draft=${draft} for ${contentType}/${slug}`,
       });
 
       return NextResponse.json({
@@ -147,7 +156,7 @@ export async function PATCH(request: Request) {
       });
     }
 
-    // Mode B: Local Filesystem & Git
+    // Mode B: Write to local filesystem & Git
     fs.writeFileSync(articlePath, updatedMdx, 'utf-8');
 
     try {

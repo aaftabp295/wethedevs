@@ -5,7 +5,7 @@ import path from 'path';
 import { validatePublishPayload } from '@/lib/publishing/validator';
 import { serializeMdx } from '@/lib/publishing/serializer';
 import { commitAndPushContent } from '@/lib/publishing/git';
-import { recordSlugRedirect, getRedirects } from '@/lib/publishing/redirects';
+import { recordSlugRedirect, getRedirectsFromGitHub } from '@/lib/publishing/redirects';
 import { generateManifest } from '@/scripts/generate-manifest';
 import { isGitHubApiConfigured, commitFileToGitHub, deleteFileFromGitHub } from '@/lib/publishing/github';
 
@@ -52,16 +52,9 @@ export async function POST(request: Request) {
     const { slug, contentType } = frontmatter;
 
     // Handle slug rename & SEO redirect
-    if (oldSlug && oldSlug !== slug) {
-      recordSlugRedirect(contentType, oldSlug, slug);
-
-      if (!isGitHubApiConfigured()) {
-        const oldDir = path.join(process.cwd(), 'content', contentType, oldSlug);
-        if (fs.existsSync(oldDir)) {
-          fs.rmSync(oldDir, { recursive: true, force: true });
-        }
-      }
-    }
+    const newRedirects = oldSlug && oldSlug !== slug
+      ? recordSlugRedirect(contentType, oldSlug, slug)
+      : [];
 
     // Serialize to clean MDX text
     const mdxContent = serializeMdx(frontmatter, contentHtml || '');
@@ -84,12 +77,20 @@ export async function POST(request: Request) {
         );
       }
 
-      // 3. Update content/redirects.json on GitHub
-      const redirectsList = getRedirects();
-      if (redirectsList.length > 0) {
+      // 3. Update content/redirects.json on GitHub if there are new redirects
+      if (newRedirects.length > 0) {
+        // Merge with existing redirects from GitHub
+        const existingRedirects = await getRedirectsFromGitHub();
+        const mergedRedirects = [
+          ...existingRedirects.filter(
+            (r) => !newRedirects.some((nr) => nr.source === r.source)
+          ),
+          ...newRedirects,
+        ];
+
         await commitFileToGitHub({
           path: 'content/redirects.json',
-          content: JSON.stringify(redirectsList, null, 2),
+          content: JSON.stringify(mergedRedirects, null, 2),
           message: `chore(seo): update redirects for ${slug}`,
         });
       }
@@ -108,6 +109,14 @@ export async function POST(request: Request) {
     const targetDir = path.join(process.cwd(), 'content', contentType, slug);
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    // Delete old slug directory if renamed
+    if (oldSlug && oldSlug !== slug) {
+      const oldDir = path.join(process.cwd(), 'content', contentType, oldSlug);
+      if (fs.existsSync(oldDir)) {
+        fs.rmSync(oldDir, { recursive: true, force: true });
+      }
     }
 
     const mdxFilePath = path.join(targetDir, 'article.mdx');

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { isGitHubApiConfigured, getFileContentFromGitHub } from '@/lib/publishing/github';
 
 export interface RedirectRule {
   source: string;
@@ -22,17 +23,34 @@ export function getRedirects(): RedirectRule[] {
   }
 }
 
+/** Load redirects from GitHub when on Vercel (async) */
+export async function getRedirectsFromGitHub(): Promise<RedirectRule[]> {
+  try {
+    const content = await getFileContentFromGitHub('content/redirects.json');
+    if (!content) return [];
+    return JSON.parse(content) as RedirectRule[];
+  } catch {
+    return [];
+  }
+}
+
 /** Record a 301 Permanent Redirect when an article URL slug changes */
 export function recordSlugRedirect(
   contentType: string,
   oldSlug: string,
   newSlug: string
-): void {
-  if (!oldSlug || !newSlug || oldSlug === newSlug) return;
+): RedirectRule[] {
+  if (!oldSlug || !newSlug || oldSlug === newSlug) return [];
 
   const source = `/${contentType}/${oldSlug}`;
   const destination = `/${contentType}/${newSlug}`;
 
+  // On Vercel (GitHub mode), just return the new redirect rule — caller will commit it
+  if (isGitHubApiConfigured()) {
+    return [{ source, destination, permanent: true }];
+  }
+
+  // Local mode — read/write filesystem
   const currentRedirects = getRedirects();
 
   // Remove existing rule if source already exists
@@ -58,4 +76,6 @@ export function recordSlugRedirect(
     JSON.stringify(updatedRedirects, null, 2),
     'utf-8'
   );
+
+  return updatedRedirects;
 }

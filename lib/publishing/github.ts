@@ -42,6 +42,35 @@ async function getFileSha(path: string): Promise<string | undefined> {
   return undefined;
 }
 
+/** Fetch a file's raw text content from GitHub repo */
+export async function getFileContentFromGitHub(
+  filePath: string
+): Promise<string | null> {
+  if (!GITHUB_TOKEN || !GITHUB_REPO) return null;
+
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'WeTheDevs-Publisher',
+      },
+      cache: 'no-store',
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    if (data.content && data.encoding === 'base64') {
+      return Buffer.from(data.content, 'base64').toString('utf-8');
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 /** Commit or update a file directly in GitHub repository via GitHub REST API */
 export async function commitFileToGitHub({
   path,
