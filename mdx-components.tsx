@@ -1,5 +1,6 @@
 import type { MDXComponents } from 'mdx/types';
 import Image from 'next/image';
+import Link from 'next/link';
 import { slugify } from '@/lib/utils';
 import React from 'react';
 import { FAQItem } from '@/components/content/faq-item';
@@ -8,6 +9,21 @@ import { ChevronDown } from 'lucide-react';
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     FAQItem,
+    a: ({ href, children, ...props }: React.ComponentPropsWithoutRef<'a'>) => {
+      const isInternal = href && (href.startsWith('/') || href.startsWith('#'));
+      if (isInternal) {
+        return (
+          <Link href={href} {...props}>
+            {children}
+          </Link>
+        );
+      }
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+          {children}
+        </a>
+      );
+    },
     h1: ({ children, ...props }) => {
       const text = React.Children.toArray(children).join('');
       const id = slugify(text);

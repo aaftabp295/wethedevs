@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Link from 'next/link';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -41,8 +42,19 @@ const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<'a'> & {
     asChild?: boolean;
+    href?: string;
   }
->(({ className, ...props }, ref) => {
+>(({ className, href, ...props }, ref) => {
+  if (href) {
+    return (
+      <Link
+        ref={ref}
+        href={href}
+        className={cn('transition-colors hover:text-foreground', className)}
+        {...props}
+      />
+    );
+  }
   return (
     <a
       ref={ref}
