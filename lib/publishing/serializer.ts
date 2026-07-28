@@ -46,6 +46,24 @@ export function htmlToMarkdown(html: string): string {
 
   let output = html;
 
+  // Preserve FAQItem components (even if low-cased by TipTap or HTML entity encoded)
+  output = output
+    .replace(/&lt;FAQItem([\s\S]*?)&gt;/gi, '<FAQItem$1>')
+    .replace(/&lt;\/FAQItem&gt;/gi, '')
+    .replace(/<faqitem\s+([^>]*)\/?>/gi, '<FAQItem $1 />')
+    .replace(/<faqitem\s+([^>]*)>([\s\S]*?)<\/faqitem>/gi, '<FAQItem $1 />')
+    .replace(/<p>\s*(<FAQItem[\s\S]*?\/>)\s*<\/p>/gi, '\n\n$1\n\n');
+
+  // Convert HTML <details><summary> tags from editor directly to <FAQItem />
+  output = output.replace(
+    /<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>\s*([\s\S]*?)<\/details>/gi,
+    (_, summaryHtml, bodyHtml) => {
+      const question = summaryHtml.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;').trim();
+      const answer = bodyHtml.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;').trim();
+      return `\n\n<FAQItem\n  question="${question}"\n  answer="${answer}"\n/>\n\n`;
+    }
+  );
+
   // 1. Convert HTML code blocks (<pre><code.../pre>) to GFM fenced code blocks BEFORE general html tag stripping
   output = output.replace(
     /<pre[^>]*>\s*<code(?: class="([^"]+)")?[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/gi,
