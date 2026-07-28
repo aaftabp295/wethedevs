@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { ManifestEntry } from '@/types/content';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
 import { Button } from '@/components/ui/button';
 import { Link2, Plus } from 'lucide-react';
 
@@ -13,14 +13,14 @@ interface LinkSuggestionsProps {
 
 export function LinkSuggestions({ topic, onInsertLink }: LinkSuggestionsProps) {
   const suggestions = React.useMemo(() => {
-    const manifest = getManifest();
+    const publicArticles = getPublicArticles();
     if (!topic) {
-      return manifest.articles.slice(0, 4);
+      return publicArticles.slice(0, 4);
     }
-    const filtered = manifest.articles.filter(
+    const filtered = publicArticles.filter(
       (a) => a.topic.toLowerCase() === topic.toLowerCase()
     );
-    return filtered.length > 0 ? filtered : manifest.articles.slice(0, 4);
+    return filtered.length > 0 ? filtered : publicArticles.slice(0, 4);
   }, [topic]);
 
   if (suggestions.length === 0) return null;

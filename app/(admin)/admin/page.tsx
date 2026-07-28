@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getManifest } from '@/lib/content/manifest';
+import { getManifest, getPublicArticles, getDraftArticles } from '@/lib/content/manifest';
 import { validateLinksAndOrphans } from '@/lib/seo/validation';
 import { contentTypes } from '@/lib/content/content-types.config';
 import { formatDateShort } from '@/lib/utils';
@@ -18,6 +18,8 @@ import {
 
 export default function AdminDashboardPage() {
   const manifest = getManifest();
+  const publishedArticles = getPublicArticles();
+  const draftArticles = getDraftArticles();
   const validation = validateLinksAndOrphans(manifest);
 
   return (
@@ -48,7 +50,7 @@ export default function AdminDashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{manifest.articles.length}</div>
+            <div className="text-2xl font-bold">{publishedArticles.length}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Indexed in content-index.json
             </p>
@@ -63,7 +65,7 @@ export default function AdminDashboardPage() {
             <FileEdit className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{draftArticles.length}</div>
             <p className="text-xs text-muted-foreground mt-1">Unpublished drafts</p>
           </CardContent>
         </Card>
@@ -119,7 +121,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {contentTypes.map((ct) => {
-              const count = manifest.articles.filter(
+              const count = publishedArticles.filter(
                 (a) => a.contentType === ct.slug
               ).length;
 
@@ -157,7 +159,7 @@ export default function AdminDashboardPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            {manifest.articles.slice(0, 5).map((article) => (
+            {publishedArticles.slice(0, 5).map((article) => (
               <div
                 key={article.slug}
                 className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-border"

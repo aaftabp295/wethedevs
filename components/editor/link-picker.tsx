@@ -10,7 +10,7 @@ import {
   CommandItem,
 } from '@/components/ui/command';
 import { ManifestEntry } from '@/types/content';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
 import { Link2 } from 'lucide-react';
 
 interface LinkPickerProps {
@@ -26,7 +26,7 @@ export function LinkPicker({
 }: LinkPickerProps) {
   const articles = React.useMemo(() => {
     if (!open) return [];
-    return getManifest().articles;
+    return getPublicArticles();
   }, [open]);
 
   return (

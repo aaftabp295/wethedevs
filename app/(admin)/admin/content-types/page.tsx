@@ -1,10 +1,10 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { contentTypes } from '@/lib/content/content-types.config';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
 
 export default function AdminContentTypesPage() {
-  const manifest = getManifest();
+  const publishedArticles = getPublicArticles();
 
   return (
     <div className="space-y-6">
@@ -17,7 +17,7 @@ export default function AdminContentTypesPage() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {contentTypes.map((ct) => {
-          const count = manifest.articles.filter(
+          const count = publishedArticles.filter(
             (a) => a.contentType === ct.slug
           ).length;
 

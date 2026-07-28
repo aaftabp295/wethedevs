@@ -1,14 +1,14 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getManifest } from '@/lib/content/manifest';
+import { getPublicArticles } from '@/lib/content/manifest';
 import { Tags } from 'lucide-react';
 
 export default function AdminTopicsPage() {
-  const manifest = getManifest();
+  const publishedArticles = getPublicArticles();
 
   // Aggregate topics and article counts
   const topicCounts: Record<string, number> = {};
-  manifest.articles.forEach((article) => {
+  publishedArticles.forEach((article) => {
     topicCounts[article.topic] = (topicCounts[article.topic] || 0) + 1;
   });
 

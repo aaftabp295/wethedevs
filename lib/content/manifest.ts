@@ -9,3 +9,8 @@ export function getManifest(): ContentManifest {
 export function getPublicArticles(): ManifestEntry[] {
   return (manifestData as ContentManifest).articles.filter((a) => a.draft !== true);
 }
+
+/** Get unpublished draft articles */
+export function getDraftArticles(): ManifestEntry[] {
+  return (manifestData as ContentManifest).articles.filter((a) => a.draft === true);
+}

@@ -1,19 +1,20 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getManifest } from '@/lib/content/manifest';
+import { getManifest, getPublicArticles } from '@/lib/content/manifest';
 import { validateLinksAndOrphans } from '@/lib/seo/validation';
 import { CheckCircle2, AlertTriangle, Search, Link2 } from 'lucide-react';
 
 export default function AdminSEOPage() {
   const manifest = getManifest();
+  const publishedArticles = getPublicArticles();
   const validation = validateLinksAndOrphans(manifest);
 
   // Compute incoming links per article
   const incomingMap: Record<string, string[]> = {};
-  manifest.articles.forEach((a) => {
+  publishedArticles.forEach((a) => {
     incomingMap[a.slug] = [];
   });
-  manifest.articles.forEach((article) => {
+  publishedArticles.forEach((article) => {
     article.outgoingLinks.forEach((targetSlug) => {
       if (incomingMap[targetSlug]) {
         incomingMap[targetSlug].push(article.slug);
@@ -79,7 +80,7 @@ export default function AdminSEOPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {manifest.articles.length}
+              {publishedArticles.length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Indexed in sitemap & content-index.json
@@ -116,7 +117,7 @@ export default function AdminSEOPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-semibold">
-            Internal Link Graph ({manifest.articles.length})
+            Internal Link Graph ({publishedArticles.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -131,7 +132,7 @@ export default function AdminSEOPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {manifest.articles.map((article) => {
+                {publishedArticles.map((article) => {
                   const incoming = incomingMap[article.slug] || [];
                   const isOrphan = incoming.length === 0;
 

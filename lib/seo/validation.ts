@@ -9,7 +9,7 @@ export type ValidationReport = {
 export function validateLinksAndOrphans(
   manifest: ContentManifest
 ): ValidationReport {
-  const articles = manifest.articles;
+  const articles = manifest.articles.filter((a) => a.draft !== true);
   const validSlugs = new Set(articles.map((a) => a.slug));
   const incomingLinkCounts: Record<string, number> = {};
 
