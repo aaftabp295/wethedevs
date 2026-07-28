@@ -11,7 +11,7 @@ import { ArticleShare } from '@/components/content/article-share';
 import { ArticleNav } from '@/components/content/article-nav';
 import { RelatedArticles } from '@/components/content/related-articles';
 import { SEOHead } from '@/components/shared/seo-head';
-import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLdFromContent } from '@/lib/seo/metadata';
+import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLdFromContent, buildItemListJsonLdFromContent } from '@/lib/seo/metadata';
 import { siteConfig } from '@/lib/site.config';
 import { ContentTypeSlug } from '@/types/content';
 
@@ -89,8 +89,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     { name: article.title, url: `/${contentType}/${slug}` },
   ]);
   const faqJsonLd = buildFaqJsonLdFromContent(article.content);
+  const itemListJsonLd = buildItemListJsonLdFromContent(article.content, articleUrl);
 
-  const jsonLdPayload = [articleJsonLd, breadcrumbJsonLd, faqJsonLd].filter(Boolean) as Record<string, unknown>[];
+  const jsonLdPayload = [articleJsonLd, breadcrumbJsonLd, faqJsonLd, itemListJsonLd].filter(Boolean) as Record<string, unknown>[];
 
   return (
     <>
@@ -104,7 +105,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               title={article.title}
               description={article.description}
               contentType={article.contentType as ContentTypeSlug}
-              contentTypeLabel={config.label}
+              contentTypeLabel={config.pluralLabel}
               tags={article.tags}
               publishedAt={article.publishedAt}
               updatedAt={article.updatedAt}

@@ -33,9 +33,34 @@
           "level": 2
         },
         {
+          "id": "1-adobe-express",
+          "text": "1. Adobe Express",
+          "level": 3
+        },
+        {
+          "id": "2-vistacreate",
+          "text": "2. VistaCreate",
+          "level": 3
+        },
+        {
+          "id": "3-figma",
+          "text": "3. Figma",
+          "level": 3
+        },
+        {
           "id": "if-your-problem-is-presentations-or-data-not-social-graphics",
           "text": "If your problem is presentations or data, not social graphics",
           "level": 2
+        },
+        {
+          "id": "4-visme",
+          "text": "4. Visme",
+          "level": 3
+        },
+        {
+          "id": "5-piktochart",
+          "text": "5. Piktochart",
+          "level": 3
         },
         {
           "id": "if-you-just-need-something-fast",
@@ -43,14 +68,49 @@
           "level": 2
         },
         {
+          "id": "6-snappa",
+          "text": "6. Snappa",
+          "level": 3
+        },
+        {
+          "id": "7-stencil",
+          "text": "7. Stencil",
+          "level": 3
+        },
+        {
           "id": "the-best-free-options-if-price-is-the-whole-reason-youre-here",
           "text": "The best free options, if price is the whole reason you're here",
           "level": 2
         },
         {
+          "id": "8-affinity-suite",
+          "text": "8. Affinity Suite",
+          "level": 3
+        },
+        {
+          "id": "9-gimp",
+          "text": "9. GIMP",
+          "level": 3
+        },
+        {
           "id": "i-need-something-more-like-photoshop-not-more-like-canva",
           "text": "\"I need something more like Photoshop, not more like Canva\"",
           "level": 2
+        },
+        {
+          "id": "10-photopea",
+          "text": "10. Photopea",
+          "level": 3
+        },
+        {
+          "id": "11-affinity-photo",
+          "text": "11. Affinity Photo",
+          "level": 3
+        },
+        {
+          "id": "12-adobe-photoshop",
+          "text": "12. Adobe Photoshop",
+          "level": 3
         },
         {
           "id": "decision-tree",
@@ -72,7 +132,7 @@
       "coverAlt": "13 Best Canva Alternatives in 2026 Comparison Guide Cover",
       "readingTime": 12,
       "publishedAt": "2026-07-27T14:01:04.438Z",
-      "updatedAt": "2026-07-27T19:35:00.000Z",
+      "updatedAt": "2026-07-28T11:45:00.000Z",
       "draft": false,
       "featured": false,
       "outgoingLinks": []
@@ -151,5 +211,5 @@
       "outgoingLinks": []
     }
   ],
-  "generatedAt": "2026-07-27T14:10:19.323Z"
+  "generatedAt": "2026-07-28T06:18:55.296Z"
 }

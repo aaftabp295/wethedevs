@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { ArticleBreadcrumbs } from './article-breadcrumbs';
 import { ArticleMeta } from './article-meta';
@@ -45,9 +46,11 @@ export function ArticleHero({
             {contentTypeLabel}
           </Badge>
           {tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="outline" className="text-muted-foreground">
-              #{tag}
-            </Badge>
+            <Link key={tag} href={`/tags/${tag}`} className="hover:opacity-80 transition-opacity">
+              <Badge variant="outline" className="text-muted-foreground cursor-pointer">
+                #{tag}
+              </Badge>
+            </Link>
           ))}
         </div>
 
@@ -67,7 +70,7 @@ export function ArticleHero({
         readingTime={readingTime}
       />
 
-      {/* Feature Cover Image — Positioned for optimal SEO & Google E-E-A-T */}
+      {/* Feature Cover Image — Next.js Optimized Remote Image */}
       {cover && (
         <div className="pt-2">
           <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/20 shadow-xs relative aspect-[16/9] w-full max-h-[480px]">
@@ -76,7 +79,7 @@ export function ArticleHero({
               alt={coverAlt || title}
               fill
               priority
-              unoptimized
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
               referrerPolicy="no-referrer"
               className="object-cover w-full h-full"
             />

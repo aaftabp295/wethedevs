@@ -18,7 +18,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     h3: ({ children, ...props }) => {
       const text = React.Children.toArray(children).join('');
       const id = slugify(text);
-      return <h3 id={id} {...props}>{children}</h3>;
+      return <h3 id={id} className="text-xl font-bold tracking-tight mt-8 mb-3 text-foreground" {...props}>{children}</h3>;
     },
     h4: ({ children, ...props }) => {
       const text = React.Children.toArray(children).join('');
@@ -32,6 +32,16 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         </table>
       </div>
     ),
+    th: ({ children, ...props }) => (
+      <th scope="col" className="bg-muted/50 font-semibold p-3 border-b border-border/80 text-foreground" {...props}>
+        {children}
+      </th>
+    ),
+    caption: ({ children, ...props }) => (
+      <caption className="mt-2 text-xs text-muted-foreground italic text-center caption-bottom" {...props}>
+        {children}
+      </caption>
+    ),
     img: ({ src, alt, title }) => {
       if (!src) return null;
 
@@ -43,7 +53,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
               alt={alt || 'Article illustration'}
               width={1200}
               height={675}
-              unoptimized
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
               className="mx-auto rounded-xl max-w-full h-auto object-cover"
             />
           </span>

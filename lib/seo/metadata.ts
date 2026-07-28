@@ -195,3 +195,30 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
     mainEntity,
   };
 }
+
+export function buildItemListJsonLdFromContent(
+  rawMdxContent: string,
+  articleUrl: string
+): Record<string, unknown> | null {
+  const h3Matches = [...rawMdxContent.matchAll(/^###\s+(?:(\d+)\.\s+)?(.*)$/gm)];
+  if (h3Matches.length === 0) return null;
+
+  const itemListElement = h3Matches.map((m, index) => {
+    const rawTitle = m[2].trim();
+    const slug = rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return {
+      '@type': 'ListItem',
+      position: index + 1,
+      name: rawTitle,
+      url: `${articleUrl}#${slug}`,
+    };
+  });
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Featured Tools',
+    numberOfItems: itemListElement.length,
+    itemListElement,
+  };
+}
