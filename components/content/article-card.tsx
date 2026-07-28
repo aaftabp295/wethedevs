@@ -64,6 +64,7 @@ export function ArticleCard({ article, variant = 'default' }: ArticleCardProps) 
                 alt={article.coverAlt || article.title}
                 fill
                 priority
+                loading="eager"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover card-image-zoom"
               />
