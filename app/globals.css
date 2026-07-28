@@ -452,5 +452,96 @@ body {
   pointer-events: none;
 }
 
+/* ─── Homepage Editorial Styles ─── */
 
+/* Hero gradient overlay for cinematic cover images */
+.hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    hsl(0 0% 0% / 0.85) 0%,
+    hsl(0 0% 0% / 0.6) 35%,
+    hsl(0 0% 0% / 0.2) 65%,
+    hsl(0 0% 0% / 0.05) 100%
+  );
+  z-index: 1;
+}
 
+/* Card hover lift animation */
+.card-hover-lift {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px -12px hsl(var(--foreground) / 0.12);
+}
+
+/* Image scale-up on card hover */
+.card-image-zoom {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.group:hover .card-image-zoom {
+  transform: scale(1.05);
+}
+
+/* Newsletter CTA gradient */
+.newsletter-gradient {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--muted) / 0.5) 0%,
+    hsl(var(--accent) / 0.3) 50%,
+    hsl(var(--muted) / 0.5) 100%
+  );
+}
+
+.dark .newsletter-gradient {
+  background: linear-gradient(
+    135deg,
+    hsl(240 10% 8%) 0%,
+    hsl(240 8% 12%) 50%,
+    hsl(240 10% 8%) 100%
+  );
+}
+
+/* Topic badge pill */
+.topic-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+}
+
+.topic-badge-light {
+  background: hsl(0 0% 100% / 0.15);
+  color: hsl(0 0% 100% / 0.9);
+}
+
+.topic-badge-default {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+/* Compact card left accent bar */
+.compact-accent-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: hsl(var(--foreground) / 0.08);
+  border-radius: 0 2px 2px 0;
+  transition: background 0.2s ease;
+}
+
+.group:hover .compact-accent-bar {
+  background: hsl(var(--foreground) / 0.3);
+}
