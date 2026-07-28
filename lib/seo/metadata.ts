@@ -168,31 +168,61 @@ export function buildWebSiteJsonLd(): WebSiteJsonLd {
 }
 
 export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | null {
-  const faqSectionMatch = rawMdxContent.match(/## FAQ([\s\S]*?)(?=## |$)/i);
+  const faqSectionMatch = rawMdxContent.match(/## (?:FAQ|Frequently Asked Questions)([\s\S]*?)(?=## |$)/i);
   if (!faqSectionMatch) return null;
 
   const faqText = faqSectionMatch[1];
-  const qaMatches = [...faqText.matchAll(/\*\*(.*?)\*\*\s*([\s\S]*?)(?=\*\*|$)/g)];
+  const faqItems: Array<{ question: string; answer: string }> = [];
 
-  if (qaMatches.length === 0) return null;
+  // 1. Try matching <FAQItem question="..." answer="..." />
+  const faqItemMatches = [...faqText.matchAll(/<FAQItem\s+question=["']([^"']+)["']\s+answer=["']([^"']+)["']\s*\/?>/gi)];
 
-  const mainEntity = qaMatches.map((m) => {
-    const question = m[1].replace(/\?/g, '').trim() + '?';
-    const answer = m[2].replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim();
-    return {
-      '@type': 'Question' as const,
-      name: question,
-      acceptedAnswer: {
-        '@type': 'Answer' as const,
-        text: answer,
-      },
-    };
-  });
+  if (faqItemMatches.length > 0) {
+    for (const match of faqItemMatches) {
+      const question = match[1].trim();
+      const answer = match[2].trim();
+      if (question && answer) {
+        faqItems.push({ question, answer });
+      }
+    }
+  } else {
+    // 2. Try matching HTML <details><summary>Question</summary>Answer</details> accordions
+    const detailsMatches = [...faqText.matchAll(/<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>\s*([\s\S]*?)<\/details>/gi)];
+
+    if (detailsMatches.length > 0) {
+      for (const match of detailsMatches) {
+        const question = match[1].replace(/<[^>]+>/g, '').replace(/\*/g, '').trim();
+        const answer = match[2].replace(/<[^>]+>/g, '').replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim();
+        if (question && answer) {
+          faqItems.push({ question, answer });
+        }
+      }
+    } else {
+      // 3. Fallback to matching bold question patterns: **Question?** Answer...
+      const qaMatches = [...faqText.matchAll(/\*\*(.*?)\*\*\s*([\s\S]*?)(?=\*\*|$)/g)];
+      for (const m of qaMatches) {
+        const question = m[1].replace(/\?/g, '').trim() + '?';
+        const answer = m[2].replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim();
+        if (question && answer) {
+          faqItems.push({ question, answer });
+        }
+      }
+    }
+  }
+
+  if (faqItems.length === 0) return null;
 
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity,
+    mainEntity: faqItems.map((item) => ({
+      '@type': 'Question' as const,
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer' as const,
+        text: item.answer,
+      },
+    })),
   };
 }
 

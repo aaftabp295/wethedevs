@@ -14,6 +14,7 @@ import { SEOHead } from '@/components/shared/seo-head';
 import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLdFromContent, buildItemListJsonLdFromContent } from '@/lib/seo/metadata';
 import { siteConfig } from '@/lib/site.config';
 import { ContentTypeSlug } from '@/types/content';
+import { useMDXComponents } from '@/mdx-components';
 
 interface ArticlePageProps {
   params: Promise<{ contentType: string; slug: string }>;
@@ -63,7 +64,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   // Dynamic import of the MDX article file
-  let MDXContent: React.ComponentType;
+  let MDXContent: React.ComponentType<{ components?: any }>;
   let mdxFrontmatter: Record<string, unknown> | undefined;
   try {
     const mdxModule = await import(`@/content/${contentType}/${slug}/article.mdx`);
@@ -128,7 +129,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             {/* Article Content */}
             <div className="lg:col-span-9 max-w-none">
               <div className="prose prose-neutral dark:prose-invert max-w-reading leading-relaxed space-y-6">
-                <MDXContent />
+                <MDXContent components={useMDXComponents({})} />
               </div>
 
               {/* Share */}

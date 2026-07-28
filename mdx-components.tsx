@@ -2,9 +2,12 @@ import type { MDXComponents } from 'mdx/types';
 import Image from 'next/image';
 import { slugify } from '@/lib/utils';
 import React from 'react';
+import { FAQItem } from '@/components/content/faq-item';
+import { ChevronDown } from 'lucide-react';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
+    FAQItem,
     h1: ({ children, ...props }) => {
       const text = React.Children.toArray(children).join('');
       const id = slugify(text);
@@ -41,6 +44,17 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <caption className="mt-2 text-xs text-muted-foreground italic text-center caption-bottom" {...props}>
         {children}
       </caption>
+    ),
+    details: ({ children, ...props }: React.ComponentPropsWithoutRef<'details'>) => (
+      <details className="group border border-border/80 rounded-xl bg-card p-4 my-3 transition-all duration-200 open:bg-muted/20" {...props}>
+        {children}
+      </details>
+    ),
+    summary: ({ children, ...props }: React.ComponentPropsWithoutRef<'summary'>) => (
+      <summary className="font-semibold text-foreground cursor-pointer flex items-center justify-between list-none select-none outline-none" {...props}>
+        <span className="flex-1 pr-2">{children}</span>
+        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-open:rotate-180 flex-shrink-0 ml-2" />
+      </summary>
     ),
     img: ({ src, alt, title }) => {
       if (!src) return null;

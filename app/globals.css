@@ -284,6 +284,86 @@ body {
   color: hsl(var(--foreground));
 }
 
+/* ─── Published Article Prose Links & Callout Blocks ─── */
+
+.prose a {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  text-decoration-line: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: hsl(var(--foreground) / 0.4);
+  border-radius: 0.2rem;
+  padding: 0.05rem 0.2rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.prose a:hover {
+  background-color: hsl(var(--muted));
+  text-decoration-color: hsl(var(--foreground));
+}
+
+.prose blockquote {
+  border-left: 3px solid hsl(var(--foreground) / 0.7);
+  background-color: hsl(var(--muted) / 0.4);
+  border-radius: 0 0.625rem 0.625rem 0;
+  padding: 0.875rem 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-style: normal;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: hsl(var(--foreground));
+}
+
+.prose blockquote p {
+  margin: 0 !important;
+}
+
+/* ─── FAQ Accordion Disclosure Styling ─── */
+
+.prose details {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-lg);
+  background-color: hsl(var(--card));
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 1rem 1.25rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.prose details[open] {
+  background-color: hsl(var(--muted) / 0.35);
+  border-color: hsl(var(--border));
+}
+
+.prose summary {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  outline: none;
+}
+
+.prose summary::-webkit-details-marker,
+.prose summary::marker {
+  display: none !important;
+}
+
+.prose details summary + * {
+  margin-top: 0.875rem !important;
+  padding-top: 0.875rem !important;
+  border-top: 1px solid hsl(var(--border) / 0.6);
+  color: hsl(var(--muted-foreground));
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
 
 /* ─── ProseMirror Editor Typography & Spacing ─── */
 
