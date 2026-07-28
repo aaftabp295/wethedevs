@@ -545,3 +545,29 @@ body {
 .group:hover .compact-accent-bar {
   background: hsl(var(--foreground) / 0.3);
 }
+
+/* ─── Cmdk Search Modal Input Overrides ─── */
+
+[cmdk-input-wrapper] {
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[cmdk-input-wrapper]:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[cmdk-input] {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+[cmdk-input]:focus,
+[cmdk-input]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
