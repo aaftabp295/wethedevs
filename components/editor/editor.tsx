@@ -24,7 +24,7 @@ import { useAutosave } from '@/hooks/use-autosave';
 import { calculateReadingTime } from '@/lib/content/reading-time';
 import { PublishSidebarState } from '@/types/editor';
 import { ManifestEntry } from '@/types/content';
-import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit } from 'lucide-react';
+import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface EditorComponentProps {
@@ -265,6 +265,19 @@ export function EditorComponent({
           >
             <Settings2 className="h-3.5 w-3.5" />
             <span>Publish Settings</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              window.open(`/api/draft?contentType=${publishState.contentType}&slug=${publishState.slug}`, '_blank');
+            }}
+            className="gap-1.5 text-xs font-medium"
+            title="Open instant live draft preview on public site"
+          >
+            <Eye className="h-3.5 w-3.5 text-emerald-500" />
+            <span>Live Preview</span>
           </Button>
 
           <Button

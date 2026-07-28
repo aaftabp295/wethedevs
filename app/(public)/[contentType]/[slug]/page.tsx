@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { draftMode } from 'next/headers';
 import { Container } from '@/components/layout/container';
 import { getContentType } from '@/lib/content/content-types.config';
 import { getPublicArticles } from '@/lib/content/manifest';
@@ -10,6 +11,7 @@ import { ArticleTOC } from '@/components/content/article-toc';
 import { ArticleShare } from '@/components/content/article-share';
 import { ArticleNav } from '@/components/content/article-nav';
 import { RelatedArticles } from '@/components/content/related-articles';
+import { DraftBanner } from '@/components/content/draft-banner';
 import { SEOHead } from '@/components/shared/seo-head';
 import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLdFromContent, buildItemListJsonLdFromContent } from '@/lib/seo/metadata';
 import { siteConfig } from '@/lib/site.config';
@@ -34,7 +36,7 @@ export async function generateMetadata({
   const { contentType, slug } = await params;
   const article = getArticleBySlug(contentType, slug);
 
-  if (!article || Boolean(article.draft)) return {};
+  if (!article) return {};
 
   return constructMetadata({
     title: article.title,
@@ -51,6 +53,7 @@ export async function generateMetadata({
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { contentType, slug } = await params;
+  const { isEnabled: isDraftMode } = await draftMode();
   const config = getContentType(contentType);
 
   if (!config) {
@@ -59,7 +62,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const article = getArticleBySlug(contentType, slug);
 
-  if (!article || article.draft === true) {
+  if (!article || (article.draft === true && !isDraftMode)) {
     notFound();
   }
 
@@ -74,7 +77,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  if (!article || Boolean(article.draft) || Boolean(mdxFrontmatter?.draft)) {
+  if (!isDraftMode && (Boolean(article.draft) || Boolean(mdxFrontmatter?.draft))) {
     notFound();
   }
 
@@ -96,6 +99,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <>
+      {isDraftMode && <DraftBanner contentType={contentType} slug={slug} />}
       <SEOHead jsonLd={jsonLdPayload} />
 
       <article className="py-12 sm:py-16">
