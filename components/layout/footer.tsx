@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Container } from '@/components/layout/container';
 import { contentTypes } from '@/lib/content/content-types.config';
 import { siteConfig } from '@/lib/site.config';
+import { Logo } from '@/components/shared/logo';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -12,9 +13,7 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="space-y-3">
-            <Link href="/" className="text-lg font-bold tracking-tight">
-              {siteConfig.name}
-            </Link>
+            <Logo />
             <p className="text-sm leading-relaxed text-muted-foreground">
               {siteConfig.description}
             </p>
