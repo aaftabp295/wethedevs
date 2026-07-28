@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { getManifest } from '@/lib/content/manifest';
 import { getArticleBySlug } from '@/lib/content/loader';
 import { EditorComponent } from '@/components/editor/editor';
+import { mdxToEditorHtml } from '@/lib/publishing/serializer';
 
 interface EditArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -17,7 +18,7 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
   }
 
   const fullArticle = getArticleBySlug(articleMeta.contentType, slug);
-  const initialContent = fullArticle?.content || '';
+  const initialContent = mdxToEditorHtml(fullArticle?.content || '');
 
   return (
     <div className="space-y-6">

@@ -200,3 +200,20 @@ export function serializeMdx(
 
   return `${yamlFrontmatter}\n\n${markdownBody}\n`;
 }
+
+/** Convert MDX content to Editor-friendly HTML for TipTap */
+export function mdxToEditorHtml(mdx: string): string {
+  if (!mdx) return '';
+
+  let html = mdx;
+
+  // Convert <FAQItem question="..." answer="..." /> to <details><summary>question</summary><p>answer</p></details>
+  html = html.replace(
+    /<FAQItem\s+question=["']([\s\S]*?)["']\s+answer=["']([\s\S]*?)["']\s*\/>/gi,
+    (_, question, answer) => {
+      return `<details><summary>${question.trim()}</summary><p>${answer.trim()}</p></details>`;
+    }
+  );
+
+  return html;
+}

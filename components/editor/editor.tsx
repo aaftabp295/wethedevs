@@ -19,13 +19,16 @@ import { LinkPicker } from './link-picker';
 import { ImagePicker } from './image-picker';
 import { LinkSuggestions } from './link-suggestions';
 import { PublishSidebar } from './publish-sidebar';
+import { LivePreviewPane } from './live-preview-pane';
 import { Button } from '@/components/ui/button';
 import { useAutosave } from '@/hooks/use-autosave';
 import { calculateReadingTime } from '@/lib/content/reading-time';
 import { PublishSidebarState } from '@/types/editor';
 import { ManifestEntry } from '@/types/content';
-import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit, Eye } from 'lucide-react';
+import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit, Eye, Columns, PenTool } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
+import { mdxToEditorHtml } from '@/lib/publishing/serializer';
 
 interface EditorComponentProps {
   initialContent?: string;
@@ -64,17 +67,18 @@ export function EditorComponent({
   const [stats, setStats] = React.useState({ words: 0, minutes: 1 });
   const [isDirty, setIsDirty] = React.useState(false);
 
-  // Convert raw markdown string to HTML if needed
+  // Convert raw MDX string to Editor-friendly HTML
   const formattedInitialContent = React.useMemo(() => {
     if (!initialContent) return '';
-    if (initialContent.includes('# ') || initialContent.includes('## ') || initialContent.includes('\n\n')) {
+    const htmlWithDetails = mdxToEditorHtml(initialContent);
+    if (htmlWithDetails.includes('# ') || htmlWithDetails.includes('## ') || htmlWithDetails.includes('\n\n')) {
       try {
-        return marked.parse(initialContent) as string;
+        return marked.parse(htmlWithDetails) as string;
       } catch {
-        return initialContent;
+        return htmlWithDetails;
       }
     }
-    return initialContent;
+    return htmlWithDetails;
   }, [initialContent]);
 
   const editor = useEditor({
@@ -213,23 +217,70 @@ export function EditorComponent({
     }
   };
 
+  const [viewMode, setViewMode] = React.useState<'edit' | 'split' | 'preview'>('edit');
+
   return (
     <div className={`space-y-6 ${isFullscreen ? 'fixed inset-0 z-50 bg-background p-8 overflow-y-auto' : ''}`}>
       {/* Top Action & Status Bar */}
-      <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
-        {/* Left: Article Stats & Autosave Badge */}
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1 font-medium">
-            <FileText className="h-3.5 w-3.5" /> {stats.words} words
-          </span>
-          <span className="flex items-center gap-1 font-medium">
-            <Clock className="h-3.5 w-3.5" /> {stats.minutes} min read
-          </span>
-          {lastSaved && (
-            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Saved {lastSaved}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-3">
+        {/* Left: Article Stats & View Mode Segmented Controls */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1 font-medium">
+              <FileText className="h-3.5 w-3.5" /> {stats.words} words
             </span>
-          )}
+            <span className="flex items-center gap-1 font-medium">
+              <Clock className="h-3.5 w-3.5" /> {stats.minutes} min read
+            </span>
+            {lastSaved && (
+              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Saved {lastSaved}
+              </span>
+            )}
+          </div>
+
+          {/* View Mode Control: Write | Split | Preview */}
+          <div className="flex items-center rounded-lg border border-border bg-muted/50 p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode('edit')}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'edit'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Writing Canvas Only"
+            >
+              <PenTool className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Write</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('split')}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'split'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Side-by-Side Split View"
+            >
+              <Columns className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Split</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('preview')}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'preview'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Full Live Article Preview"
+            >
+              <Eye className="h-3.5 w-3.5 text-emerald-500" />
+              <span className="hidden sm:inline">Preview</span>
+            </button>
+          </div>
         </div>
 
         {/* Right: Actions */}
@@ -265,19 +316,6 @@ export function EditorComponent({
           >
             <Settings2 className="h-3.5 w-3.5" />
             <span>Publish Settings</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              window.open(`/api/draft?contentType=${publishState.contentType}&slug=${publishState.slug}`, '_blank');
-            }}
-            className="gap-1.5 text-xs font-medium"
-            title="Open instant live draft preview on public site"
-          >
-            <Eye className="h-3.5 w-3.5 text-emerald-500" />
-            <span>Live Preview</span>
           </Button>
 
           <Button
@@ -319,38 +357,45 @@ export function EditorComponent({
         />
       </div>
 
-      {/* Main Grid: Medium Writing Canvas + Link Suggestions Sidebar */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
-        {/* Editor Body */}
-        <div className="lg:col-span-8">
-          <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-8 sm:p-12 shadow-xs transition-shadow hover:shadow-md">
-            {/* Medium Floating Selection Bubble Menu */}
-            <EditorBubbleMenu
-              editor={editor}
-              onOpenLinkPicker={() => setLinkPickerOpen(true)}
-            />
+      {/* Main Grid Layout: Write | Split | Preview */}
+      {viewMode === 'preview' ? (
+        <div className="pt-2">
+          <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
+          {/* Editor Body */}
+          <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-8'}>
+            <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-6 sm:p-10 shadow-xs transition-shadow hover:shadow-md">
+              <EditorBubbleMenu
+                editor={editor}
+                onOpenLinkPicker={() => setLinkPickerOpen(true)}
+              />
 
-            {/* Medium Empty Line Floating Menu */}
-            <EditorFloatingMenu
-              editor={editor}
-              onOpenImagePicker={() => setImagePickerOpen(true)}
-            />
+              <EditorFloatingMenu
+                editor={editor}
+                onOpenImagePicker={() => setImagePickerOpen(true)}
+              />
 
-            {/* Content Canvas */}
-            <div className="prose prose-neutral dark:prose-invert max-w-none focus:outline-none leading-relaxed">
-              <EditorContent editor={editor} />
+              <div className="prose prose-neutral dark:prose-invert max-w-none focus:outline-none leading-relaxed">
+                <EditorContent editor={editor} />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Sidebar: Link Suggestions */}
-        <div className="lg:col-span-4 space-y-6">
-          <LinkSuggestions
-            topic={publishState.topic}
-            onInsertLink={handleInsertLink}
-          />
+          {/* Right Column: Split Preview Pane OR Link Suggestions Sidebar */}
+          <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-4'}>
+            {viewMode === 'split' ? (
+              <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
+            ) : (
+              <LinkSuggestions
+                topic={publishState.topic}
+                onInsertLink={handleInsertLink}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Internal Link Picker Modal */}
       <LinkPicker
