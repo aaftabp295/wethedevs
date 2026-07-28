@@ -1,6 +1,46 @@
 {
   "articles": [
     {
+      "title": "test",
+      "slug": "test",
+      "contentType": "alternatives",
+      "topic": "AI Coding",
+      "tags": [],
+      "description": "test",
+      "headings": [
+        {
+          "id": "hello",
+          "text": "hello",
+          "level": 2
+        },
+        {
+          "id": "frequently-asked-questions",
+          "text": "Frequently Asked Questions",
+          "level": 2
+        },
+        {
+          "id": "what-is-this-tool-used-for",
+          "text": "What is this tool used for?",
+          "level": 3
+        },
+        {
+          "id": "is-this-tool-free-to-use",
+          "text": "Is this tool free to use?",
+          "level": 3
+        },
+        {
+          "id": "can-i-use-this-tool-on-mobile-devices",
+          "text": "Can I use this tool on mobile devices?",
+          "level": 3
+        }
+      ],
+      "readingTime": 1,
+      "publishedAt": "2026-07-28T15:26:49.616Z",
+      "draft": true,
+      "featured": false,
+      "outgoingLinks": []
+    },
+    {
       "title": "9 Best ElevenLabs Alternatives in 2026 (Tested & Compared)",
       "slug": "elevenlabs-alternatives",
       "contentType": "alternatives",
@@ -307,5 +347,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-28T14:54:21.045Z"
+  "generatedAt": "2026-07-28T15:26:49.774Z"
 }
