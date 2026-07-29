@@ -106,7 +106,7 @@ export function LivePreviewPane({ publishState, editorHtml }: LivePreviewPanePro
   }, [editorHtml]);
 
   return (
-    <div className="rounded-xl border border-border bg-background p-6 sm:p-10 shadow-xs space-y-8 overflow-y-auto max-h-[85vh]">
+    <div className="rounded-xl border border-border bg-background p-6 sm:p-10 shadow-xs space-y-8 overflow-y-auto max-h-[calc(100vh-8.5rem)]">
       {/* Live Preview Watermark Badge */}
       <div className="flex items-center justify-between border-b border-border pb-4">
         <span className="text-[11px] uppercase tracking-widest font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
