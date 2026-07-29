@@ -219,6 +219,56 @@ export function serializeMdx(
   return `${yamlFrontmatter}\n\n${markdownBody}\n`;
 }
 
+/** Extract FAQ items from raw MDX or HTML content into a structured array */
+export function extractFaqsFromMdx(rawContent: string): Array<{ id: string; question: string; answer: string }> {
+  if (!rawContent) return [];
+  const items: Array<{ id: string; question: string; answer: string }> = [];
+
+  // Match <FAQItem question="..." answer="..." />
+  const faqBlockMatches = [...rawContent.matchAll(/<FAQItem\b([\s\S]*?)\/>/gi)];
+  for (const match of faqBlockMatches) {
+    const attrsStr = match[1];
+    const qMatch = attrsStr.match(/question=(?:"([^"]*)"|'([^']*)')/i);
+    const aMatch = attrsStr.match(/answer=(?:"([^"]*)"|'([^']*)')/i);
+
+    if (qMatch && aMatch) {
+      const question = (qMatch[1] ?? qMatch[2] ?? '')
+        .replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').trim();
+      const answer = (aMatch[1] ?? aMatch[2] ?? '')
+        .replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').trim();
+      if (question && answer) {
+        items.push({ id: Math.random().toString(36).substring(2, 9), question, answer });
+      }
+    }
+  }
+
+  // Fallback match <details><summary>
+  if (items.length === 0) {
+    const detailsMatches = [...rawContent.matchAll(/<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>\s*([\s\S]*?)<\/details>/gi)];
+    for (const match of detailsMatches) {
+      const question = match[1].replace(/<[^>]+>/g, '').replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&quot;/g, '"').trim();
+      const answer = match[2].replace(/<[^>]+>/g, '').replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&quot;/g, '"').trim();
+      if (question && answer) {
+        items.push({ id: Math.random().toString(36).substring(2, 9), question, answer });
+      }
+    }
+  }
+
+  return items;
+}
+
+/** Format structured FAQ items to MDX string */
+export function formatFaqsToMdx(faqs: Array<{ question: string; answer: string }>): string {
+  if (!faqs || faqs.length === 0) return '';
+
+  const faqLines = faqs.map(
+    (faq) =>
+      `<FAQItem\n  question="${faq.question.replace(/"/g, '&quot;')}"\n  answer="${faq.answer.replace(/"/g, '&quot;')}"\n/>`
+  );
+
+  return `\n\n## Frequently asked questions\n\n${faqLines.join('\n\n')}\n`;
+}
+
 /** Convert MDX content to Editor-friendly HTML for TipTap */
 export function mdxToEditorHtml(mdx: string): string {
   if (!mdx) return '';

@@ -17,6 +17,7 @@ import { EditorBubbleMenu } from './bubble-menu';
 import { EditorFloatingMenu } from './floating-menu';
 import { LinkPicker } from './link-picker';
 import { ImagePicker } from './image-picker';
+import { FAQBuilderModal, FAQItemData } from './faq-builder';
 import { LinkSuggestions } from './link-suggestions';
 import { PublishSidebar } from './publish-sidebar';
 import { LivePreviewPane } from './live-preview-pane';
@@ -25,10 +26,10 @@ import { useAutosave } from '@/hooks/use-autosave';
 import { calculateReadingTime } from '@/lib/content/reading-time';
 import { PublishSidebarState } from '@/types/editor';
 import { ManifestEntry } from '@/types/content';
-import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit, Eye, Columns, PenTool } from 'lucide-react';
+import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit, Eye, Columns, PenTool, HelpCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { mdxToEditorHtml } from '@/lib/publishing/serializer';
+import { mdxToEditorHtml, extractFaqsFromMdx } from '@/lib/publishing/serializer';
 
 interface EditorComponentProps {
   initialContent?: string;
@@ -66,6 +67,10 @@ export function EditorComponent({
 
   const [stats, setStats] = React.useState({ words: 0, minutes: 1 });
   const [isDirty, setIsDirty] = React.useState(false);
+  const [faqBuilderOpen, setFaqBuilderOpen] = React.useState(false);
+  const [articleFaqs, setArticleFaqs] = React.useState<FAQItemData[]>(() => {
+    return extractFaqsFromMdx(initialContent || '');
+  });
 
   // Convert raw MDX string to Editor-friendly HTML
   const formattedInitialContent = React.useMemo(() => {
@@ -173,6 +178,33 @@ export function EditorComponent({
     if (!editor) return;
     editor.chain().focus().extendMarkRange('link').unsetLink().run();
   }, [editor]);
+
+  const handleSaveFaqs = React.useCallback(
+    (updatedFaqs: FAQItemData[]) => {
+      setArticleFaqs(updatedFaqs);
+      setIsDirty(true);
+
+      if (!editor) return;
+
+      const currentHtml = editor.getHTML();
+      const cleanHtml = currentHtml
+        .replace(/<details[^>]*>[\s\S]*?<\/details>/gi, '')
+        .replace(/<h2[^>]*>[\s\S]*?(?:FAQ|Frequently Asked Questions)[\s\S]*?<\/h2>/gi, '')
+        .trim();
+
+      if (updatedFaqs.length === 0) {
+        editor.commands.setContent(cleanHtml);
+        return;
+      }
+
+      const faqHtmlList = updatedFaqs.map(
+        (f) => `<details><summary>${f.question}</summary><p>${f.answer}</p></details>`
+      );
+      const faqSectionHtml = `<h2 id="frequently-asked-questions">Frequently asked questions</h2>${faqHtmlList.join('')}`;
+      editor.commands.setContent(`${cleanHtml}\n\n${faqSectionHtml}`);
+    },
+    [editor]
+  );
 
   const handleInsertImage = React.useCallback(
     ({ url, alt, title }: { url: string; alt: string; title?: string }) => {
@@ -306,6 +338,23 @@ export function EditorComponent({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setFaqBuilderOpen(true)}
+              className="gap-1.5 text-xs font-medium border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+              title="Build & Manage Structured FAQs for Google Rich Snippets"
+            >
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span>FAQ Builder</span>
+              {articleFaqs.length > 0 && (
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
+                  {articleFaqs.length}
+                </span>
+              )}
+            </Button>
+
             <Button
               type="button"
               variant="outline"
@@ -447,6 +496,12 @@ export function EditorComponent({
           onOpenChange={setImagePickerOpen}
           onInsertImage={handleInsertImage}
         />
+        <FAQBuilderModal
+          open={faqBuilderOpen}
+          onOpenChange={setFaqBuilderOpen}
+          faqs={articleFaqs}
+          onSaveFaqs={handleSaveFaqs}
+        />
         <PublishSidebar
           open={publishSidebarOpen}
           onOpenChange={setPublishSidebarOpen}
@@ -528,6 +583,23 @@ export function EditorComponent({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setFaqBuilderOpen(true)}
+            className="gap-1.5 text-xs font-medium border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            title="Build & Manage Structured FAQs for Google Rich Snippets"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            <span>FAQ Builder</span>
+            {articleFaqs.length > 0 && (
+              <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
+                {articleFaqs.length}
+              </span>
+            )}
+          </Button>
+
           <Button
             type="button"
             variant="outline"
@@ -667,6 +739,14 @@ export function EditorComponent({
         open={imagePickerOpen}
         onOpenChange={setImagePickerOpen}
         onInsertImage={handleInsertImage}
+      />
+
+      {/* Article FAQ Builder Modal */}
+      <FAQBuilderModal
+        open={faqBuilderOpen}
+        onOpenChange={setFaqBuilderOpen}
+        faqs={articleFaqs}
+        onSaveFaqs={handleSaveFaqs}
       />
 
       {/* Publish Sidebar Settings Panel */}
