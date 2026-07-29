@@ -14,6 +14,8 @@ import {
   Link2,
   Unlink,
   Code,
+  List,
+  ListOrdered,
 } from 'lucide-react';
 
 interface BubbleMenuProps {
@@ -25,6 +27,112 @@ export function EditorBubbleMenu({ editor, onOpenLinkPicker }: BubbleMenuProps) 
   if (!editor) return null;
 
   const isLinkActive = editor.isActive('link');
+  
+  // Check if current block or text selection has a numbered list prefix like "1. ", "2. "
+  const parentNode = editor.state.selection.$from.parent;
+  const parentText = parentNode ? parentNode.textContent : '';
+  const hasNumberPrefix = /^\d+\.\s+/.test(parentText.trim());
+
+  const isOrderedListActive = editor.isActive('orderedList') || hasNumberPrefix;
+  const isBulletListActive = editor.isActive('bulletList');
+
+  // Toggle Numbered List on both Paragraphs and Headings (H2/H3)
+  const handleToggleOrderedList = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!editor) return;
+
+    const isHeading = editor.isActive('heading');
+
+    if (isHeading) {
+      // If it's a heading, toggle "1. " prefix on heading text
+      if (hasNumberPrefix) {
+        // Strip number prefix: "1. Lovable" -> "Lovable"
+        const cleanText = parentText.replace(/^\d+\.\s+/, '');
+        editor.chain().focus().command(({ tr, dispatch }) => {
+          if (dispatch) {
+            const pos = editor.state.selection.$from.start();
+            const endPos = pos + parentText.length;
+            tr.insertText(cleanText, pos, endPos);
+          }
+          return true;
+        }).run();
+      } else {
+        // Count existing numbered headings in document to get current index
+        let count = 1;
+        editor.state.doc.descendants((node) => {
+          if (node.isBlock && /^\d+\.\s+/.test(node.textContent)) {
+            count++;
+          }
+        });
+        const numberedText = `${count}. ${parentText}`;
+        editor.chain().focus().command(({ tr, dispatch }) => {
+          if (dispatch) {
+            const pos = editor.state.selection.$from.start();
+            const endPos = pos + parentText.length;
+            tr.insertText(numberedText, pos, endPos);
+          }
+          return true;
+        }).run();
+      }
+    } else {
+      // If it's a regular paragraph or list item, use standard TipTap toggleOrderedList
+      editor.chain().focus().toggleOrderedList().run();
+    }
+  };
+
+  // Toggle H2 on both standard text and Numbered Lists
+  const handleToggleH2 = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!editor) return;
+
+    if (editor.isActive('orderedList')) {
+      // Lift from list and convert to H2 with number prefix preserved
+      editor.chain().focus().liftListItem('listItem').toggleHeading({ level: 2 }).run();
+    } else if (editor.isActive('heading', { level: 2 })) {
+      if (hasNumberPrefix) {
+        // Keep H2, just strip number prefix
+        const cleanText = parentText.replace(/^\d+\.\s+/, '');
+        editor.chain().focus().command(({ tr, dispatch }) => {
+          if (dispatch) {
+            const pos = editor.state.selection.$from.start();
+            const endPos = pos + parentText.length;
+            tr.insertText(cleanText, pos, endPos);
+          }
+          return true;
+        }).run();
+      } else {
+        editor.chain().focus().toggleHeading({ level: 2 }).run();
+      }
+    } else {
+      editor.chain().focus().toggleHeading({ level: 2 }).run();
+    }
+  };
+
+  // Toggle H3 on both standard text and Numbered Lists
+  const handleToggleH3 = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!editor) return;
+
+    if (editor.isActive('orderedList')) {
+      editor.chain().focus().liftListItem('listItem').toggleHeading({ level: 3 }).run();
+    } else if (editor.isActive('heading', { level: 3 })) {
+      if (hasNumberPrefix) {
+        const cleanText = parentText.replace(/^\d+\.\s+/, '');
+        editor.chain().focus().command(({ tr, dispatch }) => {
+          if (dispatch) {
+            const pos = editor.state.selection.$from.start();
+            const endPos = pos + parentText.length;
+            tr.insertText(cleanText, pos, endPos);
+          }
+          return true;
+        }).run();
+      } else {
+        editor.chain().focus().toggleHeading({ level: 3 }).run();
+      }
+    } else {
+      editor.chain().focus().toggleHeading({ level: 3 }).run();
+    }
+  };
 
   return (
     <TiptapBubbleMenu
@@ -102,10 +210,7 @@ export function EditorBubbleMenu({ editor, onOpenLinkPicker }: BubbleMenuProps) 
         variant={editor.isActive('heading', { level: 2 }) ? 'secondary' : 'ghost'}
         size="icon"
         className="h-7 w-7 text-xs"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          editor.chain().focus().toggleHeading({ level: 2 }).run();
-        }}
+        onMouseDown={handleToggleH2}
         title="Heading 2"
       >
         <Heading2 className="h-3.5 w-3.5" />
@@ -117,13 +222,37 @@ export function EditorBubbleMenu({ editor, onOpenLinkPicker }: BubbleMenuProps) 
         variant={editor.isActive('heading', { level: 3 }) ? 'secondary' : 'ghost'}
         size="icon"
         className="h-7 w-7 text-xs"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          editor.chain().focus().toggleHeading({ level: 3 }).run();
-        }}
+        onMouseDown={handleToggleH3}
         title="Heading 3"
       >
         <Heading3 className="h-3.5 w-3.5" />
+      </Button>
+
+      {/* Bullet List */}
+      <Button
+        type="button"
+        variant={isBulletListActive ? 'secondary' : 'ghost'}
+        size="icon"
+        className="h-7 w-7 text-xs"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          editor.chain().focus().toggleBulletList().run();
+        }}
+        title="Bullet List"
+      >
+        <List className="h-3.5 w-3.5" />
+      </Button>
+
+      {/* Numbered (Ordered) List */}
+      <Button
+        type="button"
+        variant={isOrderedListActive ? 'secondary' : 'ghost'}
+        size="icon"
+        className="h-7 w-7 text-xs"
+        onMouseDown={handleToggleOrderedList}
+        title="Numbered List"
+      >
+        <ListOrdered className="h-3.5 w-3.5" />
       </Button>
 
       {/* Blockquote */}

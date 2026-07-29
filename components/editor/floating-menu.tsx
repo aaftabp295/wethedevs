@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Heading2,
   List,
+  ListOrdered,
   Quote,
   Table as TableIcon,
   Plus,
@@ -59,7 +60,7 @@ export function EditorFloatingMenu({ editor, onOpenImagePicker }: FloatingMenuPr
             <Heading2 className="h-3.5 w-3.5" />
           </Button>
 
-          {/* List */}
+          {/* Bullet List */}
           <Button
             type="button"
             variant="ghost"
@@ -73,6 +74,22 @@ export function EditorFloatingMenu({ editor, onOpenImagePicker }: FloatingMenuPr
             title="Bullet List"
           >
             <List className="h-3.5 w-3.5" />
+          </Button>
+
+          {/* Numbered List */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-full"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              editor.chain().focus().toggleOrderedList().run();
+              setOpen(false);
+            }}
+            title="Numbered List"
+          >
+            <ListOrdered className="h-3.5 w-3.5" />
           </Button>
 
           {/* Quote */}
