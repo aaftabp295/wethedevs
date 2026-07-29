@@ -134,25 +134,45 @@ export function EditorComponent({
   );
 
   const handleInsertLink = React.useCallback(
-    (article: ManifestEntry) => {
+    ({ url, openInNewTab, nofollow }: { url: string; openInNewTab?: boolean; nofollow?: boolean }) => {
       if (!editor) return;
 
-      const linkUrl = `/${article.contentType}/${article.slug}`;
       const { from, to } = editor.state.selection;
       const selectedText = editor.state.doc.textBetween(from, to, ' ');
 
+      const linkAttrs = {
+        href: url,
+        target: openInNewTab ? '_blank' : undefined,
+        rel: nofollow ? 'nofollow' : undefined,
+      };
+
       if (selectedText) {
-        editor.chain().focus().setLink({ href: linkUrl }).run();
+        editor.chain().focus().extendMarkRange('link').setLink(linkAttrs).run();
       } else {
+        const targetStr = openInNewTab ? ' target="_blank"' : '';
+        const relStr = nofollow ? ' rel="nofollow"' : '';
         editor
           .chain()
           .focus()
-          .insertContent(`<a href="${linkUrl}">${article.title}</a>`)
+          .insertContent(`<a href="${url}"${targetStr}${relStr}>${url}</a>`)
           .run();
       }
     },
     [editor]
   );
+
+  const handleInsertArticle = React.useCallback(
+    (article: ManifestEntry) => {
+      const internalUrl = `/${article.contentType}/${article.slug}`;
+      handleInsertLink({ url: internalUrl, openInNewTab: false, nofollow: false });
+    },
+    [handleInsertLink]
+  );
+
+  const handleRemoveLink = React.useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+  }, [editor]);
 
   const handleInsertImage = React.useCallback(
     ({ url, alt, title }: { url: string; alt: string; title?: string }) => {
@@ -397,7 +417,7 @@ export function EditorComponent({
                 ) : (
                   <LinkSuggestions
                     topic={publishState.topic}
-                    onInsertLink={handleInsertLink}
+                    onInsertLink={handleInsertArticle}
                   />
                 )}
               </div>
@@ -409,7 +429,18 @@ export function EditorComponent({
         <LinkPicker
           open={linkPickerOpen}
           onOpenChange={setLinkPickerOpen}
-          onSelectArticle={handleInsertLink}
+          onInsertLink={handleInsertLink}
+          onRemoveLink={handleRemoveLink}
+          initialUrl={editor?.getAttributes('link')?.href || ''}
+          selectedText={
+            editor
+              ? editor.state.doc.textBetween(
+                  editor.state.selection.from,
+                  editor.state.selection.to,
+                  ' '
+                )
+              : ''
+          }
         />
         <ImagePicker
           open={imagePickerOpen}
@@ -606,18 +637,29 @@ export function EditorComponent({
             ) : (
               <LinkSuggestions
                 topic={publishState.topic}
-                onInsertLink={handleInsertLink}
+                onInsertLink={handleInsertArticle}
               />
             )}
           </div>
         </div>
       )}
 
-      {/* Internal Link Picker Modal */}
+      {/* Link Picker Modal */}
       <LinkPicker
         open={linkPickerOpen}
         onOpenChange={setLinkPickerOpen}
-        onSelectArticle={handleInsertLink}
+        onInsertLink={handleInsertLink}
+        onRemoveLink={handleRemoveLink}
+        initialUrl={editor?.getAttributes('link')?.href || ''}
+        selectedText={
+          editor
+            ? editor.state.doc.textBetween(
+                editor.state.selection.from,
+                editor.state.selection.to,
+                ' '
+              )
+            : ''
+        }
       />
 
       {/* SEO Image Picker Modal */}

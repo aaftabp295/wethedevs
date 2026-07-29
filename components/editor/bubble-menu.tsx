@@ -12,6 +12,7 @@ import {
   Heading3,
   Quote,
   Link2,
+  Unlink,
   Code,
 } from 'lucide-react';
 
@@ -22,6 +23,8 @@ interface BubbleMenuProps {
 
 export function EditorBubbleMenu({ editor, onOpenLinkPicker }: BubbleMenuProps) {
   if (!editor) return null;
+
+  const isLinkActive = editor.isActive('link');
 
   return (
     <TiptapBubbleMenu
@@ -140,20 +143,37 @@ export function EditorBubbleMenu({ editor, onOpenLinkPicker }: BubbleMenuProps) 
 
       <div className="mx-0.5 h-3.5 w-[1px] bg-border" />
 
-      {/* Internal Link */}
+      {/* Insert / Edit Link */}
       <Button
         type="button"
-        variant={editor.isActive('link') ? 'secondary' : 'ghost'}
+        variant={isLinkActive ? 'secondary' : 'ghost'}
         size="icon"
-        className="h-7 w-7 text-xs"
+        className={`h-7 w-7 text-xs ${isLinkActive ? 'text-primary font-bold bg-primary/10' : ''}`}
         onMouseDown={(e) => {
           e.preventDefault();
           onOpenLinkPicker();
         }}
-        title="Insert Link"
+        title={isLinkActive ? 'Edit Link' : 'Insert Link'}
       >
         <Link2 className="h-3.5 w-3.5" />
       </Button>
+
+      {/* Quick Unlink button if text has an active link */}
+      {isLinkActive && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-xs text-destructive hover:bg-destructive/10"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            editor.chain().focus().extendMarkRange('link').unsetLink().run();
+          }}
+          title="Remove Link"
+        >
+          <Unlink className="h-3.5 w-3.5 text-destructive" />
+        </Button>
+      )}
     </TiptapBubbleMenu>
   );
 }
