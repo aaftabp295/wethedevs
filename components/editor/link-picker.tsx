@@ -107,39 +107,39 @@ export function LinkPicker({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md gap-5">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <Link2 className="h-5 w-5 text-primary" />
+      <DialogContent className="sm:max-w-lg w-full p-6 space-y-4 overflow-hidden rounded-xl border border-border bg-background shadow-xl">
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+            <Link2 className="h-4 w-4 text-primary" />
             <span>Insert Link</span>
           </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
+          <DialogDescription className="text-xs text-muted-foreground truncate max-w-full">
             {selectedText ? (
-              <span>Applying link to: <strong className="text-foreground font-mono">"{selectedText}"</strong></span>
+              <span>Applying link to: <strong className="text-foreground font-mono font-medium">"{selectedText}"</strong></span>
             ) : (
-              <span>Insert an external web link or pick an internal article.</span>
+              <span>Insert an external web link or search internal articles.</span>
             )}
           </DialogDescription>
         </DialogHeader>
 
         {/* Tab Selection Controls: External URL vs Internal Article */}
-        <div className="flex items-center rounded-lg border border-border bg-muted/50 p-1 gap-1">
+        <div className="grid grid-cols-2 rounded-lg border border-border bg-muted/50 p-1 gap-1 w-full">
           <button
             type="button"
             onClick={() => setActiveTab('external')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 text-xs font-medium rounded-md transition-all ${
               activeTab === 'external'
                 ? 'bg-background text-foreground shadow-xs font-semibold'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Globe className="h-3.5 w-3.5" />
-            <span>External Web URL</span>
+            <span>Web URL</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('internal')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 text-xs font-medium rounded-md transition-all ${
               activeTab === 'internal'
                 ? 'bg-background text-foreground shadow-xs font-semibold'
                 : 'text-muted-foreground hover:text-foreground'
@@ -152,19 +152,19 @@ export function LinkPicker({
 
         {/* Tab 1: External Web URL */}
         {activeTab === 'external' && (
-          <form onSubmit={handleApplyExternal} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="external-url" className="text-xs font-medium block">
-                Destination URL
+          <form onSubmit={handleApplyExternal} className="space-y-4 pt-1">
+            <div className="space-y-1.5">
+              <label htmlFor="external-url-input" className="text-xs font-medium text-foreground block">
+                Destination Web URL
               </label>
-              <div className="relative">
+              <div className="relative w-full">
                 <Input
-                  id="external-url"
+                  id="external-url-input"
                   type="text"
                   placeholder="https://example.com or https://github.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="pr-8 text-xs font-mono"
+                  className="w-full pr-8 text-xs font-mono"
                   autoFocus
                 />
                 {url && (
@@ -172,7 +172,7 @@ export function LinkPicker({
                     href={url.startsWith('http') ? url : `https://${url}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-primary"
+                    className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-primary transition-colors"
                     title="Test URL in new tab"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -182,33 +182,33 @@ export function LinkPicker({
             </div>
 
             {/* Link Attribute Options */}
-            <div className="space-y-2.5 pt-1 border-t border-border/50">
-              <label className="flex items-center gap-2 cursor-pointer text-xs">
+            <div className="space-y-2 pt-2 border-t border-border/50">
+              <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
                 <input
                   type="checkbox"
                   checked={openInNewTab}
                   onChange={(e) => setOpenInNewTab(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary"
+                  className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary accent-primary"
                 />
-                <span>
-                  Open link in new tab (<code className="text-[10px] bg-muted px-1 py-0.5 rounded">target="_blank"</code>)
+                <span className="text-muted-foreground font-medium">
+                  Open link in new tab (<code className="text-[10px] bg-muted px-1 py-0.5 rounded font-mono">target="_blank"</code>)
                 </span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer text-xs">
+              <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
                 <input
                   type="checkbox"
                   checked={nofollow}
                   onChange={(e) => setNofollow(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary"
+                  className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary accent-primary"
                 />
-                <span>
-                  Mark as nofollow (<code className="text-[10px] bg-muted px-1 py-0.5 rounded">rel="nofollow"</code>)
+                <span className="text-muted-foreground font-medium">
+                  Mark as nofollow (<code className="text-[10px] bg-muted px-1 py-0.5 rounded font-mono">rel="nofollow"</code>)
                 </span>
               </label>
             </div>
 
-            <DialogFooter className="flex items-center justify-between sm:justify-between pt-2">
+            <DialogFooter className="flex items-center justify-between sm:justify-between pt-3 border-t border-border/50">
               {initialUrl && onRemoveLink ? (
                 <Button
                   type="button"
@@ -218,7 +218,7 @@ export function LinkPicker({
                     onRemoveLink();
                     onOpenChange(false);
                   }}
-                  className="gap-1.5 text-xs"
+                  className="gap-1.5 text-xs h-8"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   <span>Remove Link</span>
@@ -227,17 +227,17 @@ export function LinkPicker({
                 <span />
               )}
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 ml-auto">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => onOpenChange(false)}
-                  className="text-xs"
+                  className="text-xs h-8"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" disabled={!url.trim()} className="text-xs font-semibold">
+                <Button type="submit" size="sm" disabled={!url.trim()} className="text-xs font-semibold h-8">
                   Apply Link
                 </Button>
               </div>
@@ -247,20 +247,20 @@ export function LinkPicker({
 
         {/* Tab 2: Internal Article Search */}
         {activeTab === 'internal' && (
-          <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+          <div className="space-y-3 pt-1">
+            <div className="relative w-full">
+              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
               <Input
                 type="text"
                 placeholder="Search internal articles by title, topic..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 text-xs"
+                className="w-full pl-8 text-xs"
                 autoFocus
               />
             </div>
 
-            <div className="max-h-56 overflow-y-auto space-y-1 rounded-md border border-border p-1">
+            <div className="max-h-52 overflow-y-auto space-y-1 rounded-lg border border-border bg-card p-1">
               {filteredArticles.length === 0 ? (
                 <div className="py-6 text-center text-xs text-muted-foreground">
                   No internal articles matching "{searchQuery}"
@@ -271,9 +271,9 @@ export function LinkPicker({
                     key={article.slug}
                     type="button"
                     onClick={() => handleSelectArticle(article)}
-                    className="w-full flex items-center justify-between p-2 rounded-md hover:bg-accent text-left transition-colors group cursor-pointer"
+                    className="w-full flex items-center justify-between p-2.5 rounded-md hover:bg-accent text-left transition-colors group cursor-pointer"
                   >
-                    <div className="min-w-0 pr-2">
+                    <div className="min-w-0 pr-3 flex-1">
                       <p className="font-semibold text-xs truncate group-hover:text-primary transition-colors">
                         {article.title}
                       </p>
@@ -281,7 +281,7 @@ export function LinkPicker({
                         /{article.contentType}/{article.slug}
                       </p>
                     </div>
-                    <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded capitalize shrink-0 font-medium">
+                    <span className="text-[10px] bg-muted px-2 py-0.5 rounded capitalize shrink-0 font-medium">
                       {article.contentType}
                     </span>
                   </button>
@@ -289,7 +289,7 @@ export function LinkPicker({
               )}
             </div>
 
-            <DialogFooter className="flex items-center justify-between pt-1">
+            <DialogFooter className="flex items-center justify-between pt-3 border-t border-border/50">
               {initialUrl && onRemoveLink ? (
                 <Button
                   type="button"
@@ -299,7 +299,7 @@ export function LinkPicker({
                     onRemoveLink();
                     onOpenChange(false);
                   }}
-                  className="gap-1.5 text-xs"
+                  className="gap-1.5 text-xs h-8"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   <span>Remove Link</span>
@@ -312,7 +312,7 @@ export function LinkPicker({
                 variant="outline"
                 size="sm"
                 onClick={() => onOpenChange(false)}
-                className="text-xs ml-auto"
+                className="text-xs h-8 ml-auto"
               >
                 Cancel
               </Button>
