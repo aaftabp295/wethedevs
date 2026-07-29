@@ -495,6 +495,7 @@ export function EditorComponent({
           open={imagePickerOpen}
           onOpenChange={setImagePickerOpen}
           onInsertImage={handleInsertImage}
+          articleSlug={publishState.slug || articleSlug}
         />
         <FAQBuilderModal
           open={faqBuilderOpen}
@@ -739,6 +740,7 @@ export function EditorComponent({
         open={imagePickerOpen}
         onOpenChange={setImagePickerOpen}
         onInsertImage={handleInsertImage}
+        articleSlug={publishState.slug || articleSlug}
       />
 
       {/* Article FAQ Builder Modal */}
