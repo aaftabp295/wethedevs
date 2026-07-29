@@ -58,8 +58,20 @@ export function htmlToMarkdown(html: string): string {
   output = output.replace(
     /<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>\s*([\s\S]*?)<\/details>/gi,
     (_, summaryHtml, bodyHtml) => {
-      const question = summaryHtml.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;').trim();
-      const answer = bodyHtml.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;').trim();
+      const question = summaryHtml
+        .replace(/<[^>]+>/g, '')
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/"/g, '&quot;')
+        .trim();
+      const answer = bodyHtml
+        .replace(/<[^>]+>/g, '')
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/"/g, '&quot;')
+        .trim();
       return `\n\n<FAQItem\n  question="${question}"\n  answer="${answer}"\n/>\n\n`;
     }
   );
@@ -162,6 +174,11 @@ export function htmlToMarkdown(html: string): string {
     .replace(/<hr\s*\/?>/gi, '---\n\n')
     .replace(/<\/?(?:ul|ol|li)[^>]*>/gi, '')
     .replace(/&nbsp;/g, ' ')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -206,6 +223,14 @@ export function mdxToEditorHtml(mdx: string): string {
   if (!mdx) return '';
 
   let html = mdx;
+
+  // Decode entity encoded quotes and apostrophes
+  html = html
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"');
 
   // Convert <FAQItem question="..." answer="..." /> to <details><summary>question</summary><p>answer</p></details>
   html = html.replace(

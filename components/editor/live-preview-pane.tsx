@@ -21,7 +21,12 @@ export function LivePreviewPane({ publishState, editorHtml }: LivePreviewPanePro
   const parsedContent = React.useMemo(() => {
     if (!editorHtml) return null;
 
-    let text = editorHtml;
+    let text = editorHtml
+      .replace(/&#39;/g, "'")
+      .replace(/&apos;/g, "'")
+      .replace(/&#x27;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&#34;/g, '"');
 
     // 1. If content contains raw markdown headings/text inside <p> or unparsed text, convert markdown to HTML
     if (text.includes('## ') || text.includes('### ') || text.includes('**')) {
