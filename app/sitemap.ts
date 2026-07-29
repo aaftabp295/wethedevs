@@ -38,13 +38,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  // Individual published articles (excluding drafts)
-  const articleRoutes: MetadataRoute.Sitemap = publicArticles.map((article) => ({
-    url: `${baseUrl}/${article.contentType}/${article.slug}`,
-    lastModified: new Date(article.updatedAt || article.publishedAt),
-    changeFrequency: 'weekly',
-    priority: 0.9,
-  }));
+  // Individual published articles (excluding drafts) with image sitemap support
+  const articleRoutes: MetadataRoute.Sitemap = publicArticles.map((article) => {
+    const images: string[] = [];
+    if (article.cover) {
+      images.push(article.cover.startsWith('http') ? article.cover : `${baseUrl}${article.cover.startsWith('/') ? '' : '/'}${article.cover}`);
+    }
+
+    return {
+      url: `${baseUrl}/${article.contentType}/${article.slug}`,
+      lastModified: new Date(article.updatedAt || article.publishedAt),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      images,
+    };
+  });
 
   return [...staticRoutes, ...categoryRoutes, ...articleRoutes];
 }

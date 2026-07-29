@@ -11,7 +11,7 @@ import { ArticleShare } from '@/components/content/article-share';
 import { ArticleNav } from '@/components/content/article-nav';
 import { RelatedArticles } from '@/components/content/related-articles';
 import { SEOHead } from '@/components/shared/seo-head';
-import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLdFromContent, buildItemListJsonLdFromContent } from '@/lib/seo/metadata';
+import { constructMetadata, buildArticleJsonLd, buildBreadcrumbJsonLd, buildFaqJsonLdFromContent, buildItemListJsonLdFromContent, buildSoftwareApplicationJsonLdFromContent } from '@/lib/seo/metadata';
 import { siteConfig } from '@/lib/site.config';
 import { ContentTypeSlug } from '@/types/content';
 import { useMDXComponents } from '@/mdx-components';
@@ -91,8 +91,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   ]);
   const faqJsonLd = buildFaqJsonLdFromContent(article.content);
   const itemListJsonLd = buildItemListJsonLdFromContent(article.content, articleUrl);
+  const softwareAppSchemas = buildSoftwareApplicationJsonLdFromContent(article.content, article.title);
 
-  const jsonLdPayload = [articleJsonLd, breadcrumbJsonLd, faqJsonLd, itemListJsonLd].filter(Boolean) as Record<string, unknown>[];
+  const jsonLdPayload = [
+    articleJsonLd,
+    breadcrumbJsonLd,
+    faqJsonLd,
+    itemListJsonLd,
+    ...(softwareAppSchemas || []),
+  ].filter(Boolean) as Record<string, unknown>[];
 
   return (
     <>

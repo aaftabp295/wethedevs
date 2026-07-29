@@ -79,3 +79,22 @@ export type LinkHealth = {
   outgoingLinks: string[];
   brokenLinks: string[];
 };
+
+/** JSON-LD SoftwareApplication schema */
+export type SoftwareApplicationJsonLd = {
+  '@context': 'https://schema.org';
+  '@type': 'SoftwareApplication';
+  name: string;
+  applicationCategory: string;
+  operatingSystem: string;
+  offers?: {
+    '@type': 'Offer';
+    price: string;
+    priceCurrency: string;
+  };
+  aggregateRating?: {
+    '@type': 'AggregateRating';
+    ratingValue: string;
+    ratingCount: string;
+  };
+};

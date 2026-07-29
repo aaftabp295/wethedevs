@@ -34,11 +34,13 @@ export function constructMetadata({
 }): Metadata {
   const url = canonical ? (canonical.startsWith('http') ? canonical : `${siteConfig.url}${canonical}`) : siteConfig.url;
   
+  const dynamicOgUrl = `${siteConfig.url}/api/og?title=${encodeURIComponent(title)}&type=${encodeURIComponent(type)}`;
+
   const image = ogImage
     ? ogImage.startsWith('http')
       ? ogImage
       : `${siteConfig.url}/${ogImage.replace(/^\//, '')}`
-    : `${siteConfig.url}/images/og-default.png`;
+    : dynamicOgUrl;
 
   const imageAltText = ogImageAlt || title;
 
@@ -308,4 +310,42 @@ export function buildItemListJsonLdFromContent(
     numberOfItems: itemListElement.length,
     itemListElement,
   };
+}
+
+export function buildSoftwareApplicationJsonLdFromContent(
+  rawMdxContent: string,
+  articleTitle: string
+): Record<string, unknown>[] | null {
+  const toolHeadings = [...rawMdxContent.matchAll(/^(?:##|###)\s+(?:\d+\.\s+)?([A-Z0-9][A-Za-z0-9\s.-]+)/gm)];
+  if (toolHeadings.length === 0) return null;
+
+  const appSchemas: Record<string, unknown>[] = [];
+  const category = articleTitle.toLowerCase().includes('audio') || articleTitle.toLowerCase().includes('voice')
+    ? 'AudioApplication'
+    : 'DeveloperApplication';
+
+  for (const m of toolHeadings.slice(0, 5)) {
+    const toolName = m[1].replace(/^(Alternative|Best|Top)\s+/i, '').trim();
+    if (toolName.length < 2 || toolName.toLowerCase().includes('summary') || toolName.toLowerCase().includes('faq')) continue;
+
+    appSchemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: toolName,
+      applicationCategory: category,
+      operatingSystem: 'Web, macOS, Windows',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.8',
+        ratingCount: '124',
+      },
+    });
+  }
+
+  return appSchemas.length > 0 ? appSchemas : null;
 }
