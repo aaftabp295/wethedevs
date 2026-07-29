@@ -275,65 +275,69 @@ export function EditorComponent({
     return (
       <div className="fixed inset-0 z-50 bg-background flex flex-col h-screen w-screen overflow-hidden">
         {/* Pinned Top Action & Status Bar in Fullscreen Mode */}
-        <div className="w-full border-b border-border bg-background/95 backdrop-blur-md px-6 sm:px-8 lg:px-10 py-3 flex flex-wrap items-center justify-between gap-4 shrink-0 z-30 shadow-2xs">
-          {/* Left: Article Stats & View Mode Segmented Controls */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1 font-medium">
-                <FileText className="h-3.5 w-3.5" /> {stats.words} words
+        <div className="w-full border-b border-border bg-background/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3 shrink-0 z-30 shadow-2xs overflow-x-auto no-scrollbar">
+          {/* Left: Article Stats & Autosave Badge */}
+          <div className="flex items-center gap-3 shrink-0">
+            {lastSaved ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-500/20">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Saved {lastSaved}</span>
               </span>
-              <span className="flex items-center gap-1 font-medium">
-                <Clock className="h-3.5 w-3.5" /> {stats.minutes} min read
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                <FileText className="h-3.5 w-3.5" />
+                <span>Editing Draft</span>
               </span>
-              {lastSaved && (
-                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Saved {lastSaved}
-                </span>
-              )}
-            </div>
+            )}
 
-            {/* View Mode Control: Write | Split | Preview */}
-            <div className="flex items-center rounded-lg border border-border bg-muted/50 p-0.5">
-              <button
-                type="button"
-                onClick={() => setViewMode('edit')}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                  viewMode === 'edit'
-                    ? 'bg-background text-foreground shadow-xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Writing Canvas Only"
-              >
-                <PenTool className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Write</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('split')}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                  viewMode === 'split'
-                    ? 'bg-background text-foreground shadow-xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Side-by-Side Split View"
-              >
-                <Columns className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Split</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('preview')}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                  viewMode === 'preview'
-                    ? 'bg-background text-foreground shadow-xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Full Live Article Preview"
-              >
-                <Eye className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="hidden sm:inline">Preview</span>
-              </button>
+            <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <span>{stats.words} words</span>
+              <span>•</span>
+              <span>{stats.minutes} min read</span>
             </div>
+          </div>
+
+          {/* Center: View Mode Segmented Controls */}
+          <div className="flex items-center rounded-lg border border-border bg-muted/60 p-0.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode('edit')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                viewMode === 'edit'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Writing Canvas Only"
+            >
+              <PenTool className="h-3.5 w-3.5" />
+              <span>Write</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('split')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                viewMode === 'split'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Side-by-Side Split View"
+            >
+              <Columns className="h-3.5 w-3.5" />
+              <span>Split</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('preview')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                viewMode === 'preview'
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Full Live Article Preview"
+            >
+              <Eye className="h-3.5 w-3.5 text-emerald-500" />
+              <span>Preview</span>
+            </button>
           </div>
 
           {/* Right: Actions */}
@@ -343,13 +347,13 @@ export function EditorComponent({
               variant="outline"
               size="sm"
               onClick={() => setFaqBuilderOpen(true)}
-              className="gap-1.5 text-xs font-medium border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
-              title="Build & Manage Structured FAQs for Google Rich Snippets"
+              className="gap-1.5 text-xs font-medium h-8 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+              title="Build & Manage Structured FAQs"
             >
               <HelpCircle className="h-3.5 w-3.5" />
-              <span>FAQ Builder</span>
+              <span className="hidden sm:inline">FAQ Builder</span>
               {articleFaqs.length > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
+                <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
                   {articleFaqs.length}
                 </span>
               )}
@@ -360,11 +364,11 @@ export function EditorComponent({
               variant="outline"
               size="sm"
               onClick={() => setImagePickerOpen(true)}
-              className="gap-1.5 text-xs font-medium"
-              title="Insert Image with Alt Text"
+              className="gap-1.5 text-xs font-medium h-8"
+              title="Insert Image"
             >
               <ImageIcon className="h-3.5 w-3.5" />
-              <span>Add Image</span>
+              <span className="hidden sm:inline">Add Image</span>
             </Button>
 
             <Button
@@ -382,10 +386,11 @@ export function EditorComponent({
               variant="outline"
               size="sm"
               onClick={() => setPublishSidebarOpen(true)}
-              className="gap-1.5 text-xs font-medium"
+              className="gap-1.5 text-xs font-medium h-8"
+              title="Publish Settings & Meta Tags"
             >
               <Settings2 className="h-3.5 w-3.5" />
-              <span>Publish Settings</span>
+              <span className="hidden lg:inline">Settings</span>
             </Button>
 
             <Button
@@ -393,22 +398,22 @@ export function EditorComponent({
               size="sm"
               onClick={() => handlePublish(true)}
               disabled={isPublishing}
-              className="gap-1.5 text-xs font-medium"
-              title="Save article as draft"
+              className="gap-1.5 text-xs font-medium h-8"
+              title="Save as Draft"
             >
               <FileEdit className="h-3.5 w-3.5" />
-              <span>Save Draft</span>
+              <span className="hidden sm:inline">Save Draft</span>
             </Button>
 
             <Button
               size="sm"
               onClick={() => handlePublish(false)}
               disabled={isPublishing}
-              className="gap-1.5 text-xs font-semibold"
-              title="Publish article live to site"
+              className="gap-1.5 text-xs font-semibold h-8 bg-foreground text-background hover:bg-foreground/90"
+              title="Publish Article Live"
             >
               <Send className="h-3.5 w-3.5" />
-              <span>{isPublishing ? 'Publishing...' : 'Publish Live'}</span>
+              <span>Publish Live</span>
             </Button>
           </div>
         </div>
@@ -521,65 +526,69 @@ export function EditorComponent({
   return (
     <div className="space-y-6">
       {/* Top Action & Status Bar — Fixed/Sticky on Scroll in Normal Mode */}
-      <div className="sticky top-[3.5rem] z-30 flex flex-wrap items-center justify-between gap-4 border-b border-border py-3 bg-background/95 backdrop-blur-md transition-all shadow-2xs -mx-6 px-6 sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10">
-        {/* Left: Article Stats & View Mode Segmented Controls */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1 font-medium">
-              <FileText className="h-3.5 w-3.5" /> {stats.words} words
+      <div className="sticky top-[3.5rem] z-30 flex items-center justify-between gap-3 border-b border-border py-2.5 bg-background/95 backdrop-blur-md transition-all shadow-2xs -mx-6 px-6 sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10 overflow-x-auto no-scrollbar">
+        {/* Left: Article Stats & Autosave Badge */}
+        <div className="flex items-center gap-3 shrink-0">
+          {lastSaved ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-500/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Saved {lastSaved}</span>
             </span>
-            <span className="flex items-center gap-1 font-medium">
-              <Clock className="h-3.5 w-3.5" /> {stats.minutes} min read
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+              <FileText className="h-3.5 w-3.5" />
+              <span>Editing Draft</span>
             </span>
-            {lastSaved && (
-              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Saved {lastSaved}
-              </span>
-            )}
-          </div>
+          )}
 
-          {/* View Mode Control: Write | Split | Preview */}
-          <div className="flex items-center rounded-lg border border-border bg-muted/50 p-0.5">
-            <button
-              type="button"
-              onClick={() => setViewMode('edit')}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                viewMode === 'edit'
-                  ? 'bg-background text-foreground shadow-xs font-semibold'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Writing Canvas Only"
-            >
-              <PenTool className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Write</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('split')}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                viewMode === 'split'
-                  ? 'bg-background text-foreground shadow-xs font-semibold'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Side-by-Side Split View"
-            >
-              <Columns className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Split</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('preview')}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                viewMode === 'preview'
-                  ? 'bg-background text-foreground shadow-xs font-semibold'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Full Live Article Preview"
-            >
-              <Eye className="h-3.5 w-3.5 text-emerald-500" />
-              <span className="hidden sm:inline">Preview</span>
-            </button>
+          <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground font-medium">
+            <span>{stats.words} words</span>
+            <span>•</span>
+            <span>{stats.minutes} min read</span>
           </div>
+        </div>
+
+        {/* Center: View Mode Segmented Controls */}
+        <div className="flex items-center rounded-lg border border-border bg-muted/60 p-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setViewMode('edit')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              viewMode === 'edit'
+                ? 'bg-background text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            title="Writing Canvas Only"
+          >
+            <PenTool className="h-3.5 w-3.5" />
+            <span>Write</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('split')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              viewMode === 'split'
+                ? 'bg-background text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            title="Side-by-Side Split View"
+          >
+            <Columns className="h-3.5 w-3.5" />
+            <span>Split</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('preview')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              viewMode === 'preview'
+                ? 'bg-background text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            title="Full Live Article Preview"
+          >
+            <Eye className="h-3.5 w-3.5 text-emerald-500" />
+            <span>Preview</span>
+          </button>
         </div>
 
         {/* Right: Actions */}
@@ -589,13 +598,13 @@ export function EditorComponent({
             variant="outline"
             size="sm"
             onClick={() => setFaqBuilderOpen(true)}
-            className="gap-1.5 text-xs font-medium border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
-            title="Build & Manage Structured FAQs for Google Rich Snippets"
+            className="gap-1.5 text-xs font-medium h-8 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            title="Build & Manage Structured FAQs"
           >
             <HelpCircle className="h-3.5 w-3.5" />
-            <span>FAQ Builder</span>
+            <span className="hidden sm:inline">FAQ Builder</span>
             {articleFaqs.length > 0 && (
-              <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
+              <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
                 {articleFaqs.length}
               </span>
             )}
@@ -606,11 +615,11 @@ export function EditorComponent({
             variant="outline"
             size="sm"
             onClick={() => setImagePickerOpen(true)}
-            className="gap-1.5 text-xs font-medium"
-            title="Insert Image with Alt Text"
+            className="gap-1.5 text-xs font-medium h-8"
+            title="Insert Image"
           >
             <ImageIcon className="h-3.5 w-3.5" />
-            <span>Add Image</span>
+            <span className="hidden sm:inline">Add Image</span>
           </Button>
 
           <Button
@@ -628,10 +637,11 @@ export function EditorComponent({
             variant="outline"
             size="sm"
             onClick={() => setPublishSidebarOpen(true)}
-            className="gap-1.5 text-xs font-medium"
+            className="gap-1.5 text-xs font-medium h-8"
+            title="Publish Settings & Meta Tags"
           >
             <Settings2 className="h-3.5 w-3.5" />
-            <span>Publish Settings</span>
+            <span className="hidden lg:inline">Settings</span>
           </Button>
 
           <Button
@@ -639,22 +649,22 @@ export function EditorComponent({
             size="sm"
             onClick={() => handlePublish(true)}
             disabled={isPublishing}
-            className="gap-1.5 text-xs font-medium"
-            title="Save article as draft"
+            className="gap-1.5 text-xs font-medium h-8"
+            title="Save as Draft"
           >
             <FileEdit className="h-3.5 w-3.5" />
-            <span>Save Draft</span>
+            <span className="hidden sm:inline">Save Draft</span>
           </Button>
 
           <Button
             size="sm"
             onClick={() => handlePublish(false)}
             disabled={isPublishing}
-            className="gap-1.5 text-xs font-semibold"
-            title="Publish article live to site"
+            className="gap-1.5 text-xs font-semibold h-8 bg-foreground text-background hover:bg-foreground/90"
+            title="Publish Article Live"
           >
             <Send className="h-3.5 w-3.5" />
-            <span>{isPublishing ? 'Publishing...' : 'Publish Live'}</span>
+            <span>Publish Live</span>
           </Button>
         </div>
       </div>
