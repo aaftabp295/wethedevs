@@ -1,4 +1,5 @@
 import { ArticleFrontmatter } from '@/types/content';
+import { marked } from 'marked';
 
 /** Convert HTML table elements to clean GFM Markdown table string */
 function convertHtmlTableToMarkdown(htmlTable: string): string {
@@ -222,23 +223,49 @@ export function serializeMdx(
 export function mdxToEditorHtml(mdx: string): string {
   if (!mdx) return '';
 
-  let html = mdx;
+  let text = mdx;
 
-  // Decode entity encoded quotes and apostrophes
-  html = html
+  // 1. Convert <FAQItem question="..." answer="..." /> to <details><summary>question</summary><p>answer</p></details>
+  text = text.replace(
+    /<FAQItem\s+question=["']([\s\S]*?)["']\s+answer=["']([\s\S]*?)["']\s*\/>/gi,
+    (_, question, answer) => {
+      const qClean = question
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/&quot;/g, '"');
+      const aClean = answer
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/&quot;/g, '"');
+      return `<details><summary>${qClean.trim()}</summary><p>${aClean.trim()}</p></details>`;
+    }
+  );
+
+  // 2. Decode entity encoded quotes and apostrophes before markdown parsing
+  text = text
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&#x27;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&#34;/g, '"');
 
-  // Convert <FAQItem question="..." answer="..." /> to <details><summary>question</summary><p>answer</p></details>
-  html = html.replace(
-    /<FAQItem\s+question=["']([\s\S]*?)["']\s+answer=["']([\s\S]*?)["']\s*\/>/gi,
-    (_, question, answer) => {
-      return `<details><summary>${question.trim()}</summary><p>${answer.trim()}</p></details>`;
-    }
-  );
+  // 3. Parse Markdown into clean HTML using marked so TipTap receives <h2>, <h3>, <strong>, etc.
+  let html = '';
+  try {
+    html = marked.parse(text) as string;
+  } catch {
+    html = text;
+  }
+
+  // 4. Decode HTML entities that marked.parse might have produced for quotes
+  html = html
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"');
 
   return html;
 }

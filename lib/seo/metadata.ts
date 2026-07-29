@@ -191,6 +191,18 @@ export function buildWebSiteJsonLd(): WebSiteJsonLd {
   };
 }
 
+function decodeEntities(str: string): string {
+  return str
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
 export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | null {
   const faqSectionMatch = rawMdxContent.match(/## (?:FAQ|Frequently Asked Questions)([\s\S]*?)(?=\n## |$)/i);
   if (!faqSectionMatch) return null;
@@ -198,7 +210,7 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
   const faqText = faqSectionMatch[1];
   const faqItems: Array<{ question: string; answer: string }> = [];
 
-  // 1. Match <FAQItem ... /> tags with quote-aware matching (allowing apostrophes inside double quotes)
+  // 1. Match <FAQItem ... /> tags with quote-aware matching
   const faqBlockMatches = [...faqText.matchAll(/<FAQItem\b([\s\S]*?)\/>/gi)];
 
   if (faqBlockMatches.length > 0) {
@@ -208,8 +220,8 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
       const aMatch = attrsStr.match(/answer=(?:"([^"]*)"|'([^']*)')/i);
 
       if (qMatch && aMatch) {
-        const question = (qMatch[1] ?? qMatch[2] ?? '').trim();
-        const answer = (aMatch[1] ?? aMatch[2] ?? '').trim();
+        const question = decodeEntities((qMatch[1] ?? qMatch[2] ?? '').trim());
+        const answer = decodeEntities((aMatch[1] ?? aMatch[2] ?? '').trim());
         if (question && answer) {
           faqItems.push({ question, answer });
         }
@@ -223,20 +235,32 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
 
     if (detailsMatches.length > 0) {
       for (const match of detailsMatches) {
-        const question = match[1].replace(/<[^>]+>/g, '').replace(/\*/g, '').trim();
-        const answer = match[2].replace(/<[^>]+>/g, '').replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim();
+        const question = decodeEntities(match[1].replace(/<[^>]+>/g, '').replace(/\*/g, '').trim());
+        const answer = decodeEntities(match[2].replace(/<[^>]+>/g, '').replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim());
         if (question && answer) {
           faqItems.push({ question, answer });
         }
       }
     } else {
-      // 3. Fallback to matching bold question patterns: **Question?** Answer...
-      const qaMatches = [...faqText.matchAll(/\*\*(.*?)\*\*\s*([\s\S]*?)(?=\*\*|$)/g)];
-      for (const m of qaMatches) {
-        const question = m[1].replace(/\?/g, '').trim() + '?';
-        const answer = m[2].replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim();
-        if (question && answer) {
-          faqItems.push({ question, answer });
+      // 3. Match H3 heading question patterns: ### Question?\n\nAnswer...
+      const h3Matches = [...faqText.matchAll(/###\s+(.*?)\n+([\s\S]*?)(?=\n###|\n##|$)/g)];
+      if (h3Matches.length > 0) {
+        for (const m of h3Matches) {
+          const question = decodeEntities(m[1].replace(/<[^>]+>/g, '').trim());
+          const answer = decodeEntities(m[2].replace(/<[^>]+>/g, '').replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim());
+          if (question && answer) {
+            faqItems.push({ question, answer });
+          }
+        }
+      } else {
+        // 4. Fallback to matching bold question patterns: **Question?** Answer...
+        const qaMatches = [...faqText.matchAll(/\*\*(.*?)\*\*\s*([\s\S]*?)(?=\*\*|$)/g)];
+        for (const m of qaMatches) {
+          const question = decodeEntities(m[1].replace(/\?/g, '').trim() + '?');
+          const answer = decodeEntities(m[2].replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim());
+          if (question && answer) {
+            faqItems.push({ question, answer });
+          }
         }
       }
     }
