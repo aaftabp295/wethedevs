@@ -18,7 +18,6 @@ import { EditorFloatingMenu } from './floating-menu';
 import { LinkPicker } from './link-picker';
 import { ImagePicker } from './image-picker';
 import { FAQBuilderModal, FAQItemData } from './faq-builder';
-import { LinkSuggestions } from './link-suggestions';
 import { PublishSidebar } from './publish-sidebar';
 import { LivePreviewPane } from './live-preview-pane';
 import { Button } from '@/components/ui/button';
@@ -442,7 +441,7 @@ export function EditorComponent({
           ) : (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
               {/* Editor Body */}
-              <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-8'}>
+              <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-12'}>
                 <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-6 sm:p-10 shadow-xs transition-shadow hover:shadow-md">
                   <EditorBubbleMenu
                     editor={editor}
@@ -460,21 +459,12 @@ export function EditorComponent({
                 </div>
               </div>
 
-              {/* Right Column: Split Preview Pane OR Link Suggestions Sidebar */}
-              <div className={
-                viewMode === 'split'
-                  ? 'lg:col-span-6 sticky top-4 self-start max-h-[calc(100vh-6rem)] overflow-hidden'
-                  : 'lg:col-span-4 sticky top-4 self-start'
-              }>
-                {viewMode === 'split' ? (
+              {/* Right Column: Split Preview Pane (Only in Split View) */}
+              {viewMode === 'split' && (
+                <div className="lg:col-span-6 sticky top-4 self-start max-h-[calc(100vh-6rem)] overflow-hidden">
                   <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
-                ) : (
-                  <LinkSuggestions
-                    topic={publishState.topic}
-                    onInsertLink={handleInsertArticle}
-                  />
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -691,7 +681,7 @@ export function EditorComponent({
       ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
           {/* Editor Body */}
-          <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-8'}>
+          <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-12'}>
             <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-6 sm:p-10 shadow-xs transition-shadow hover:shadow-md">
               <EditorBubbleMenu
                 editor={editor}
@@ -709,21 +699,12 @@ export function EditorComponent({
             </div>
           </div>
 
-          {/* Right Column: Sticky Split Preview Pane OR Link Suggestions Sidebar */}
-          <div className={
-            viewMode === 'split'
-              ? 'lg:col-span-6 sticky top-[7.5rem] self-start max-h-[calc(100vh-8.5rem)] overflow-hidden'
-              : 'lg:col-span-4 sticky top-[7.5rem] self-start'
-          }>
-            {viewMode === 'split' ? (
+          {/* Right Column: Sticky Split Preview Pane (Only in Split View) */}
+          {viewMode === 'split' && (
+            <div className="lg:col-span-6 sticky top-[7.5rem] self-start max-h-[calc(100vh-8.5rem)] overflow-hidden">
               <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
-            ) : (
-              <LinkSuggestions
-                topic={publishState.topic}
-                onInsertLink={handleInsertArticle}
-              />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
