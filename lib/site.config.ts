@@ -8,10 +8,10 @@ export const siteConfig = {
     name: 'Aaftab',
     role: 'Senior Software Engineer & Tech Reviewer',
     bio: 'Software engineer specializing in web architecture, AI developer tools, and design software comparisons.',
-    url: 'https://wethedevs.vercel.app',
+    url: 'https://wethedevs.vercel.app/author/aaftab',
   },
   links: {
-    twitter: 'https://twitter.com',
+    twitter: '',
     github: 'https://github.com/aaftabp295/wethedevs',
   },
 } as const;

@@ -103,6 +103,11 @@ export function buildArticleJsonLd(
     }
   }
 
+  const dateModified =
+    article.updatedAt && article.updatedAt !== article.publishedAt
+      ? article.updatedAt
+      : undefined;
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -126,7 +131,7 @@ export function buildArticleJsonLd(
       },
     },
     datePublished: article.publishedAt,
-    dateModified: article.updatedAt || article.publishedAt,
+    ...(dateModified && { dateModified }),
     mainEntityOfPage: url,
   };
 }
@@ -151,16 +156,24 @@ export function buildBreadcrumbJsonLd(
 }
 
 export function buildOrganizationJsonLd(): OrganizationJsonLd {
+  const socialLinks = [siteConfig.links.github, siteConfig.links.twitter]
+    .filter(Boolean)
+    .filter((link) => {
+      try {
+        const parsed = new URL(link);
+        return parsed.pathname !== '' && parsed.pathname !== '/';
+      } catch {
+        return false;
+      }
+    });
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: siteConfig.name,
     url: siteConfig.url,
     logo: `${siteConfig.url}/images/og-default.png`,
-    sameAs: [
-      siteConfig.links.github,
-      siteConfig.links.twitter,
-    ].filter(Boolean),
+    sameAs: socialLinks,
   };
 }
 
@@ -179,24 +192,32 @@ export function buildWebSiteJsonLd(): WebSiteJsonLd {
 }
 
 export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | null {
-  const faqSectionMatch = rawMdxContent.match(/## (?:FAQ|Frequently Asked Questions)([\s\S]*?)(?=## |$)/i);
+  const faqSectionMatch = rawMdxContent.match(/## (?:FAQ|Frequently Asked Questions)([\s\S]*?)(?=\n## |$)/i);
   if (!faqSectionMatch) return null;
 
   const faqText = faqSectionMatch[1];
   const faqItems: Array<{ question: string; answer: string }> = [];
 
-  // 1. Try matching <FAQItem question="..." answer="..." />
-  const faqItemMatches = [...faqText.matchAll(/<FAQItem\s+question=["']([^"']+)["']\s+answer=["']([^"']+)["']\s*\/?>/gi)];
+  // 1. Try matching <FAQItem ... /> blocks flexible with newlines and attr order
+  const faqBlockMatches = [...faqText.matchAll(/<FAQItem\b([\s\S]*?)\/>/gi)];
 
-  if (faqItemMatches.length > 0) {
-    for (const match of faqItemMatches) {
-      const question = match[1].trim();
-      const answer = match[2].trim();
-      if (question && answer) {
-        faqItems.push({ question, answer });
+  if (faqBlockMatches.length > 0) {
+    for (const match of faqBlockMatches) {
+      const attrsStr = match[1];
+      const qMatch = attrsStr.match(/question=["']([\s\S]*?)["']/i);
+      const aMatch = attrsStr.match(/answer=["']([\s\S]*?)["']/i);
+
+      if (qMatch && aMatch) {
+        const question = qMatch[1].trim();
+        const answer = aMatch[1].trim();
+        if (question && answer) {
+          faqItems.push({ question, answer });
+        }
       }
     }
-  } else {
+  }
+
+  if (faqItems.length === 0) {
     // 2. Try matching HTML <details><summary>Question</summary>Answer</details> accordions
     const detailsMatches = [...faqText.matchAll(/<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>\s*([\s\S]*?)<\/details>/gi)];
 
@@ -241,16 +262,17 @@ export function buildItemListJsonLdFromContent(
   rawMdxContent: string,
   articleUrl: string
 ): Record<string, unknown> | null {
-  const h3Matches = [...rawMdxContent.matchAll(/^###\s+(?:(\d+)\.\s+)?(.*)$/gm)];
-  if (h3Matches.length === 0) return null;
+  // Match numbered headings starting with 1. 2. etc, either H2 (## 1. ...) or H3 (### 1. ...)
+  const itemMatches = [...rawMdxContent.matchAll(/^(?:##|###)\s+(\d+)\.\s+(.*)$/gm)];
+  if (itemMatches.length === 0) return null;
 
-  const itemListElement = h3Matches.map((m, index) => {
+  const itemListElement = itemMatches.map((m, index) => {
     const rawTitle = m[2].trim();
-    const slug = rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const slug = `${m[1]}-${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
     return {
       '@type': 'ListItem',
       position: index + 1,
-      name: rawTitle,
+      name: `${m[1]}. ${rawTitle}`,
       url: `${articleUrl}#${slug}`,
     };
   });
