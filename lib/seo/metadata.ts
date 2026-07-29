@@ -198,18 +198,18 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
   const faqText = faqSectionMatch[1];
   const faqItems: Array<{ question: string; answer: string }> = [];
 
-  // 1. Try matching <FAQItem ... /> blocks flexible with newlines and attr order
+  // 1. Match <FAQItem ... /> tags with quote-aware matching (allowing apostrophes inside double quotes)
   const faqBlockMatches = [...faqText.matchAll(/<FAQItem\b([\s\S]*?)\/>/gi)];
 
   if (faqBlockMatches.length > 0) {
     for (const match of faqBlockMatches) {
       const attrsStr = match[1];
-      const qMatch = attrsStr.match(/question=["']([\s\S]*?)["']/i);
-      const aMatch = attrsStr.match(/answer=["']([\s\S]*?)["']/i);
+      const qMatch = attrsStr.match(/question=(?:"([^"]*)"|'([^']*)')/i);
+      const aMatch = attrsStr.match(/answer=(?:"([^"]*)"|'([^']*)')/i);
 
       if (qMatch && aMatch) {
-        const question = qMatch[1].trim();
-        const answer = aMatch[1].trim();
+        const question = (qMatch[1] ?? qMatch[2] ?? '').trim();
+        const answer = (aMatch[1] ?? aMatch[2] ?? '').trim();
         if (question && answer) {
           faqItems.push({ question, answer });
         }
