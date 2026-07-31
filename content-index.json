@@ -1,6 +1,152 @@
 {
   "articles": [
     {
+      "title": "Lovable vs Bolt (2026): Full Comparison, Pricing & Verdict",
+      "slug": "lovable-vs-bolt",
+      "contentType": "comparisons",
+      "topic": "AI Coding",
+      "tags": [
+        "lovable-vs-bolt",
+        "lovable",
+        "bolt",
+        "boltnew",
+        "lovable-alternatives"
+      ],
+      "description": "Lovable vs Bolt tested head-to-head: pricing, speed, code quality, backend, and features. Real 2026 data, no fluff — see which AI app builder wins.",
+      "headings": [
+        {
+          "id": "quick-verdict",
+          "text": "Quick verdict",
+          "level": 2
+        },
+        {
+          "id": "how-this-comparison-was-built",
+          "text": "How this comparison was built",
+          "level": 2
+        },
+        {
+          "id": "what-is-lovable",
+          "text": "What is Lovable?",
+          "level": 2
+        },
+        {
+          "id": "what-is-bolt",
+          "text": "What is Bolt?",
+          "level": 2
+        },
+        {
+          "id": "category-scorecard",
+          "text": "Category scorecard",
+          "level": 2
+        },
+        {
+          "id": "pricing-breakdown",
+          "text": "Pricing breakdown",
+          "level": 2
+        },
+        {
+          "id": "1-lovable-pricing-2026",
+          "text": "1. Lovable pricing (2026)",
+          "level": 3
+        },
+        {
+          "id": "2-bolt-pricing-2026",
+          "text": "2. Bolt pricing (2026)",
+          "level": 3
+        },
+        {
+          "id": "3-the-real-difference-team-math",
+          "text": "3. The real difference: team math",
+          "level": 3
+        },
+        {
+          "id": "feature-deep-dive",
+          "text": "Feature deep dive",
+          "level": 2
+        },
+        {
+          "id": "1-onboarding-and-planning",
+          "text": "1. Onboarding and planning",
+          "level": 3
+        },
+        {
+          "id": "2-speed-and-iteration-mechanics",
+          "text": "2. Speed and iteration mechanics",
+          "level": 3
+        },
+        {
+          "id": "3-code-quality-and-default-output",
+          "text": "3. Code quality and default output",
+          "level": 3
+        },
+        {
+          "id": "4-precision-editing-select-edit-vs-bolts-targeting-tools",
+          "text": "4. Precision editing: Select & Edit vs Bolt's targeting tools",
+          "level": 3
+        },
+        {
+          "id": "5-backend-and-database-support",
+          "text": "5. Backend and database support",
+          "level": 3
+        },
+        {
+          "id": "6-local-development-and-model-choice-boltdiy",
+          "text": "6. Local development and model choice: bolt.diy",
+          "level": 3
+        },
+        {
+          "id": "7-deployment-and-custom-domains",
+          "text": "7. Deployment and custom domains",
+          "level": 3
+        },
+        {
+          "id": "8-github-sync-and-version-control",
+          "text": "8. GitHub sync and version control",
+          "level": 3
+        },
+        {
+          "id": "9-community-support-and-user-reviews",
+          "text": "9. Community, support, and user reviews",
+          "level": 3
+        },
+        {
+          "id": "who-should-use-which",
+          "text": "Who should use which",
+          "level": 2
+        },
+        {
+          "id": "choose-lovable-if",
+          "text": "Choose Lovable if:",
+          "level": 3
+        },
+        {
+          "id": "choose-bolt-if",
+          "text": "Choose Bolt if:",
+          "level": 3
+        },
+        {
+          "id": "related-alternatives-to-explore",
+          "text": "Related alternatives to explore",
+          "level": 2
+        },
+        {
+          "id": "frequently-asked-questions",
+          "text": "Frequently asked questions",
+          "level": 2
+        }
+      ],
+      "cover": "https://llbudxquylsqkupfzexd.supabase.co/storage/v1/object/public/media/covers/lovable-vs-bolt-1785397778608.webp",
+      "coverAlt": "Lovable vs Bolt.new Full comparison",
+      "readingTime": 15,
+      "publishedAt": "2026-07-30T07:49:52.812Z",
+      "draft": false,
+      "featured": true,
+      "outgoingLinks": [
+        "lovable-alternatives",
+        "elevenlabs-alternatives"
+      ]
+    },
+    {
       "title": "6 Best Lovable Alternatives in 2026 (Tested)",
       "slug": "lovable-alternatives",
       "contentType": "alternatives",
@@ -72,6 +218,7 @@
       "draft": false,
       "featured": false,
       "outgoingLinks": [
+        "lovable-vs-bolt",
         "canva-alternatives",
         "elevenlabs-alternatives"
       ]
@@ -347,5 +494,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-29T14:23:51.789Z"
+  "generatedAt": "2026-07-31T16:27:34.721Z"
 }

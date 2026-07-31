@@ -288,25 +288,44 @@ export function buildItemListJsonLdFromContent(
   rawMdxContent: string,
   articleUrl: string
 ): Record<string, unknown> | null {
-  // Match numbered headings starting with 1. 2. etc, either H2 (## 1. ...) or H3 (### 1. ...)
-  const itemMatches = [...rawMdxContent.matchAll(/^(?:##|###)\s+(\d+)\.\s+(.*)$/gm)];
+  const itemMatches = [...rawMdxContent.matchAll(/^##\s+(?:(\d+)\.\s+|(?:What is\s+)?([A-Z0-9][A-Za-z0-9\s.-]+?)(?:\?|$))/gm)];
   if (itemMatches.length === 0) return null;
 
-  const itemListElement = itemMatches.map((m, index) => {
-    const rawTitle = m[2].trim();
-    const slug = `${m[1]}-${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
-    return {
+  const itemListElement: Record<string, unknown>[] = [];
+  let index = 1;
+
+  for (const m of itemMatches) {
+    const rawTitle = (m[2] || m[0]).replace(/^##\s+/, '').replace(/\?$/, '').trim();
+    const lower = rawTitle.toLowerCase();
+    
+    if (
+      lower.includes('faq') ||
+      lower.includes('frequently') ||
+      lower.includes('verdict') ||
+      lower.includes('scorecard') ||
+      lower.includes('how this') ||
+      lower.includes('related') ||
+      lower.includes('who should') ||
+      lower.includes('category') ||
+      lower.includes('quick')
+    ) continue;
+
+    const slug = `${index}-${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
+    itemListElement.push({
       '@type': 'ListItem',
-      position: index + 1,
-      name: `${m[1]}. ${rawTitle}`,
+      position: index,
+      name: rawTitle,
       url: `${articleUrl}#${slug}`,
-    };
-  });
+    });
+    index++;
+  }
+
+  if (itemListElement.length === 0) return null;
 
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'Featured Tools',
+    name: 'Featured Tools & Comparison Breakdown',
     numberOfItems: itemListElement.length,
     itemListElement,
   };
@@ -316,18 +335,45 @@ export function buildSoftwareApplicationJsonLdFromContent(
   rawMdxContent: string,
   articleTitle: string
 ): Record<string, unknown>[] | null {
-  const toolHeadings = [...rawMdxContent.matchAll(/^(?:##|###)\s+(?:\d+\.\s+)?([A-Z0-9][A-Za-z0-9\s.-]+)/gm)];
-  if (toolHeadings.length === 0) return null;
-
   const appSchemas: Record<string, unknown>[] = [];
   const category = articleTitle.toLowerCase().includes('audio') || articleTitle.toLowerCase().includes('voice')
     ? 'AudioApplication'
     : 'DeveloperApplication';
 
-  for (const m of toolHeadings.slice(0, 5)) {
-    const toolName = m[1].replace(/^(Alternative|Best|Top)\s+/i, '').trim();
-    if (toolName.length < 2 || toolName.toLowerCase().includes('summary') || toolName.toLowerCase().includes('faq')) continue;
+  const toolNames = new Set<string>();
 
+  // 1. Extract tools from comparison titles like "Lovable vs Bolt"
+  const vsMatch = articleTitle.match(/([A-Z0-9][A-Za-z0-9.-]+)\s+vs\s+([A-Z0-9][A-Za-z0-9.-]+)/i);
+  if (vsMatch) {
+    toolNames.add(vsMatch[1].trim());
+    toolNames.add(vsMatch[2].trim() === 'Bolt' ? 'Bolt.new' : vsMatch[2].trim());
+  }
+
+  // 2. Extract tools from headings like "## What is Lovable?" or "## 1. Lovable"
+  const toolMatches = [...rawMdxContent.matchAll(/^##\s+(?:What is\s+)?(?:\d+\.\s+)?([A-Z0-9][A-Za-z0-9\s.-]+?)(?:\?|$)/gm)];
+  for (const m of toolMatches) {
+    const rawName = m[1].replace(/^(Alternative|Best|Top|What is)\s+/i, '').trim();
+    const lower = rawName.toLowerCase();
+    if (
+      rawName.length >= 2 &&
+      !lower.includes('summary') &&
+      !lower.includes('faq') &&
+      !lower.includes('frequently') &&
+      !lower.includes('verdict') &&
+      !lower.includes('scorecard') &&
+      !lower.includes('pricing') &&
+      !lower.includes('feature') &&
+      !lower.includes('how this') &&
+      !lower.includes('who should') &&
+      !lower.includes('related') &&
+      !lower.includes('category') &&
+      !lower.includes('quick')
+    ) {
+      toolNames.add(rawName);
+    }
+  }
+
+  for (const toolName of Array.from(toolNames).slice(0, 5)) {
     appSchemas.push({
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',

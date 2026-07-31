@@ -18,7 +18,12 @@ export const FrontmatterSchema = z.object({
   updatedAt: z.string().optional(),
   draft: z.boolean().default(false),
   featured: z.boolean().default(false),
-  canonical: z.string().url().optional(),
+  canonical: z
+    .string()
+    .refine((val) => !val || val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://'), {
+      message: 'Canonical must be a relative path (starting with /) or a full http/https URL',
+    })
+    .optional(),
   author: z.string().optional(),
 });
 
