@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { contentHtml, oldSlug, ...rawFrontmatter } = body;
+    const { contentHtml, oldSlug, faqs, ...rawFrontmatter } = body;
 
     const nowIso = new Date().toISOString();
     const existingPublishedAt = rawFrontmatter.publishedAt?.trim();
@@ -63,8 +63,11 @@ export async function POST(request: Request) {
       ? recordSlugRedirect(contentType, oldSlug, slug)
       : [];
 
-    // Serialize to clean MDX text
-    const mdxContent = serializeMdx(frontmatter, contentHtml || '');
+    // Serialize to clean MDX text (pass structured FAQs so they survive TipTap's HTML round-trip)
+    const sanitizedFaqs = Array.isArray(faqs)
+      ? faqs.filter((f: { question?: string; answer?: string }) => f.question?.trim() && f.answer?.trim())
+      : undefined;
+    const mdxContent = serializeMdx(frontmatter, contentHtml || '', sanitizedFaqs);
     const mdxRelativePath = `content/${contentType}/${slug}/article.mdx`;
 
     // Mode A: Online Vercel Deployment via GitHub REST API (1 Single Atomic Commit)

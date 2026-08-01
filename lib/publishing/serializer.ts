@@ -189,10 +189,15 @@ export function htmlToMarkdown(html: string): string {
   return output;
 }
 
-/** Serialize frontmatter metadata + markdown body into MDX file text */
+/** Serialize frontmatter metadata + markdown body into MDX file text.
+ *  When `faqs` is provided, FAQ items are serialized as structured <FAQItem />
+ *  components at the end of the article — this ensures TipTap's inability to
+ *  preserve <details>/<summary> elements doesn't cause FAQ data loss on re-publish.
+ */
 export function serializeMdx(
   frontmatter: ArticleFrontmatter,
-  contentHtml: string
+  contentHtml: string,
+  faqs?: Array<{ question: string; answer: string }>
 ): string {
   const yamlFrontmatter = [
     '---',
@@ -214,7 +219,20 @@ export function serializeMdx(
     .filter(Boolean)
     .join('\n');
 
-  const markdownBody = htmlToMarkdown(contentHtml);
+  let markdownBody = htmlToMarkdown(contentHtml);
+
+  // If structured FAQs are provided, strip any residual FAQ section from the
+  // markdown body (TipTap may have partially preserved or mangled it) and
+  // re-append the authoritative FAQ data from the structured array.
+  if (faqs && faqs.length > 0) {
+    // Remove any existing FAQ heading + content block at the end
+    markdownBody = markdownBody
+      .replace(/\n*## (?:FAQ|Frequently [Aa]sked [Qq]uestions)[\s\S]*$/i, '')
+      .trimEnd();
+
+    const faqSection = formatFaqsToMdx(faqs);
+    return `${yamlFrontmatter}\n\n${markdownBody}${faqSection}\n`;
+  }
 
   return `${yamlFrontmatter}\n\n${markdownBody}\n`;
 }

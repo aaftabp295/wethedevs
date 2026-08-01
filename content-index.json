@@ -1,154 +1,6 @@
 {
   "articles": [
     {
-      "title": "Lovable vs Bolt (2026): Full Comparison & Verdict",
-      "slug": "lovable-vs-bolt",
-      "contentType": "comparisons",
-      "topic": "AI Coding",
-      "tags": [
-        "lovable-vs-bolt",
-        "lovable",
-        "bolt",
-        "boltnew",
-        "lovable-alternatives"
-      ],
-      "description": "Lovable vs Bolt tested head-to-head: pricing, speed, code quality, backend, and features. Real 2026 data, no fluff — see which AI app builder wins.",
-      "headings": [
-        {
-          "id": "quick-verdict",
-          "text": "Quick verdict",
-          "level": 2
-        },
-        {
-          "id": "how-this-comparison-was-built",
-          "text": "How this comparison was built",
-          "level": 2
-        },
-        {
-          "id": "what-is-lovable",
-          "text": "What is Lovable?",
-          "level": 2
-        },
-        {
-          "id": "what-is-bolt",
-          "text": "What is Bolt?",
-          "level": 2
-        },
-        {
-          "id": "category-scorecard",
-          "text": "Category scorecard",
-          "level": 2
-        },
-        {
-          "id": "pricing-breakdown",
-          "text": "Pricing breakdown",
-          "level": 2
-        },
-        {
-          "id": "1-lovable-pricing-2026",
-          "text": "1. Lovable pricing (2026)",
-          "level": 3
-        },
-        {
-          "id": "2-bolt-pricing-2026",
-          "text": "2. Bolt pricing (2026)",
-          "level": 3
-        },
-        {
-          "id": "3-the-real-difference-team-math",
-          "text": "3. The real difference: team math",
-          "level": 3
-        },
-        {
-          "id": "feature-deep-dive",
-          "text": "Feature deep dive",
-          "level": 2
-        },
-        {
-          "id": "1-onboarding-and-planning",
-          "text": "1. Onboarding and planning",
-          "level": 3
-        },
-        {
-          "id": "2-speed-and-iteration-mechanics",
-          "text": "2. Speed and iteration mechanics",
-          "level": 3
-        },
-        {
-          "id": "3-code-quality-and-default-output",
-          "text": "3. Code quality and default output",
-          "level": 3
-        },
-        {
-          "id": "4-precision-editing-select-edit-vs-bolts-targeting-tools",
-          "text": "4. Precision editing: Select & Edit vs Bolt's targeting tools",
-          "level": 3
-        },
-        {
-          "id": "5-backend-and-database-support",
-          "text": "5. Backend and database support",
-          "level": 3
-        },
-        {
-          "id": "6-local-development-and-model-choice-boltdiy",
-          "text": "6. Local development and model choice: bolt.diy",
-          "level": 3
-        },
-        {
-          "id": "7-deployment-and-custom-domains",
-          "text": "7. Deployment and custom domains",
-          "level": 3
-        },
-        {
-          "id": "8-github-sync-and-version-control",
-          "text": "8. GitHub sync and version control",
-          "level": 3
-        },
-        {
-          "id": "9-community-support-and-user-reviews",
-          "text": "9. Community, support, and user reviews",
-          "level": 3
-        },
-        {
-          "id": "who-should-use-which",
-          "text": "Who should use which",
-          "level": 2
-        },
-        {
-          "id": "choose-lovable-if",
-          "text": "Choose Lovable if:",
-          "level": 3
-        },
-        {
-          "id": "choose-bolt-if",
-          "text": "Choose Bolt if:",
-          "level": 3
-        },
-        {
-          "id": "related-alternatives-to-explore",
-          "text": "Related alternatives to explore",
-          "level": 2
-        },
-        {
-          "id": "frequently-asked-questions",
-          "text": "Frequently asked questions",
-          "level": 2
-        }
-      ],
-      "cover": "https://llbudxquylsqkupfzexd.supabase.co/storage/v1/object/public/media/covers/lovable-vs-bolt-1785515783667.webp",
-      "coverAlt": "Lovable vs Bolt.new comparison chart: pricing, speed, and features",
-      "readingTime": 15,
-      "publishedAt": "2026-07-31T16:39:50.281Z",
-      "updatedAt": "2026-08-01T12:30:00.000Z",
-      "draft": false,
-      "featured": true,
-      "outgoingLinks": [
-        "lovable-alternatives",
-        "canva-alternatives",
-        "elevenlabs-alternatives"
-      ]
-    },
-    {
       "title": "9 Best Replit Alternatives in 2026 (Free & Paid, Compared)",
       "slug": "replit-alternatives",
       "contentType": "alternatives",
@@ -368,15 +220,164 @@
           "level": 2
         }
       ],
-      "cover": "https://llbudxquylsqkupfzexd.supabase.co/storage/v1/object/public/media/covers/elevenlabs-alternatives-1785242680099.webp",
+      "cover": "https://llbudxquylsqkupfzexd.supabase.co/storage/v1/object/public/media/covers/replit-alternatives-1785575390728.webp",
       "coverAlt": "9 Best Replit Alternatives in 2026 Comparison Matrix",
       "readingTime": 12,
-      "publishedAt": "2026-07-30T10:00:00.000Z",
+      "publishedAt": "2026-08-01T09:09:56.940Z",
+      "updatedAt": "2026-08-01T14:40:00.000Z",
       "draft": false,
       "featured": false,
       "outgoingLinks": [
         "lovable-vs-bolt",
         "lovable-alternatives",
+        "elevenlabs-alternatives"
+      ]
+    },
+    {
+      "title": "Lovable vs Bolt (2026): Full Comparison & Verdict",
+      "slug": "lovable-vs-bolt",
+      "contentType": "comparisons",
+      "topic": "AI Coding",
+      "tags": [
+        "lovable-vs-bolt",
+        "lovable",
+        "bolt",
+        "boltnew",
+        "lovable-alternatives"
+      ],
+      "description": "Lovable vs Bolt tested head-to-head: pricing, speed, code quality, backend, and features. Real 2026 data, no fluff — see which AI app builder wins.",
+      "headings": [
+        {
+          "id": "quick-verdict",
+          "text": "Quick verdict",
+          "level": 2
+        },
+        {
+          "id": "how-this-comparison-was-built",
+          "text": "How this comparison was built",
+          "level": 2
+        },
+        {
+          "id": "what-is-lovable",
+          "text": "What is Lovable?",
+          "level": 2
+        },
+        {
+          "id": "what-is-bolt",
+          "text": "What is Bolt?",
+          "level": 2
+        },
+        {
+          "id": "category-scorecard",
+          "text": "Category scorecard",
+          "level": 2
+        },
+        {
+          "id": "pricing-breakdown",
+          "text": "Pricing breakdown",
+          "level": 2
+        },
+        {
+          "id": "1-lovable-pricing-2026",
+          "text": "1. Lovable pricing (2026)",
+          "level": 3
+        },
+        {
+          "id": "2-bolt-pricing-2026",
+          "text": "2. Bolt pricing (2026)",
+          "level": 3
+        },
+        {
+          "id": "3-the-real-difference-team-math",
+          "text": "3. The real difference: team math",
+          "level": 3
+        },
+        {
+          "id": "feature-deep-dive",
+          "text": "Feature deep dive",
+          "level": 2
+        },
+        {
+          "id": "1-onboarding-and-planning",
+          "text": "1. Onboarding and planning",
+          "level": 3
+        },
+        {
+          "id": "2-speed-and-iteration-mechanics",
+          "text": "2. Speed and iteration mechanics",
+          "level": 3
+        },
+        {
+          "id": "3-code-quality-and-default-output",
+          "text": "3. Code quality and default output",
+          "level": 3
+        },
+        {
+          "id": "4-precision-editing-select-edit-vs-bolts-targeting-tools",
+          "text": "4. Precision editing: Select & Edit vs Bolt's targeting tools",
+          "level": 3
+        },
+        {
+          "id": "5-backend-and-database-support",
+          "text": "5. Backend and database support",
+          "level": 3
+        },
+        {
+          "id": "6-local-development-and-model-choice-boltdiy",
+          "text": "6. Local development and model choice: bolt.diy",
+          "level": 3
+        },
+        {
+          "id": "7-deployment-and-custom-domains",
+          "text": "7. Deployment and custom domains",
+          "level": 3
+        },
+        {
+          "id": "8-github-sync-and-version-control",
+          "text": "8. GitHub sync and version control",
+          "level": 3
+        },
+        {
+          "id": "9-community-support-and-user-reviews",
+          "text": "9. Community, support, and user reviews",
+          "level": 3
+        },
+        {
+          "id": "who-should-use-which",
+          "text": "Who should use which",
+          "level": 2
+        },
+        {
+          "id": "choose-lovable-if",
+          "text": "Choose Lovable if:",
+          "level": 3
+        },
+        {
+          "id": "choose-bolt-if",
+          "text": "Choose Bolt if:",
+          "level": 3
+        },
+        {
+          "id": "related-alternatives-to-explore",
+          "text": "Related alternatives to explore",
+          "level": 2
+        },
+        {
+          "id": "frequently-asked-questions",
+          "text": "Frequently asked questions",
+          "level": 2
+        }
+      ],
+      "cover": "https://llbudxquylsqkupfzexd.supabase.co/storage/v1/object/public/media/covers/lovable-vs-bolt-1785515783667.webp",
+      "coverAlt": "Lovable vs Bolt.new comparison chart: pricing, speed, and features",
+      "readingTime": 15,
+      "publishedAt": "2026-07-31T16:39:50.281Z",
+      "updatedAt": "2026-08-01T12:30:00.000Z",
+      "draft": false,
+      "featured": true,
+      "outgoingLinks": [
+        "lovable-alternatives",
+        "canva-alternatives",
         "elevenlabs-alternatives"
       ]
     },
@@ -449,6 +450,7 @@
       "coverAlt": "Best Lovable alternatives in 2026",
       "readingTime": 12,
       "publishedAt": "2026-07-29T07:13:05.474Z",
+      "updatedAt": "2026-08-01T08:56:36.592Z",
       "draft": false,
       "featured": false,
       "outgoingLinks": [
@@ -586,6 +588,7 @@
       "coverAlt": "Comparison table and latency benchmark metrics for 9 top ElevenLabs AI voice alternatives",
       "readingTime": 14,
       "publishedAt": "2026-07-28T12:44:43.587Z",
+      "updatedAt": "2026-07-31T16:50:50.653Z",
       "draft": false,
       "featured": false,
       "outgoingLinks": [
@@ -736,5 +739,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-08-01T09:05:49.244Z"
+  "generatedAt": "2026-08-01T09:11:50.200Z"
 }

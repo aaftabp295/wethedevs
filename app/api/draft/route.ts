@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { contentHtml, oldSlug, ...rawFrontmatter } = body;
+    const { contentHtml, oldSlug, faqs, ...rawFrontmatter } = body;
 
     const frontmatterData = {
       ...rawFrontmatter,
@@ -62,7 +62,10 @@ export async function POST(request: Request) {
     const frontmatter = validation.frontmatter;
     const { slug, contentType } = frontmatter;
 
-    const mdxContent = serializeMdx(frontmatter, contentHtml || '');
+    const sanitizedFaqs = Array.isArray(faqs)
+      ? faqs.filter((f: { question?: string; answer?: string }) => f.question?.trim() && f.answer?.trim())
+      : undefined;
+    const mdxContent = serializeMdx(frontmatter, contentHtml || '', sanitizedFaqs);
 
     // Write file locally to disk WITHOUT Git commit or push
     const targetDir = path.join(process.cwd(), 'content', contentType, slug);

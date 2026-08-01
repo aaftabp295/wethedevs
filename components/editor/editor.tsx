@@ -32,12 +32,15 @@ import { mdxToEditorHtml, extractFaqsFromMdx } from '@/lib/publishing/serializer
 
 interface EditorComponentProps {
   initialContent?: string;
+  /** Raw MDX source for reliable FAQ extraction (before TipTap conversion) */
+  initialRawMdx?: string;
   initialPublishState?: Partial<PublishSidebarState>;
   articleSlug?: string;
 }
 
 export function EditorComponent({
   initialContent = '',
+  initialRawMdx = '',
   initialPublishState = {},
   articleSlug,
 }: EditorComponentProps) {
@@ -62,13 +65,15 @@ export function EditorComponent({
     canonical: initialPublishState.canonical || '',
     draft: initialPublishState.draft ?? false,
     featured: initialPublishState.featured ?? false,
+    publishedAt: initialPublishState.publishedAt || undefined,
   });
 
   const [stats, setStats] = React.useState({ words: 0, minutes: 1 });
   const [isDirty, setIsDirty] = React.useState(false);
   const [faqBuilderOpen, setFaqBuilderOpen] = React.useState(false);
   const [articleFaqs, setArticleFaqs] = React.useState<FAQItemData[]>(() => {
-    return extractFaqsFromMdx(initialContent || '');
+    // Prefer raw MDX source for FAQ extraction since it's pre-TipTap and preserves <FAQItem /> tags
+    return extractFaqsFromMdx(initialRawMdx || initialContent || '');
   });
 
   // Convert raw MDX string to Editor-friendly HTML
@@ -233,6 +238,7 @@ export function EditorComponent({
         draft: isDraft,
         oldSlug: articleSlug || undefined,
         contentHtml: editor?.getHTML() || '',
+        faqs: articleFaqs.filter((f) => f.question.trim() && f.answer.trim()),
       };
 
       const res = await fetch('/api/publish', {

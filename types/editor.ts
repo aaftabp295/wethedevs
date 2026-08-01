@@ -15,6 +15,8 @@ export type PublishSidebarState = {
   canonical?: string;
   draft: boolean;
   featured: boolean;
+  /** Preserved from original publish — never overwritten by the editor */
+  publishedAt?: string;
 };
 
 /** Full document state for the editor */

@@ -33,9 +33,20 @@ export function getAllArticlesFromFiles(): Article[] {
       const frontmatter = parseFrontmatter(data);
       const { words, minutes } = calculateReadingTime(content);
       const headings = extractHeadings(content);
+      const stat = fs.statSync(articlePath);
+
+      let updatedAt = frontmatter.updatedAt;
+      if (!updatedAt) {
+        const pubTime = new Date(frontmatter.publishedAt).getTime();
+        const modTime = stat.mtime.getTime();
+        if (modTime - pubTime > 3600 * 1000) {
+          updatedAt = stat.mtime.toISOString();
+        }
+      }
 
       articles.push({
         ...frontmatter,
+        updatedAt,
         content,
         readingTime: minutes,
         wordCount: words,
@@ -79,9 +90,20 @@ export function getArticleBySlug(contentType: string, slug: string): Article | n
   const frontmatter = parseFrontmatter(data);
   const { words, minutes } = calculateReadingTime(content);
   const headings = extractHeadings(content);
+  const stat = fs.statSync(articlePath);
+
+  let updatedAt = frontmatter.updatedAt;
+  if (!updatedAt) {
+    const pubTime = new Date(frontmatter.publishedAt).getTime();
+    const modTime = stat.mtime.getTime();
+    if (modTime - pubTime > 3600 * 1000) {
+      updatedAt = stat.mtime.toISOString();
+    }
+  }
 
   return {
     ...frontmatter,
+    updatedAt,
     content,
     readingTime: minutes,
     wordCount: words,

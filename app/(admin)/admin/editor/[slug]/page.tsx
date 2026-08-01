@@ -25,6 +25,7 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
       <EditorComponent
         articleSlug={slug}
         initialContent={initialContent}
+        initialRawMdx={fullArticle?.content || ''}
         initialPublishState={{
           title: articleMeta.title,
           slug: articleMeta.slug,
@@ -35,6 +36,7 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
           cover: articleMeta.cover,
           coverAlt: articleMeta.coverAlt,
           featured: articleMeta.featured,
+          publishedAt: articleMeta.publishedAt,
         }}
       />
     </div>
