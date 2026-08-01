@@ -30,7 +30,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         );
       }
       return (
-        <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+        <a href={href} target="_blank" rel="nofollow noopener noreferrer" {...props}>
           {children}
         </a>
       );
