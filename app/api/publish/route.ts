@@ -25,10 +25,16 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { contentHtml, oldSlug, ...rawFrontmatter } = body;
 
+    const nowIso = new Date().toISOString();
+    const existingPublishedAt = rawFrontmatter.publishedAt?.trim();
+
     // Sanitize optional fields and defaults
     const frontmatterData = {
       ...rawFrontmatter,
-      publishedAt: rawFrontmatter.publishedAt || new Date().toISOString(),
+      // publishedAt remains constant forever once published
+      publishedAt: existingPublishedAt || nowIso,
+      // updatedAt is set to current timestamp whenever an existing article is edited
+      updatedAt: existingPublishedAt ? nowIso : (rawFrontmatter.updatedAt?.trim() || undefined),
       tags: Array.isArray(rawFrontmatter.tags)
         ? rawFrontmatter.tags
         : typeof rawFrontmatter.tags === 'string' && rawFrontmatter.tags.trim()
@@ -38,7 +44,6 @@ export async function POST(request: Request) {
       coverAlt: rawFrontmatter.coverAlt?.trim() || undefined,
       canonical: rawFrontmatter.canonical?.trim() || undefined,
       author: rawFrontmatter.author?.trim() || undefined,
-      updatedAt: rawFrontmatter.updatedAt?.trim() || undefined,
     };
 
     // Validate frontmatter payload

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { getAllArticlesFromFiles, articleToManifestEntry } from '../lib/content/loader';
-import { validateLinksAndOrphans } from '../lib/seo/validation';
+import { validateLinksAndOrphans, validateFaqSchemaSync, FaqSyncIssue } from '../lib/seo/validation';
 import { ContentManifest, ManifestEntry } from '../types/content';
 
 const MANIFEST_PATH = path.join(process.cwd(), 'content-index.json');
@@ -49,6 +49,24 @@ if (typeof process !== 'undefined' && process.argv[1]?.includes('generate-manife
     report.orphanPages.forEach((slug) => {
       console.log(`  - ${slug}`);
     });
+  }
+
+  console.log('❓ Verifying FAQ schema 1:1 sync across all articles...');
+  const allArticles = getAllArticlesFromFiles();
+  const allFaqIssues: FaqSyncIssue[] = [];
+
+  allArticles.forEach((article) => {
+    const issues = validateFaqSchemaSync(article.slug, article.content);
+    allFaqIssues.push(...issues);
+  });
+
+  if (allFaqIssues.length > 0) {
+    console.warn(`⚠️ Warning: Found ${allFaqIssues.length} FAQ schema sync issue(s):`);
+    allFaqIssues.forEach((issue) => {
+      console.warn(`  - [${issue.slug}] ${issue.issue}`);
+    });
+  } else {
+    console.log('✅ 100% FAQ schema 1:1 sync verified across all articles.');
   }
 
   console.log('🎉 Content engine build pipeline completed successfully.');
