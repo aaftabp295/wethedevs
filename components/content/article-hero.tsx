@@ -79,10 +79,7 @@ export function ArticleHero({
               alt={coverAlt || title}
               fill
               priority
-              loading="eager"
-              fetchPriority="high"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
-              referrerPolicy="no-referrer"
               className="object-cover w-full h-full"
             />
           </div>

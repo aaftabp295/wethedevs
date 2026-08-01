@@ -23,7 +23,7 @@ export function Logo({ className, href = '/' }: LogoProps) {
       {/* Editorial Typography Brandmark */}
       <span className="text-lg sm:text-xl font-bold font-serif tracking-tight text-foreground flex items-baseline">
         <span>We</span>
-        <span className="font-serif italic font-normal text-muted-foreground/80 mx-1 text-base sm:text-lg">
+        <span className="font-serif italic font-normal text-foreground/80 mx-1 text-base sm:text-lg">
           the
         </span>
         <span className="tracking-tight">Devs</span>

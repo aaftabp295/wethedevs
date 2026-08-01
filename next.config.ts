@@ -18,6 +18,19 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-slot',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-tooltip',
+    ],
+  },
   async redirects() {
     try {
       const redirectsFilePath = path.join(process.cwd(), 'content', 'redirects.json');
