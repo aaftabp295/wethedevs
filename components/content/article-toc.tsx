@@ -53,9 +53,9 @@ export function ArticleTOC({ headings }: ArticleTOCProps) {
         On This Page
       </p>
       <ul className="space-y-2 text-xs">
-        {headings.map((heading) => (
+        {headings.map((heading, index) => (
           <li
-            key={heading.id}
+            key={`${heading.id}-${index}`}
             style={{ paddingLeft: `${(heading.level - 2) * 0.75}rem` }}
           >
             <a

@@ -7,6 +7,17 @@ import { FAQItem } from '@/components/content/faq-item';
 import { ChevronDown } from 'lucide-react';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
+  const seenIds = new Map<string, number>();
+
+  const getUniqueId = (children: React.ReactNode) => {
+    const text = React.Children.toArray(children).join('');
+    const baseId = slugify(text);
+    const count = seenIds.get(baseId) || 0;
+    const id = count === 0 ? baseId : `${baseId}-${count}`;
+    seenIds.set(baseId, count + 1);
+    return id;
+  };
+
   return {
     FAQItem,
     a: ({ href, children, ...props }: React.ComponentPropsWithoutRef<'a'>) => {
@@ -25,23 +36,19 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       );
     },
     h1: ({ children, ...props }) => {
-      const text = React.Children.toArray(children).join('');
-      const id = slugify(text);
+      const id = getUniqueId(children);
       return <h1 id={id} {...props}>{children}</h1>;
     },
     h2: ({ children, ...props }) => {
-      const text = React.Children.toArray(children).join('');
-      const id = slugify(text);
+      const id = getUniqueId(children);
       return <h2 id={id} {...props}>{children}</h2>;
     },
     h3: ({ children, ...props }) => {
-      const text = React.Children.toArray(children).join('');
-      const id = slugify(text);
+      const id = getUniqueId(children);
       return <h3 id={id} className="text-xl font-bold tracking-tight mt-8 mb-3 text-foreground" {...props}>{children}</h3>;
     },
     h4: ({ children, ...props }) => {
-      const text = React.Children.toArray(children).join('');
-      const id = slugify(text);
+      const id = getUniqueId(children);
       return <h4 id={id} {...props}>{children}</h4>;
     },
     table: ({ children, ...props }) => (
