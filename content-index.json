@@ -1,7 +1,7 @@
 {
   "articles": [
     {
-      "title": "Lovable vs Bolt (2026): Full Comparison, Pricing & Verdict",
+      "title": "Lovable vs Bolt (2026): Full Comparison & Verdict",
       "slug": "lovable-vs-bolt",
       "contentType": "comparisons",
       "topic": "AI Coding",
@@ -136,7 +136,7 @@
         }
       ],
       "cover": "https://llbudxquylsqkupfzexd.supabase.co/storage/v1/object/public/media/covers/lovable-vs-bolt-1785515783667.webp",
-      "coverAlt": "Lovable vs Bolt.new Full comparison",
+      "coverAlt": "Lovable vs Bolt.new comparison chart: pricing, speed, and features",
       "readingTime": 15,
       "publishedAt": "2026-07-31T16:39:50.281Z",
       "draft": false,
@@ -502,5 +502,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-07-31T16:51:29.074Z"
+  "generatedAt": "2026-08-01T07:01:34.875Z"
 }

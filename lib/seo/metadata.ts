@@ -110,6 +110,17 @@ export function buildArticleJsonLd(
       ? article.updatedAt
       : undefined;
 
+  const socialLinks = [siteConfig.links.github, siteConfig.links.twitter]
+    .filter(Boolean)
+    .filter((link) => {
+      try {
+        const parsed = new URL(link);
+        return parsed.pathname !== '' && parsed.pathname !== '/';
+      } catch {
+        return false;
+      }
+    });
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -122,6 +133,7 @@ export function buildArticleJsonLd(
       jobTitle: siteConfig.author.role,
       description: siteConfig.author.bio,
       url: siteConfig.author.url || siteConfig.url,
+      ...(socialLinks.length > 0 && { sameAs: socialLinks }),
     },
     publisher: {
       '@type': 'Organization',
@@ -205,6 +217,22 @@ function decodeEntities(str: string): string {
     .replace(/&gt;/g, '>');
 }
 
+function cleanMarkdownText(str: string): string {
+  return decodeEntities(
+    str
+      // Convert markdown links [text](url) -> text
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      // Remove inline code formatting
+      .replace(/`([^`]+)`/g, '$1')
+      // Remove bold and italic markers
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      // Remove HTML tags
+      .replace(/<[^>]+>/g, '')
+      .trim()
+  );
+}
+
 export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | null {
   const faqSectionMatch = rawMdxContent.match(/## (?:FAQ|Frequently Asked Questions)([\s\S]*?)(?=\n## |$)/i);
   if (!faqSectionMatch) return null;
@@ -222,8 +250,8 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
       const aMatch = attrsStr.match(/answer=(?:"([^"]*)"|'([^']*)')/i);
 
       if (qMatch && aMatch) {
-        const question = decodeEntities((qMatch[1] ?? qMatch[2] ?? '').trim());
-        const answer = decodeEntities((aMatch[1] ?? aMatch[2] ?? '').trim());
+        const question = cleanMarkdownText(qMatch[1] ?? qMatch[2] ?? '');
+        const answer = cleanMarkdownText(aMatch[1] ?? aMatch[2] ?? '');
         if (question && answer) {
           faqItems.push({ question, answer });
         }
@@ -237,8 +265,8 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
 
     if (detailsMatches.length > 0) {
       for (const match of detailsMatches) {
-        const question = decodeEntities(match[1].replace(/<[^>]+>/g, '').replace(/\*/g, '').trim());
-        const answer = decodeEntities(match[2].replace(/<[^>]+>/g, '').replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim());
+        const question = cleanMarkdownText(match[1]);
+        const answer = cleanMarkdownText(match[2]);
         if (question && answer) {
           faqItems.push({ question, answer });
         }
@@ -248,20 +276,24 @@ export function buildFaqJsonLdFromContent(rawMdxContent: string): FaqJsonLd | nu
       const h3Matches = [...faqText.matchAll(/###\s+(.*?)\n+([\s\S]*?)(?=\n###|\n##|$)/g)];
       if (h3Matches.length > 0) {
         for (const m of h3Matches) {
-          const question = decodeEntities(m[1].replace(/<[^>]+>/g, '').trim());
-          const answer = decodeEntities(m[2].replace(/<[^>]+>/g, '').replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim());
+          const question = cleanMarkdownText(m[1]);
+          const answer = cleanMarkdownText(m[2]);
           if (question && answer) {
             faqItems.push({ question, answer });
           }
         }
       } else {
-        // 4. Fallback to matching bold question patterns: **Question?** Answer...
-        const qaMatches = [...faqText.matchAll(/\*\*(.*?)\*\*\s*([\s\S]*?)(?=\*\*|$)/g)];
-        for (const m of qaMatches) {
-          const question = decodeEntities(m[1].replace(/\?/g, '').trim() + '?');
-          const answer = decodeEntities(m[2].replace(/\[(.*?)\]\((.*?)\)/g, '$1').trim());
-          if (question && answer) {
-            faqItems.push({ question, answer });
+        // 4. Match plain paragraph questions (question line ending with ? followed by answer block)
+        const blocks = faqText.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+        for (let i = 0; i < blocks.length - 1; i++) {
+          const possibleQ = blocks[i];
+          if (possibleQ.endsWith('?') && !possibleQ.startsWith('<') && !possibleQ.startsWith('#')) {
+            const question = cleanMarkdownText(possibleQ);
+            const answer = cleanMarkdownText(blocks[i + 1]);
+            if (question && answer) {
+              faqItems.push({ question, answer });
+              i++; // Skip answer block
+            }
           }
         }
       }
@@ -329,69 +361,4 @@ export function buildItemListJsonLdFromContent(
     numberOfItems: itemListElement.length,
     itemListElement,
   };
-}
-
-export function buildSoftwareApplicationJsonLdFromContent(
-  rawMdxContent: string,
-  articleTitle: string
-): Record<string, unknown>[] | null {
-  const appSchemas: Record<string, unknown>[] = [];
-  const category = articleTitle.toLowerCase().includes('audio') || articleTitle.toLowerCase().includes('voice')
-    ? 'AudioApplication'
-    : 'DeveloperApplication';
-
-  const toolNames = new Set<string>();
-
-  // 1. Extract tools from comparison titles like "Lovable vs Bolt"
-  const vsMatch = articleTitle.match(/([A-Z0-9][A-Za-z0-9.-]+)\s+vs\s+([A-Z0-9][A-Za-z0-9.-]+)/i);
-  if (vsMatch) {
-    toolNames.add(vsMatch[1].trim());
-    toolNames.add(vsMatch[2].trim() === 'Bolt' ? 'Bolt.new' : vsMatch[2].trim());
-  }
-
-  // 2. Extract tools from headings like "## What is Lovable?" or "## 1. Lovable"
-  const toolMatches = [...rawMdxContent.matchAll(/^##\s+(?:What is\s+)?(?:\d+\.\s+)?([A-Z0-9][A-Za-z0-9\s.-]+?)(?:\?|$)/gm)];
-  for (const m of toolMatches) {
-    const rawName = m[1].replace(/^(Alternative|Best|Top|What is)\s+/i, '').trim();
-    const lower = rawName.toLowerCase();
-    if (
-      rawName.length >= 2 &&
-      !lower.includes('summary') &&
-      !lower.includes('faq') &&
-      !lower.includes('frequently') &&
-      !lower.includes('verdict') &&
-      !lower.includes('scorecard') &&
-      !lower.includes('pricing') &&
-      !lower.includes('feature') &&
-      !lower.includes('how this') &&
-      !lower.includes('who should') &&
-      !lower.includes('related') &&
-      !lower.includes('category') &&
-      !lower.includes('quick')
-    ) {
-      toolNames.add(rawName);
-    }
-  }
-
-  for (const toolName of Array.from(toolNames).slice(0, 5)) {
-    appSchemas.push({
-      '@context': 'https://schema.org',
-      '@type': 'SoftwareApplication',
-      name: toolName,
-      applicationCategory: category,
-      operatingSystem: 'Web, macOS, Windows',
-      offers: {
-        '@type': 'Offer',
-        price: '0',
-        priceCurrency: 'USD',
-      },
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        ratingCount: '124',
-      },
-    });
-  }
-
-  return appSchemas.length > 0 ? appSchemas : null;
 }

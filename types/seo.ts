@@ -11,6 +11,7 @@ export type ArticleJsonLd = {
     jobTitle?: string;
     description?: string;
     url?: string;
+    sameAs?: string[];
   };
   publisher: {
     '@type': 'Organization';

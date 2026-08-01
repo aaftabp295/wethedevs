@@ -4,7 +4,6 @@ import {
   buildBreadcrumbJsonLd,
   buildFaqJsonLdFromContent,
   buildItemListJsonLdFromContent,
-  buildSoftwareApplicationJsonLdFromContent,
 } from '../lib/seo/metadata';
 
 const article = getArticleBySlug('comparisons', 'lovable-vs-bolt');
@@ -24,13 +23,12 @@ const breadcrumbJsonLd = buildBreadcrumbJsonLd([
 ]);
 const faqJsonLd = buildFaqJsonLdFromContent(article.content);
 const itemListJsonLd = buildItemListJsonLdFromContent(article.content, 'https://wethedevs.com/comparisons/lovable-vs-bolt');
-const softwareAppsJsonLd = buildSoftwareApplicationJsonLdFromContent(article.content, article.title);
 
-console.log('\n--- 1. FAQ SCHEMA ---');
+console.log('\n--- 1. ARTICLE SCHEMA (Author sameAs E-E-A-T) ---');
+console.log(JSON.stringify(articleJsonLd, null, 2));
+
+console.log('\n--- 2. FAQ SCHEMA ---');
 console.log(JSON.stringify(faqJsonLd, null, 2));
 
-console.log('\n--- 2. ITEMLIST SCHEMA ---');
+console.log('\n--- 3. ITEMLIST SCHEMA ---');
 console.log(JSON.stringify(itemListJsonLd, null, 2));
-
-console.log('\n--- 3. SOFTWARE APPLICATION SCHEMAS ---');
-console.log(JSON.stringify(softwareAppsJsonLd, null, 2));
