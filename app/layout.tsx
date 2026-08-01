@@ -79,10 +79,6 @@ export default function RootLayout({
       className={`${inter.variable} ${newsreader.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="preconnect" href="https://llbudxquylsqkupfzexd.supabase.co" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://llbudxquylsqkupfzexd.supabase.co" />
-      </head>
       <body className="flex min-h-dvh flex-col antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
