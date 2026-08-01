@@ -210,13 +210,13 @@
           "level": 2
         },
         {
-          "id": "frequently-asked-questions",
-          "text": "Frequently asked questions",
+          "id": "the-bottom-line",
+          "text": "The Bottom Line",
           "level": 2
         },
         {
-          "id": "the-bottom-line",
-          "text": "The Bottom Line",
+          "id": "frequently-asked-questions",
+          "text": "Frequently asked questions",
           "level": 2
         }
       ],
@@ -739,5 +739,5 @@
       ]
     }
   ],
-  "generatedAt": "2026-08-01T09:11:50.200Z"
+  "generatedAt": "2026-08-01T09:26:41.979Z"
 }
