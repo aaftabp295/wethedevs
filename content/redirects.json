@@ -18,5 +18,10 @@
     "source": "/alternatives/canna-alternatives",
     "destination": "/alternatives/canva-alternatives",
     "permanent": true
+  },
+  {
+    "source": "/alternatives/replit-alternatives",
+    "destination": "/alternatives/7-best-replit-alternatives",
+    "permanent": true
   }
 ]
