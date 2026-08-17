@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { generateManifest } from '@/scripts/generate-manifest';
 import { commitAndPushContent } from '@/lib/publishing/git';
+import { getFileFromGitHub, updateFileOnGitHub } from '@/lib/publishing/github-api';
 
 export type InjectItem = {
   sourceSlug: string;
@@ -11,26 +12,19 @@ export type InjectItem = {
   contextExcerpt?: string;
 };
 
-function injectSingleItem(item: InjectItem): { success: boolean; message?: string } {
-  const { sourceSlug, sourceContentType, calloutMarkdown, contextExcerpt } = item;
+/**
+ * Pure helper function to parse MDX text and insert callout block after paragraph 3
+ */
+export function injectCalloutIntoMdxText(
+  mdxContent: string,
+  calloutMarkdown: string,
+  contextExcerpt?: string
+): { updatedContent: string; alreadyPresent: boolean } {
+  const trimmedCallout = calloutMarkdown.trim();
 
-  const filePath = path.join(
-    process.cwd(),
-    'content',
-    sourceContentType,
-    sourceSlug,
-    'article.mdx'
-  );
-
-  if (!fs.existsSync(filePath)) {
-    return { success: false, message: `MDX file not found at ${filePath}` };
-  }
-
-  let mdxContent = fs.readFileSync(filePath, 'utf-8');
-
-  // If callout is already present in file, skip to avoid duplicate insertion
-  if (mdxContent.includes(calloutMarkdown.trim())) {
-    return { success: true, message: `Already present in ${sourceSlug}` };
+  // Skip duplicate insertion
+  if (mdxContent.includes(trimmedCallout)) {
+    return { updatedContent: mdxContent, alreadyPresent: true };
   }
 
   // Split MDX file into blocks separated by blank lines (\n\n)
@@ -76,11 +70,8 @@ function injectSingleItem(item: InjectItem): { success: boolean; message?: strin
     }
   }
 
-  blocks.splice(insertIndex, 0, calloutMarkdown.trim());
-  const updatedMdx = blocks.join('\n\n');
-  fs.writeFileSync(filePath, updatedMdx, 'utf-8');
-
-  return { success: true };
+  blocks.splice(insertIndex, 0, trimmedCallout);
+  return { updatedContent: blocks.join('\n\n'), alreadyPresent: false };
 }
 
 export async function POST(request: Request) {
@@ -88,6 +79,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const itemsToProcess: InjectItem[] = [];
     const skipPush = body.skipPush === true;
+    const githubToken =
+      body.githubToken ||
+      request.headers.get('x-github-token') ||
+      process.env.GITHUB_TOKEN ||
+      process.env.GITHUB_PAT ||
+      process.env.GH_TOKEN ||
+      process.env.NEXT_PUBLIC_GITHUB_TOKEN;
 
     if (Array.isArray(body.items)) {
       itemsToProcess.push(...body.items);
@@ -107,42 +105,121 @@ export async function POST(request: Request) {
       );
     }
 
-    const results: Array<{ sourceSlug: string; success: boolean; message?: string }> = [];
+    // Determine if environment is Read-Only Serverless (Vercel Production) or Local Dev
+    const isServerless =
+      process.env.VERCEL ||
+      process.env.NODE_ENV === 'production' ||
+      Boolean(githubToken && !fs.existsSync(path.join(process.cwd(), 'content')));
 
-    // Process all MDX files on disk in a single batch
-    for (const item of itemsToProcess) {
-      const res = injectSingleItem(item);
-      results.push({ sourceSlug: item.sourceSlug, ...res });
-    }
+    const results: Array<{ sourceSlug: string; success: boolean; alreadyPresent?: boolean; message?: string }> = [];
 
-    // Refresh content-index.json manifest once for the entire batch
-    try {
-      generateManifest();
-    } catch (manifestErr) {
-      console.warn('Manifest regeneration warning:', manifestErr);
-    }
-
-    let gitResult = null;
-    // Commit and push once to GitHub for the entire batch if skipPush is not set
-    if (!skipPush) {
-      try {
-        const slugList = itemsToProcess.map((i) => i.sourceSlug).join(', ');
-        gitResult = await commitAndPushContent(
-          itemsToProcess[0].sourceSlug,
-          itemsToProcess[0].sourceContentType,
-          `feat(seo): batch inject inbound link callouts into ${slugList}`
+    if (isServerless) {
+      // MODE 1: Serverless Production (GitHub REST API)
+      if (!githubToken) {
+        return NextResponse.json(
+          {
+            error:
+              'Live deployment detected (read-only filesystem). Please set GITHUB_TOKEN in your Vercel Environment Variables to allow live content updates.',
+          },
+          { status: 403 }
         );
-      } catch (gitErr) {
-        console.warn('Git push warning:', gitErr);
       }
-    }
 
-    return NextResponse.json({
-      success: true,
-      processedCount: itemsToProcess.length,
-      results,
-      git: gitResult,
-    });
+      for (const item of itemsToProcess) {
+        const relativePath = `content/${item.sourceContentType}/${item.sourceSlug}/article.mdx`;
+        try {
+          const { content: currentMdx, sha } = await getFileFromGitHub(relativePath, githubToken);
+          const { updatedContent, alreadyPresent } = injectCalloutIntoMdxText(
+            currentMdx,
+            item.calloutMarkdown,
+            item.contextExcerpt
+          );
+
+          if (alreadyPresent) {
+            results.push({ sourceSlug: item.sourceSlug, success: true, alreadyPresent: true });
+            continue;
+          }
+
+          const commitMsg = `feat(seo): inject inbound link callout into ${item.sourceSlug}`;
+          await updateFileOnGitHub(relativePath, updatedContent, commitMsg, sha, githubToken);
+          results.push({ sourceSlug: item.sourceSlug, success: true });
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : 'GitHub API error';
+          results.push({ sourceSlug: item.sourceSlug, success: false, message: msg });
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        mode: 'github-api',
+        processedCount: itemsToProcess.length,
+        results,
+      });
+    } else {
+      // MODE 2: Local Development (Local Filesystem + Git)
+      for (const item of itemsToProcess) {
+        const filePath = path.join(
+          process.cwd(),
+          'content',
+          item.sourceContentType,
+          item.sourceSlug,
+          'article.mdx'
+        );
+
+        if (!fs.existsSync(filePath)) {
+          results.push({
+            sourceSlug: item.sourceSlug,
+            success: false,
+            message: `MDX file not found at ${filePath}`,
+          });
+          continue;
+        }
+
+        const currentMdx = fs.readFileSync(filePath, 'utf-8');
+        const { updatedContent, alreadyPresent } = injectCalloutIntoMdxText(
+          currentMdx,
+          item.calloutMarkdown,
+          item.contextExcerpt
+        );
+
+        if (alreadyPresent) {
+          results.push({ sourceSlug: item.sourceSlug, success: true, alreadyPresent: true });
+          continue;
+        }
+
+        fs.writeFileSync(filePath, updatedContent, 'utf-8');
+        results.push({ sourceSlug: item.sourceSlug, success: true });
+      }
+
+      // Refresh content-index.json manifest once
+      try {
+        generateManifest();
+      } catch (manifestErr) {
+        console.warn('Manifest regeneration warning:', manifestErr);
+      }
+
+      let gitResult = null;
+      if (!skipPush) {
+        try {
+          const slugList = itemsToProcess.map((i) => i.sourceSlug).join(', ');
+          gitResult = await commitAndPushContent(
+            itemsToProcess[0].sourceSlug,
+            itemsToProcess[0].sourceContentType,
+            `feat(seo): batch inject inbound link callouts into ${slugList}`
+          );
+        } catch (gitErr) {
+          console.warn('Git push warning:', gitErr);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        mode: 'local-fs',
+        processedCount: itemsToProcess.length,
+        results,
+        git: gitResult,
+      });
+    }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Failed to inject callout links';
     console.error('Inject Link Route Error:', msg);
