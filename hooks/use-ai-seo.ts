@@ -3,6 +3,7 @@
 import * as React from 'react';
 import {
   InternalLinkSuggestion,
+  InboundLinkSuggestion,
   ExternalLinkSuggestion,
   SchemaResultItem,
   MetaTagSuggestions,
@@ -25,6 +26,7 @@ export function useAiSeo() {
 
   // Results state
   const [internalLinks, setInternalLinks] = React.useState<InternalLinkSuggestion[]>([]);
+  const [inboundLinks, setInboundLinks] = React.useState<InboundLinkSuggestion[]>([]);
   const [externalLinks, setExternalLinks] = React.useState<ExternalLinkSuggestion[]>([]);
   const [schemaResults, setSchemaResults] = React.useState<SchemaResultItem[]>([]);
   const [metaTagSuggestions, setMetaTagSuggestions] = React.useState<MetaTagSuggestions | null>(null);
@@ -140,11 +142,20 @@ export function useAiSeo() {
             (s: Partial<InternalLinkSuggestion>, idx: number) => ({
               ...s,
               id: `int-${Date.now()}-${idx}`,
-              type: s.type || 'inline',
+              type: 'callout',
               status: 'pending',
             })
           );
           setInternalLinks(suggestions);
+        } else if (action === 'inbound-links') {
+          const suggestions = (resultData?.suggestions || []).map(
+            (s: Partial<InboundLinkSuggestion>, idx: number) => ({
+              ...s,
+              id: `inbound-${Date.now()}-${idx}`,
+              status: 'pending',
+            })
+          );
+          setInboundLinks(suggestions);
         } else if (action === 'external-links') {
           const suggestions = (resultData?.suggestions || []).map(
             (s: Partial<ExternalLinkSuggestion>, idx: number) => ({
@@ -184,6 +195,15 @@ export function useAiSeo() {
     []
   );
 
+  const updateInboundLinkStatus = React.useCallback(
+    (id: string, status: 'injected' | 'rejected' | 'pending') => {
+      setInboundLinks((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status } : item))
+      );
+    },
+    []
+  );
+
   const updateExternalLinkStatus = React.useCallback(
     (id: string, status: 'accepted' | 'rejected' | 'pending') => {
       setExternalLinks((prev) =>
@@ -191,6 +211,36 @@ export function useAiSeo() {
       );
     },
     []
+  );
+
+  const injectInboundLink = React.useCallback(
+    async (item: InboundLinkSuggestion) => {
+      try {
+        const res = await fetch('/api/admin/content/inject-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceSlug: item.sourceSlug,
+            sourceContentType: item.sourceContentType,
+            calloutMarkdown: item.calloutMarkdown,
+            contextExcerpt: item.contextExcerpt,
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          updateInboundLinkStatus(item.id, 'injected');
+          return true;
+        } else {
+          throw new Error(data.error || 'Failed to inject link into source file');
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Failed to inject link';
+        setError(msg);
+        return false;
+      }
+    },
+    [updateInboundLinkStatus]
   );
 
   return {
@@ -205,6 +255,7 @@ export function useAiSeo() {
 
     // Results
     internalLinks,
+    inboundLinks,
     externalLinks,
     schemaResults,
     metaTagSuggestions,
@@ -213,6 +264,8 @@ export function useAiSeo() {
     // Actions
     executeAction,
     updateInternalLinkStatus,
+    updateInboundLinkStatus,
     updateExternalLinkStatus,
+    injectInboundLink,
   };
 }

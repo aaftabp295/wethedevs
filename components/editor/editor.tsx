@@ -475,8 +475,8 @@ export function EditorComponent({
           onOpenChange={setAiSeoPanelOpen}
           editor={editor}
           publishState={publishState}
-          onPublishStateChange={(newState) => {
-            setPublishState(newState);
+          onPublishStateChange={(updates) => {
+            setPublishState((prev) => ({ ...prev, ...updates }));
             setIsDirty(true);
           }}
         />
@@ -719,8 +719,8 @@ export function EditorComponent({
         onOpenChange={setAiSeoPanelOpen}
         editor={editor}
         publishState={publishState}
-        onPublishStateChange={(newState) => {
-          setPublishState(newState);
+        onPublishStateChange={(updates) => {
+          setPublishState((prev) => ({ ...prev, ...updates }));
           setIsDirty(true);
         }}
       />

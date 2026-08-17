@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { AiSeoRequestBody } from '@/types/ai-seo';
 import { ManifestEntry } from '@/types/content';
+import { findInboundCandidates } from '@/lib/seo/inbound-links';
 
 const GEMINI_MODELS = [
   'gemini-3.1-flash-lite',
@@ -121,6 +122,74 @@ Identify 2 to 5 high-value internal link Callout Card opportunities. Return ONLY
       "targetUrl": "/alternatives/replit-alternatives",
       "description": "Full breakdown of top cloud IDE alternatives.",
       "reason": "If you are exploring cloud IDEs, desktop editors, and no-code tools specifically replacing Replit,"
+    }
+  ]
+}`;
+    } else if (action === 'inbound-links') {
+      const targetSlug = publishState?.slug || '';
+      const targetTitle = publishState?.title || '';
+      const targetTopic = publishState?.topic || '';
+      const targetTags = publishState?.tags || [];
+      const targetContentType = publishState?.contentType || 'alternatives';
+      const targetPath = `/${targetContentType}/${targetSlug}`;
+
+      // Step 1: Use deterministic local content graph scoring (<5ms) to find top 5 candidate source articles
+      const candidateMatches = findInboundCandidates(
+        targetSlug,
+        targetTitle,
+        targetTopic,
+        targetTags,
+        manifest || [],
+        5
+      );
+
+      if (candidateMatches.length === 0) {
+        return NextResponse.json({
+          success: true,
+          data: { suggestions: [] },
+        });
+      }
+
+      // Step 2: Call Gemini with ONLY candidate metadata (~300 tokens) to write natural transition rationale
+      systemInstruction = `You are the Lead Editorial Technical SEO Architect for wethedevs.com.
+Your goal is to suggest high-value INBOUND internal link Callout Cards that should be added to EXISTING published source articles pointing TO the newly created target article.
+
+EDITORIAL CALLOUT CARD FORMAT:
+For each source article candidate:
+1. Provide a smooth editorial transition rationale sentence in "reason" (e.g. "If you are exploring dedicated AI coding agents beyond Lovable,").
+2. "calloutMarkdown" MUST follow the exact wethedevs MDX blockquote format:
+   "> 💡 **Related Guide:** \${reason} read our full breakdown of [\${targetTitle}](\${targetPath})."`;
+
+      const candidateSummary = candidateMatches.map((m) => ({
+        sourceSlug: m.candidate.slug,
+        sourceTitle: m.candidate.title,
+        sourceContentType: m.candidate.contentType,
+        contextExcerpt: m.bestHeadingOrParagraphExcerpt,
+      }));
+
+      userPrompt = `New Target Article Title: ${targetTitle}
+New Target Article Slug: ${targetSlug}
+Target Article Path: ${targetPath}
+
+Candidate Source Articles to inject link INTO:
+${JSON.stringify(candidateSummary, null, 2)}
+
+Instructions:
+Generate inbound callout card suggestions for each source article.
+Return ONLY a JSON object formatted as:
+{
+  "suggestions": [
+    {
+      "id": "inbound-1",
+      "sourceSlug": "lovable-alternatives",
+      "sourceTitle": "6 Best Lovable Alternatives in 2026",
+      "sourceContentType": "alternatives",
+      "targetSlug": "${targetSlug}",
+      "targetTitle": "${targetTitle}",
+      "targetUrl": "${targetPath}",
+      "contextExcerpt": "exact phrase from candidate heading or paragraph",
+      "calloutMarkdown": "> 💡 **Related Guide:** If you are exploring dedicated AI coding agents beyond Lovable, read our full breakdown of [${targetTitle}](${targetPath}).",
+      "reason": "If you are exploring dedicated AI coding agents beyond Lovable,"
     }
   ]
 }`;

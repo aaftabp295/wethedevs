@@ -14,6 +14,20 @@ export type InternalLinkSuggestion = {
   status: 'pending' | 'accepted' | 'rejected';
 };
 
+export type InboundLinkSuggestion = {
+  id: string;
+  sourceSlug: string;
+  sourceTitle: string;
+  sourceContentType: string;
+  targetSlug: string;
+  targetTitle: string;
+  targetUrl: string;
+  contextExcerpt: string;
+  calloutMarkdown: string;
+  reason: string;
+  status: 'pending' | 'injected' | 'rejected';
+};
+
 export type ExternalLinkSuggestion = {
   id: string;
   anchorText: string;
@@ -56,7 +70,14 @@ export type AuditReport = {
   summary: string;
 };
 
-export type AiSeoAction = 'internal-links' | 'external-links' | 'schema' | 'meta-tags' | 'audit' | 'validate-key';
+export type AiSeoAction =
+  | 'internal-links'
+  | 'inbound-links'
+  | 'external-links'
+  | 'schema'
+  | 'meta-tags'
+  | 'audit'
+  | 'validate-key';
 
 export type AiSeoRequestBody = {
   action: AiSeoAction;
