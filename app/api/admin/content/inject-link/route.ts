@@ -3,7 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { generateManifest } from '@/scripts/generate-manifest';
 import { commitAndPushContent } from '@/lib/publishing/git';
-import { getFileFromGitHub, updateFileOnGitHub } from '@/lib/publishing/github-api';
+import { getFileFromGitHub } from '@/lib/publishing/github-api';
+import { commitMultipleFilesToGitHub, FileChange } from '@/lib/publishing/github';
 
 export type InjectItem = {
   sourceSlug: string;
@@ -114,7 +115,7 @@ export async function POST(request: Request) {
     const results: Array<{ sourceSlug: string; success: boolean; alreadyPresent?: boolean; message?: string }> = [];
 
     if (isServerless) {
-      // MODE 1: Serverless Production (GitHub REST API)
+      // MODE 1: Serverless Production (Atomic 1-Commit GitHub REST API)
       if (!githubToken) {
         return NextResponse.json(
           {
@@ -125,10 +126,12 @@ export async function POST(request: Request) {
         );
       }
 
+      const pendingChanges: FileChange[] = [];
+
       for (const item of itemsToProcess) {
         const relativePath = `content/${item.sourceContentType}/${item.sourceSlug}/article.mdx`;
         try {
-          const { content: currentMdx, sha } = await getFileFromGitHub(relativePath, githubToken);
+          const { content: currentMdx } = await getFileFromGitHub(relativePath, githubToken);
           const { updatedContent, alreadyPresent } = injectCalloutIntoMdxText(
             currentMdx,
             item.calloutMarkdown,
@@ -140,20 +143,34 @@ export async function POST(request: Request) {
             continue;
           }
 
-          const commitMsg = `feat(seo): inject inbound link callout into ${item.sourceSlug}`;
-          await updateFileOnGitHub(relativePath, updatedContent, commitMsg, sha, githubToken);
+          pendingChanges.push({
+            path: relativePath,
+            content: updatedContent,
+          });
           results.push({ sourceSlug: item.sourceSlug, success: true });
         } catch (err: unknown) {
-          const msg = err instanceof Error ? err.message : 'GitHub API error';
+          const msg = err instanceof Error ? err.message : 'GitHub API fetch error';
           results.push({ sourceSlug: item.sourceSlug, success: false, message: msg });
         }
       }
 
+      // Commit ALL modified files in 1 SINGLE ATOMIC GIT COMMIT -> Triggers EXACTLY 1 Vercel Deployment!
+      let atomicCommitResult = null;
+      if (pendingChanges.length > 0 && !skipPush) {
+        const slugList = pendingChanges.map((c) => c.path.split('/')[2]).join(', ');
+        atomicCommitResult = await commitMultipleFilesToGitHub({
+          changes: pendingChanges,
+          message: `feat(seo): batch inject inbound link callouts into ${slugList}`,
+          tokenOverride: githubToken,
+        });
+      }
+
       return NextResponse.json({
         success: true,
-        mode: 'github-api',
+        mode: 'github-api-atomic',
         processedCount: itemsToProcess.length,
         results,
+        git: atomicCommitResult,
       });
     } else {
       // MODE 2: Local Development (Local Filesystem + Git)

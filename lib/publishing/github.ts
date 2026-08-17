@@ -12,11 +12,22 @@ interface GitHubFileCommitOptions {
   path: string; // e.g. 'content/alternatives/lovable-alternatives/article.mdx'
   content: string; // Plain text or file content
   message: string; // Commit message
+  token?: string;
 }
 
-function getGitHubConfig() {
-  const token = (process.env.GITHUB_TOKEN || process.env.GITHUB_PAT)?.trim();
-  const repo = process.env.GITHUB_REPO?.trim();
+function getGitHubConfig(tokenOverride?: string) {
+  const token = (
+    tokenOverride ||
+    process.env.GITHUB_TOKEN ||
+    process.env.GITHUB_PAT ||
+    process.env.GH_TOKEN ||
+    process.env.NEXT_PUBLIC_GITHUB_TOKEN
+  )?.trim();
+  const repo = (
+    process.env.GITHUB_REPO ||
+    process.env.NEXT_PUBLIC_GITHUB_REPO ||
+    'aaftabp295/wethedevs'
+  ).trim();
   const branch = (process.env.GITHUB_BRANCH || 'main').trim();
 
   return { token, repo, branch };
@@ -28,8 +39,8 @@ export function isGitHubApiConfigured(): boolean {
 }
 
 /** Get existing file SHA from GitHub repo (required by GitHub API for single file updates) */
-async function getFileSha(path: string): Promise<string | undefined> {
-  const { token, repo, branch } = getGitHubConfig();
+async function getFileSha(path: string, tokenOverride?: string): Promise<string | undefined> {
+  const { token, repo, branch } = getGitHubConfig(tokenOverride);
   if (!token || !repo) return undefined;
 
   try {
@@ -55,9 +66,10 @@ async function getFileSha(path: string): Promise<string | undefined> {
 
 /** Fetch a file's raw text content from GitHub repo */
 export async function getFileContentFromGitHub(
-  filePath: string
+  filePath: string,
+  tokenOverride?: string
 ): Promise<string | null> {
-  const { token, repo, branch } = getGitHubConfig();
+  const { token, repo, branch } = getGitHubConfig(tokenOverride);
   if (!token || !repo) return null;
 
   try {
@@ -90,11 +102,13 @@ export async function getFileContentFromGitHub(
 export async function commitMultipleFilesToGitHub({
   changes,
   message,
+  tokenOverride,
 }: {
   changes: FileChange[];
   message: string;
+  tokenOverride?: string;
 }): Promise<{ success: boolean; commitHash?: string; error?: string }> {
-  const { token, repo, branch } = getGitHubConfig();
+  const { token, repo, branch } = getGitHubConfig(tokenOverride);
   if (!token || !repo) {
     return { success: false, error: 'GITHUB_TOKEN or GITHUB_REPO not configured in environment' };
   }
@@ -109,6 +123,7 @@ export async function commitMultipleFilesToGitHub({
       path: changes[0].path,
       content: changes[0].content,
       message,
+      token: tokenOverride,
     });
   }
 
@@ -234,14 +249,15 @@ export async function commitFileToGitHub({
   path,
   content,
   message,
+  token: tokenOverride,
 }: GitHubFileCommitOptions): Promise<{ success: boolean; commitHash?: string; error?: string }> {
-  const { token, repo, branch } = getGitHubConfig();
+  const { token, repo, branch } = getGitHubConfig(tokenOverride);
   if (!token || !repo) {
     return { success: false, error: 'GITHUB_TOKEN or GITHUB_REPO not configured in environment' };
   }
 
   try {
-    const sha = await getFileSha(path);
+    const sha = await getFileSha(path, tokenOverride);
     const encodedContent = Buffer.from(content, 'utf-8').toString('base64');
 
     const url = `https://api.github.com/repos/${repo}/contents/${path}`;
@@ -287,15 +303,16 @@ export async function commitFileToGitHub({
 /** Delete a file directly in GitHub repository via GitHub REST API */
 export async function deleteFileFromGitHub(
   path: string,
-  message: string
+  message: string,
+  tokenOverride?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const { token, repo, branch } = getGitHubConfig();
+  const { token, repo, branch } = getGitHubConfig(tokenOverride);
   if (!token || !repo) {
     return { success: false, error: 'GITHUB_TOKEN or GITHUB_REPO not configured in environment' };
   }
 
   try {
-    const sha = await getFileSha(path);
+    const sha = await getFileSha(path, tokenOverride);
     if (!sha) {
       return { success: true }; // File already doesn't exist
     }
