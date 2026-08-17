@@ -29,6 +29,7 @@ import { Send, Settings2, FileText, Maximize2, Minimize2, Image as ImageIcon, Fi
 import { useRouter } from 'next/navigation';
 
 import { mdxToEditorHtml } from '@/lib/publishing/serializer';
+import manifestData from '@/content-index.json';
 
 interface EditorComponentProps {
   initialContent?: string;
@@ -43,6 +44,7 @@ export function EditorComponent({
   articleSlug,
 }: EditorComponentProps) {
   const router = useRouter();
+  const siteManifest = React.useMemo(() => (manifestData?.articles || []) as ManifestEntry[], []);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [linkPickerOpen, setLinkPickerOpen] = React.useState(false);
   const [imagePickerOpen, setImagePickerOpen] = React.useState(false);
@@ -479,6 +481,7 @@ export function EditorComponent({
             setPublishState((prev) => ({ ...prev, ...updates }));
             setIsDirty(true);
           }}
+          manifest={siteManifest}
         />
       </div>
     );
@@ -639,40 +642,58 @@ export function EditorComponent({
         />
       </div>
 
-      {/* Main Grid Layout: Write | Split | Preview */}
-      {viewMode === 'preview' ? (
-        <div className="pt-2">
-          <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
-          {/* Editor Body */}
-          <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-12'}>
-            <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-6 sm:p-10 shadow-xs transition-shadow hover:shadow-md">
-              <EditorBubbleMenu
-                editor={editor}
-                onOpenLinkPicker={() => setLinkPickerOpen(true)}
-              />
-
-              <EditorFloatingMenu
-                editor={editor}
-                onOpenImagePicker={() => setImagePickerOpen(true)}
-              />
-
-              <div className="prose prose-neutral dark:prose-invert max-w-none focus:outline-none leading-relaxed">
-                <EditorContent editor={editor} />
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Sticky Split Preview Pane (Only in Split View) */}
-          {viewMode === 'split' && (
-            <div className="lg:col-span-6 sticky top-[7.5rem] self-start max-h-[calc(100vh-8.5rem)] overflow-hidden">
+      {/* Main Container: Flex Side-by-Side (Editor Canvas + Inline AI SEO Side Panel) */}
+      <div className="flex items-start gap-6 w-full">
+        <div className="flex-1 min-w-0">
+          {/* Main Grid Layout: Write | Split | Preview */}
+          {viewMode === 'preview' ? (
+            <div className="pt-2">
               <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
+              {/* Editor Body */}
+              <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-12'}>
+                <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-6 sm:p-10 shadow-xs transition-shadow hover:shadow-md">
+                  <EditorBubbleMenu
+                    editor={editor}
+                    onOpenLinkPicker={() => setLinkPickerOpen(true)}
+                  />
+
+                  <EditorFloatingMenu
+                    editor={editor}
+                    onOpenImagePicker={() => setImagePickerOpen(true)}
+                  />
+
+                  <div className="prose prose-neutral dark:prose-invert max-w-none focus:outline-none leading-relaxed">
+                    <EditorContent editor={editor} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Sticky Split Preview Pane (Only in Split View) */}
+              {viewMode === 'split' && (
+                <div className="lg:col-span-6 sticky top-[7.5rem] self-start max-h-[calc(100vh-8.5rem)] overflow-hidden">
+                  <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
+
+        {/* AI SEO Assistant Side Panel */}
+        <AiSeoPanel
+          open={aiSeoPanelOpen}
+          onOpenChange={setAiSeoPanelOpen}
+          editor={editor}
+          publishState={publishState}
+          onPublishStateChange={(updates) => {
+            setPublishState((prev) => ({ ...prev, ...updates }));
+            setIsDirty(true);
+          }}
+          manifest={siteManifest}
+        />
+      </div>
 
       {/* Link Picker Modal */}
       <LinkPicker
@@ -711,18 +732,6 @@ export function EditorComponent({
         }}
         onPublish={handlePublish}
         isPublishing={isPublishing}
-      />
-
-      {/* AI SEO Assistant Modal */}
-      <AiSeoPanel
-        open={aiSeoPanelOpen}
-        onOpenChange={setAiSeoPanelOpen}
-        editor={editor}
-        publishState={publishState}
-        onPublishStateChange={(updates) => {
-          setPublishState((prev) => ({ ...prev, ...updates }));
-          setIsDirty(true);
-        }}
       />
     </div>
   );

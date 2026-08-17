@@ -213,6 +213,7 @@ export function useAiSeo() {
     []
   );
 
+  // Individual item injection (skips git push so user can batch deploy later)
   const injectInboundLink = React.useCallback(
     async (item: InboundLinkSuggestion) => {
       try {
@@ -224,6 +225,7 @@ export function useAiSeo() {
             sourceContentType: item.sourceContentType,
             calloutMarkdown: item.calloutMarkdown,
             contextExcerpt: item.contextExcerpt,
+            skipPush: true,
           }),
         });
 
@@ -241,6 +243,42 @@ export function useAiSeo() {
       }
     },
     [updateInboundLinkStatus]
+  );
+
+  // Batch injection of all candidate items (triggers 1 single git push & 1 single deployment)
+  const injectBatchInboundLinks = React.useCallback(
+    async (itemsToInject: InboundLinkSuggestion[]) => {
+      if (itemsToInject.length === 0) return true;
+      try {
+        const payload = itemsToInject.map((item) => ({
+          sourceSlug: item.sourceSlug,
+          sourceContentType: item.sourceContentType,
+          calloutMarkdown: item.calloutMarkdown,
+          contextExcerpt: item.contextExcerpt,
+        }));
+
+        const res = await fetch('/api/admin/content/inject-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: payload }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setInboundLinks((prev) =>
+            prev.map((item) => ({ ...item, status: 'injected' }))
+          );
+          return true;
+        } else {
+          throw new Error(data.error || 'Failed to batch inject links');
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Batch injection failed';
+        setError(msg);
+        return false;
+      }
+    },
+    []
   );
 
   return {
@@ -267,5 +305,6 @@ export function useAiSeo() {
     updateInboundLinkStatus,
     updateExternalLinkStatus,
     injectInboundLink,
+    injectBatchInboundLinks,
   };
 }

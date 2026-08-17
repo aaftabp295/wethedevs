@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: 'Gemini API key is required. Please provide it in settings.' },
+        { error: 'Gemini API key is required. Please save your API key in the panel.' },
         { status: 401 }
       );
     }
@@ -200,14 +200,17 @@ Identify technical concepts, frameworks, open-source libraries, or official spec
 EDITORIAL EXTERNAL LINKING PATTERNS:
 1. Prefer high-trust official documentation & developer domains (e.g. developer.mozilla.org, docs.github.com, react.dev, nextjs.org, stackblitz.com, schema.org, standard.go).
 2. Anchor text MUST be specific technical entities or tool names present in the text (e.g. "StackBlitz's WebContainers", "Shadow DOM", "OpenGraph protocol", "Tailwind CSS").
-3. Set "nofollow": true only if linking to unverified third-party commercial tools; set "nofollow": false for official documentation and open-source standards.`;
+3. Set "nofollow": true only if linking to unverified third-party commercial tools; set "nofollow": false for official documentation and open-source standards.
+4. CRITICAL CONTENT-AWARE RULE: Inspect the article HTML carefully. Identify all text phrases that are ALREADY wrapped inside <a> tags or already have hyperlinks.
+   - NEVER suggest external links on anchor words, phrases, or technical entities that ALREADY have a hyperlink in the article HTML.
+   - Only suggest anchor phrases that are currently unlinked plain text.`;
 
       userPrompt = `Article Title: ${publishState?.title || ''}
 Content HTML:
 ${articleHtml || ''}
 
 Instructions:
-Identify 2 to 4 high-authority external reference opportunities.
+Identify 2 to 4 high-authority external reference opportunities on UNLINKED terms only.
 Return ONLY a JSON object formatted as:
 {
   "suggestions": [
@@ -353,6 +356,26 @@ Return ONLY a JSON object formatted as:
       parsed = JSON.parse(jsonText);
     } catch {
       throw new Error('Failed to parse Gemini API JSON response');
+    }
+
+    // Server-side filtering of already-linked anchor texts for external-links
+    if (action === 'external-links' && parsed && typeof parsed === 'object' && 'suggestions' in parsed) {
+      const existingLinkTexts: string[] = [];
+      const linkRegex = /<a\b[^>]*>(.*?)<\/a>/gi;
+      let match: RegExpExecArray | null;
+      while ((match = linkRegex.exec(articleHtml)) !== null) {
+        if (match[1]) {
+          existingLinkTexts.push(match[1].replace(/<[^>]+>/g, '').toLowerCase().trim());
+        }
+      }
+
+      const suggestions = (parsed as { suggestions: Array<{ anchorText: string }> }).suggestions || [];
+      const filtered = suggestions.filter((item) => {
+        const lower = (item.anchorText || '').toLowerCase().trim();
+        return !existingLinkTexts.some((existing) => existing.includes(lower) || lower.includes(existing));
+      });
+
+      parsed = { suggestions: filtered };
     }
 
     return NextResponse.json({ success: true, data: parsed });
