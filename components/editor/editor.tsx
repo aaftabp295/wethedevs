@@ -17,7 +17,6 @@ import { EditorBubbleMenu } from './bubble-menu';
 import { EditorFloatingMenu } from './floating-menu';
 import { LinkPicker } from './link-picker';
 import { ImagePicker } from './image-picker';
-import { FAQBuilderModal, FAQItemData } from './faq-builder';
 import { PublishSidebar } from './publish-sidebar';
 import { LivePreviewPane } from './live-preview-pane';
 import { Button } from '@/components/ui/button';
@@ -25,14 +24,14 @@ import { useAutosave } from '@/hooks/use-autosave';
 import { calculateReadingTime } from '@/lib/content/reading-time';
 import { PublishSidebarState } from '@/types/editor';
 import { ManifestEntry } from '@/types/content';
-import { Send, Settings2, Clock, FileText, CheckCircle2, Maximize2, Minimize2, Image as ImageIcon, FileEdit, Eye, Columns, PenTool, HelpCircle } from 'lucide-react';
+import { AiSeoPanel } from './ai-seo-panel';
+import { Send, Settings2, FileText, Maximize2, Minimize2, Image as ImageIcon, FileEdit, Eye, Columns, PenTool, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { mdxToEditorHtml, extractFaqsFromMdx } from '@/lib/publishing/serializer';
+import { mdxToEditorHtml } from '@/lib/publishing/serializer';
 
 interface EditorComponentProps {
   initialContent?: string;
-  /** Raw MDX source for reliable FAQ extraction (before TipTap conversion) */
   initialRawMdx?: string;
   initialPublishState?: Partial<PublishSidebarState>;
   articleSlug?: string;
@@ -40,7 +39,6 @@ interface EditorComponentProps {
 
 export function EditorComponent({
   initialContent = '',
-  initialRawMdx = '',
   initialPublishState = {},
   articleSlug,
 }: EditorComponentProps) {
@@ -49,6 +47,7 @@ export function EditorComponent({
   const [linkPickerOpen, setLinkPickerOpen] = React.useState(false);
   const [imagePickerOpen, setImagePickerOpen] = React.useState(false);
   const [publishSidebarOpen, setPublishSidebarOpen] = React.useState(false);
+  const [aiSeoPanelOpen, setAiSeoPanelOpen] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
 
   const [publishState, setPublishState] = React.useState<PublishSidebarState>({
@@ -70,11 +69,6 @@ export function EditorComponent({
 
   const [stats, setStats] = React.useState({ words: 0, minutes: 1 });
   const [isDirty, setIsDirty] = React.useState(false);
-  const [faqBuilderOpen, setFaqBuilderOpen] = React.useState(false);
-  const [articleFaqs, setArticleFaqs] = React.useState<FAQItemData[]>(() => {
-    // Prefer raw MDX source for FAQ extraction since it's pre-TipTap and preserves <FAQItem /> tags
-    return extractFaqsFromMdx(initialRawMdx || initialContent || '');
-  });
 
   // Convert raw MDX string to Editor-friendly HTML
   const formattedInitialContent = React.useMemo(() => {
@@ -183,33 +177,6 @@ export function EditorComponent({
     editor.chain().focus().extendMarkRange('link').unsetLink().run();
   }, [editor]);
 
-  const handleSaveFaqs = React.useCallback(
-    (updatedFaqs: FAQItemData[]) => {
-      setArticleFaqs(updatedFaqs);
-      setIsDirty(true);
-
-      if (!editor) return;
-
-      const currentHtml = editor.getHTML();
-      const cleanHtml = currentHtml
-        .replace(/<details[^>]*>[\s\S]*?<\/details>/gi, '')
-        .replace(/<h2[^>]*>[\s\S]*?(?:FAQ|Frequently Asked Questions)[\s\S]*?<\/h2>/gi, '')
-        .trim();
-
-      if (updatedFaqs.length === 0) {
-        editor.commands.setContent(cleanHtml);
-        return;
-      }
-
-      const faqHtmlList = updatedFaqs.map(
-        (f) => `<details><summary>${f.question}</summary><p>${f.answer}</p></details>`
-      );
-      const faqSectionHtml = `<h2 id="frequently-asked-questions">Frequently asked questions</h2>${faqHtmlList.join('')}`;
-      editor.commands.setContent(`${cleanHtml}\n\n${faqSectionHtml}`);
-    },
-    [editor]
-  );
-
   const handleInsertImage = React.useCallback(
     ({ url, alt, title }: { url: string; alt: string; title?: string }) => {
       if (!editor) return;
@@ -238,7 +205,6 @@ export function EditorComponent({
         draft: isDraft,
         oldSlug: articleSlug || undefined,
         contentHtml: editor?.getHTML() || '',
-        faqs: articleFaqs.filter((f) => f.question.trim() && f.answer.trim()),
       };
 
       const res = await fetch('/api/publish', {
@@ -351,17 +317,12 @@ export function EditorComponent({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setFaqBuilderOpen(true)}
-              className="gap-1.5 text-xs font-medium h-8 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
-              title="Build & Manage Structured FAQs"
+              onClick={() => setAiSeoPanelOpen(true)}
+              className="gap-1.5 text-xs font-medium h-8 border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10"
+              title="AI SEO Assistant"
             >
-              <HelpCircle className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">FAQ Builder</span>
-              {articleFaqs.length > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
-                  {articleFaqs.length}
-                </span>
-              )}
+              <Sparkles className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">AI SEO</span>
             </Button>
 
             <Button
@@ -448,7 +409,7 @@ export function EditorComponent({
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 pt-2">
               {/* Editor Body */}
               <div className={viewMode === 'split' ? 'lg:col-span-6' : 'lg:col-span-12'}>
-                <div className="relative min-h-[550px] rounded-xl border border-border/50 bg-card p-6 sm:p-10 shadow-xs transition-shadow hover:shadow-md">
+                <div className="relative min-h-[600px] rounded-xl border border-border/50 bg-card p-6 sm:p-10 shadow-xs transition-shadow hover:shadow-md">
                   <EditorBubbleMenu
                     editor={editor}
                     onOpenLinkPicker={() => setLinkPickerOpen(true)}
@@ -465,9 +426,9 @@ export function EditorComponent({
                 </div>
               </div>
 
-              {/* Right Column: Split Preview Pane (Only in Split View) */}
+              {/* Right Column: Sticky Split Preview Pane */}
               {viewMode === 'split' && (
-                <div className="lg:col-span-6 sticky top-4 self-start max-h-[calc(100vh-6rem)] overflow-hidden">
+                <div className="lg:col-span-6 sticky top-4 self-start max-h-[calc(100vh-8.5rem)] overflow-hidden">
                   <LivePreviewPane publishState={publishState} editorHtml={editor?.getHTML() || ''} />
                 </div>
               )}
@@ -475,7 +436,7 @@ export function EditorComponent({
           )}
         </div>
 
-        {/* Modals & Sidebar */}
+        {/* Modals & Slide-overs in Fullscreen */}
         <LinkPicker
           open={linkPickerOpen}
           onOpenChange={setLinkPickerOpen}
@@ -498,12 +459,6 @@ export function EditorComponent({
           onInsertImage={handleInsertImage}
           articleSlug={publishState.slug || articleSlug}
         />
-        <FAQBuilderModal
-          open={faqBuilderOpen}
-          onOpenChange={setFaqBuilderOpen}
-          faqs={articleFaqs}
-          onSaveFaqs={handleSaveFaqs}
-        />
         <PublishSidebar
           open={publishSidebarOpen}
           onOpenChange={setPublishSidebarOpen}
@@ -514,6 +469,16 @@ export function EditorComponent({
           }}
           onPublish={handlePublish}
           isPublishing={isPublishing}
+        />
+        <AiSeoPanel
+          open={aiSeoPanelOpen}
+          onOpenChange={setAiSeoPanelOpen}
+          editor={editor}
+          publishState={publishState}
+          onPublishStateChange={(newState) => {
+            setPublishState(newState);
+            setIsDirty(true);
+          }}
         />
       </div>
     );
@@ -593,17 +558,12 @@ export function EditorComponent({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setFaqBuilderOpen(true)}
-            className="gap-1.5 text-xs font-medium h-8 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
-            title="Build & Manage Structured FAQs"
+            onClick={() => setAiSeoPanelOpen(true)}
+            className="gap-1.5 text-xs font-medium h-8 border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10"
+            title="AI SEO Assistant"
           >
-            <HelpCircle className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">FAQ Builder</span>
-            {articleFaqs.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-[10px] font-bold">
-                {articleFaqs.length}
-              </span>
-            )}
+            <Sparkles className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">AI SEO</span>
           </Button>
 
           <Button
@@ -740,14 +700,6 @@ export function EditorComponent({
         articleSlug={publishState.slug || articleSlug}
       />
 
-      {/* Article FAQ Builder Modal */}
-      <FAQBuilderModal
-        open={faqBuilderOpen}
-        onOpenChange={setFaqBuilderOpen}
-        faqs={articleFaqs}
-        onSaveFaqs={handleSaveFaqs}
-      />
-
       {/* Publish Sidebar Settings Panel */}
       <PublishSidebar
         open={publishSidebarOpen}
@@ -759,6 +711,18 @@ export function EditorComponent({
         }}
         onPublish={handlePublish}
         isPublishing={isPublishing}
+      />
+
+      {/* AI SEO Assistant Modal */}
+      <AiSeoPanel
+        open={aiSeoPanelOpen}
+        onOpenChange={setAiSeoPanelOpen}
+        editor={editor}
+        publishState={publishState}
+        onPublishStateChange={(newState) => {
+          setPublishState(newState);
+          setIsDirty(true);
+        }}
       />
     </div>
   );
